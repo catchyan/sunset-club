@@ -58,7 +58,7 @@
  docs/03-process/cadence.md                         | 180 ------
  docs/03-process/framework.md                       | 451 --------------
  docs/03-process/gates.md                           | 226 -------
- docs/03-process/ownership.md                       | 196 +++---
+ docs/03-process/ownership.md                       | 197 +++---
  docs/03-process/roles.md                           | 550 ----------------
  docs/03-process/staffing.md                        | 105 ++++
  docs/04-plan/roadmap.md                            | 430 +++++++------
@@ -137,13 +137,13 @@
  docs/_studio/tools/lock.mjs                        | 129 ++++
  evidence/.gitkeep                                  |   0
  evidence/T-000/command.txt                         |   5 +
- evidence/T-000/diff-stat.txt                       |  67 ++
+ evidence/T-000/diff-stat.txt                       | 149 +++++
  evidence/T-000/env.txt                             |   1 +
  evidence/T-000/output.txt                          |  33 +
  tools/gates/envelope-check.mjs                     | 146 -----
  tools/gates/lane-check.mjs                         | 135 ----
  tools/gates/lane-check.test.mjs                    |  64 --
- tools/gates/ownership.test.mjs                     | 110 ++++
+ tools/gates/ownership.test.mjs                     | 114 ++++
  tools/gates/selfcheck.mjs                          |  75 ---
  tools/studio-sync.mjs                              | 188 ++++++
- 148 files changed, 7137 insertions(+), 7974 deletions(-)
+ 148 files changed, 7224 insertions(+), 7974 deletions(-)
