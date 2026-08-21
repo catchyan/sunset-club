@@ -22,8 +22,9 @@ const CASES = [
   // 人类保留
   ['docs/00-charter/vision.md', '人类'],
   // ★ 制度镜像必须锁死。这是双仓设计的支点，坏了整套就散了
-  ['docs/_studio/docs/00-charter/constitution.md', '人类'],
-  ['docs/_studio/tools/gates/lane-check.mjs', '人类'],
+  ['docs/_studio/docs/00-charter/constitution.md', '框架'],
+  ['docs/_studio/tools/gates/lane-check.mjs', '框架'],
+  ['.gitattributes', 'O1'],
 
   ['docs/00-charter/glossary.md', 'S1'],
   ['docs/03-process/ownership.md', 'A1'],

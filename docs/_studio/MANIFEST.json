@@ -1,6 +1,6 @@
 {
-  "version": "v1.0.2",
-  "commit": "0a78e166da643ce386c121ce8fbef5535c460665",
+  "version": "v1.0.3",
+  "commit": "b1866ebe89055636e163ba01682e139b598eede3",
   "mountedAt": "2026-08-21",
   "files": {
     "docs/00-charter/constitution.md": "c3093c6f1de470eb2a4c1a29101d301e20a5a57e6bd288b7f355b0401196ffae",
@@ -10,7 +10,7 @@
     "docs/01-framework/framework.md": "ea3f35463b88649e8e36a6f3aab85219a252db5029bbc3c00741e7c184d07f80",
     "docs/02-roles/roles.md": "3841507c9561d4bdd94339bb63ec39d77f33b132590e840b926eeb28c0e2fb02",
     "docs/03-gates/gates.md": "4060ec052e38b873e10b49fb0e3c6347489d94b7666b7b91d97c3a2adcb40319",
-    "docs/03-gates/ownership-schema.md": "b3ceafd7dc016628803e0b4e460f461b8b6b03bc87803f2d7e6086fd01c8e8de",
+    "docs/03-gates/ownership-schema.md": "5367e471938f60ffbe194f998b8568d73bec56b805372cf929048011ff9c6492",
     "docs/04-grokbot/bot-profiles.md": "1de89457e70a5c517fdbe75f36e93892db3b7bad9fec293a694daca12b836d26",
     "docs/04-grokbot/routines.md": "79de0ef6a6f072c12e62bc47b8bdf1d14d0fcdf4f94de352bdcdad74eb4e7e57",
     "docs/04-grokbot/setup.md": "9e9c5605a2258b7d3bbeef7c02ce8e26307870823783f9f382a3e00ccbfec309",
@@ -47,8 +47,8 @@
     "templates/board/tasks/TEMPLATE.md": "6780590cf3804445878ac1176a3ea84dfadc71378504dcf9955a53dabf712f63",
     "templates/board/trust-ledger.md": "85776b85dda2ace07574157b2b82b1beef5037de67d5eb31411d65398ce57fe2",
     "tools/gates/envelope-check.mjs": "c4f7c61f522ddd9686a7d59432edbf28077111c7049dbca57c4cd2320cd246bc",
-    "tools/gates/lane-check.mjs": "bb3f828382344ec2f1e58c908a4563032967af689e4b20d0dd25293a8c5db1f1",
-    "tools/gates/lane-check.test.mjs": "778c880b87b61958bf538c0e5e1585ff5f080a0add892a25f77bf7329847f0a1",
+    "tools/gates/lane-check.mjs": "48cda6f5b1e0d4da79ee120f51b0edc356f4791857717e5dd27f1e9d3878d2c2",
+    "tools/gates/lane-check.test.mjs": "29d6b0da4c7986a337220934e5b3e224aba819acbf204d41c5e382871cd9329f",
     "tools/gates/selfcheck.mjs": "2fc194d34e3e8161d6f07b35ceec817804ff191bbfe2d1aff5e7d5f61e6929e1"
   }
 }

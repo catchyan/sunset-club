@@ -93,9 +93,12 @@ jobs:
             echo "::error::愿景由人类保留。需要变更请提 ADR。"
             exit 1
           fi
-          if git diff --name-only origin/main...HEAD | grep -E '^docs/_studio/'; then
-            echo "::error::docs/_studio/ 是工作室框架的只读镜像。"
-            echo "想改制度：去 sunset-studio 提 PR → 发新版本 → 在本仓库升级 .studio-version。"
+          # 镜像可以变，但只能作为升级钉住版本的一部分。
+          # 内容是否真的等于那个版本由 G0 核对，这里只看改法。
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          if echo "$CHANGED" | grep -qE '^docs/_studio/' && ! echo "$CHANGED" | grep -qx '.studio-version'; then
+            echo "::error::改了 docs/_studio/ 但没有升级 .studio-version。"
+            echo "镜像不能就地改。想改制度：去 sunset-studio 提 PR → 发新版本 → 回本仓库重新挂载。"
             exit 1
           fi
 

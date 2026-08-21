@@ -12,7 +12,7 @@
 # ── 工作室框架只读镜像：任何 Bot 不得修改 ──
 # 制度的真相在 sunset-studio 仓库。想改，去那里提 PR、发版本，
 # 然后在本仓库升级 .studio-version。
-/docs/_studio/                      @HUMAN
+/docs/_studio/                      @HUMAN  # owner=框架：只能随 .studio-version 一起变
 /.studio-version                    @A1 @P0
 
 # ── 文档 ──

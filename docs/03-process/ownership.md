@@ -17,9 +17,10 @@
    ```
 4. 本表本身由 A1 维护；A1 修改本表需 P0 联署。
 5. 新增 Bot 或新增顶层目录时，**必须先更新本表**，再开工。
-6. `docs/_studio/**` 是工作室框架的只读镜像，owner 记为「人类」，意味着**任何 Bot 都不得修改**。
-   想改制度 → 去 sunset-studio 仓库提 PR → 发新版本 → 在本仓库升级 `.studio-version`。
-   就地改会被两道检查同时拦下（G5 车道 + `tools/studio-sync.mjs` 的逐字节校验）。
+6. `docs/_studio/**` 是工作室框架的只读镜像，owner 是特殊值「框架」：
+   **只能作为升级 `.studio-version` 的一部分整体地变。**
+   想改制度 → 去 sunset-studio 提 PR → 发新版本 → 回本仓库重新挂载。
+   两道闸门分工：G5 管改法对不对（有没有同时升版本），G0 管内容是否逐字节等于那个版本。
 
 ---
 
@@ -46,7 +47,7 @@
 | `docs/03-process/ownership.md` | A1 | 需 P0 联署 |
 | `docs/03-process/staffing.md` | P0 | 本项目的编制与题材边界 |
 | `docs/04-plan/**` | P0 | 里程碑定义变更需人类批准 |
-| `docs/_studio/**` | **人类** | 工作室框架只读镜像，任何 Bot 不得修改 |
+| `docs/_studio/**` | **框架** | 只读镜像。只能作为升级 `.studio-version` 的一部分整体地变 |
 | `.studio-version` | A1 | 升级框架版本，需 P0 联署 |
 | `packages/sim/**` | E1 | |
 | `packages/client/**` | E2 | |
@@ -83,6 +84,7 @@
 | `AGENTS.md` | P0 | |
 | `README.md` | P0 | |
 | `.gitignore` | O1 | |
+| `.gitattributes` | O1 | 含镜像的 `-text` 规则，改动会让 G0 失效 |
 | `board/sprint.md` | P0 | |
 | `board/tasks/**` | P0 | |
 | `board/daily-brief.md` | P0 | |
