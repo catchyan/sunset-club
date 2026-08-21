@@ -68,9 +68,21 @@ git switch -c lane/<CODE>/T-XXX
 # open the PR, request the reviewer named on the card
 ```
 
-The reviewer approves by commenting `APPROVED-BY: <their code>`. GitHub's approve button
-cannot be used: every agent drives one account, and an account may not approve its own pull
-request.
+The reviewer approves by submitting a review whose body reads `APPROVED-BY: <their code>`:
+
+```bash
+gh pr review <n> --comment --body "APPROVED-BY: <their code>"
+```
+
+A **review**, not a plain comment. Both are read, but only a review re-runs the gates, so a
+comment leaves the approval sitting where nothing will collect it. GitHub's approve button
+cannot be used either: every agent drives one account, and an account may not approve its own
+pull request.
+
+If the newest run is green and GitHub still refuses the merge, an older run on the same commit
+is still red — it started before the label or the review and kept a verdict that is no longer
+true. Protection counts all of them. List them with `gh run list --branch <branch>`, re-run
+each failure with `gh run rerun <id> --failed`, and do not reach for `--admin`.
 
 Recording something rather than building it — an andon pull, a blocker, a playtest, a
 dispatched card — goes on `board/<CODE>/<slug>` with a `chore(board):` commit. No card, no

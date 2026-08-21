@@ -1,0 +1,9 @@
+$ node tools/studio-sync.mjs --remote
+mirror gate · v3.0.2 · 54 file(s) · verified against upstream
+OK: the mirror matches the pinned version.
+EXIT_CODE=0
+
+$ node docs/_studio/tools/verify-protection.mjs
+protection · catchyan/sunset-club@main · required=[summary]
+OK: protection enforces the gates.
+EXIT_CODE=0

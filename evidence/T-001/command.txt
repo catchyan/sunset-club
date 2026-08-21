@@ -1,0 +1,2 @@
+node tools/studio-sync.mjs --remote
+node docs/_studio/tools/verify-protection.mjs

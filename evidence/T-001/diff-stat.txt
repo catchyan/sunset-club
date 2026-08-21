@@ -1,0 +1,13 @@
+ .studio-version                                   |  2 +-
+ AGENTS.md                                         | 18 +++++++++++++++---
+ docs/_studio/MANIFEST.json                        | 22 +++++++++++-----------
+ docs/_studio/README.md                            |  2 +-
+ docs/_studio/docs/00-charter/constitution.md      |  2 +-
+ docs/_studio/docs/03-gates/gates.md               | 21 +++++++++++++++++----
+ docs/_studio/docs/04-grokbot/setup.md             |  5 +++--
+ docs/_studio/docs/04-grokbot/skills/sop-review.md | 13 +++++++++++++
+ docs/_studio/docs/04-grokbot/skills/sop-task.md   |  5 +++--
+ docs/_studio/tools/gates/envelope-check.mjs       | 14 +++++++++++---
+ docs/_studio/tools/gates/lane-check.mjs           |  4 +++-
+ docs/_studio/tools/gates/selfcheck.mjs            | 13 +++++++++++--
+ 12 files changed, 90 insertions(+), 31 deletions(-)
