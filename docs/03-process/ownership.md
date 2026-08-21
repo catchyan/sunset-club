@@ -103,6 +103,7 @@ adding it here in the same pull request.
 | `board/playtests/**` | D1 | What felt wrong, written down while it still stings |
 | `board/ops/**` | O1 | Restore drills, incidents, and any manual change owed back to the bootstrap script |
 | `evidence/<TASK>/**` | TASK-AUTHOR | Expanded against the branch's task id |
+| `evidence/**` | Q1 | Fallback. Anything in here that is not a task's pack is the gatekeeper's |
 
 ## Root
 
