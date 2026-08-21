@@ -18,7 +18,7 @@
 
 *（最多 3 条。多于 3 条说明没有重点。）*
 
-1. 人类按 `docs/05-grokbot/setup.md` 步骤 3 创建 5 个 M0 Bot 并投喂 description。
+1. 人类按 `docs/_studio/docs/04-grokbot/setup.md` 步骤 3 创建 5 个 M0 Bot 并投喂 description。
 2. P0 拉起 O1 运维官，完成 T-002（`tools/bootstrap`），产出第一份真实的 `board/infra-health.md`。
 3. P0 派发 T-001（monorepo 骨架），验证任务信封 → 证据包 → 评审全链路。
 

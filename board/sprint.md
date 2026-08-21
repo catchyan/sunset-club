@@ -4,7 +4,8 @@
 
 - **当前里程碑**：M0 · 地基
 - **当前 Sprint**：W00（未开始）
-- **里程碑放行条件进度**：0 / 12
+- **里程碑放行条件进度**：0 / 13
+- **工作室框架版本**：见 `.studio-version`（当前 v1.0.1）
 - **安灯状态**：✅ 无
 - **活跃 Bot**：0 / 5（待创建）
 
@@ -41,6 +42,7 @@ TODO ──接单──> CLAIMED ──开工──> IN_PROGRESS ──开PR─�
 - [ ] **谎报**：故意伪造 evidence → 红队抽检在 24 小时内抓到并记入信任账本
 - [ ] **停摆**：故意让一个 Bot 6 小时不心跳 → 停摆检测标红且出现在日报
 - [ ] **文档矛盾**：故意制造两处矛盾规格 → 漂移检测在 24 小时内报出
+- [ ] **改制度**：故意在 `docs/_studio/` 里改一个字 → G0 与 G5 双双拒绝
 
 ### 基础设施
 - [ ] 连续 3 天 `daily-brief.md` 在 21:00 自动生成，人类读完 ≤5 分钟
@@ -60,13 +62,14 @@ TODO ──接单──> CLAIMED ──开工──> IN_PROGRESS ──开PR─�
 
 | 产物 | 说明 |
 |---|---|
-| `tools/gates/lane-check.mjs` | G5 车道闸门。直接解析所有权表，不另建配置 |
-| `tools/gates/lane-check.test.mjs` | **闸门的测试**。27 条归属断言，含"具体 glob 战胜宽泛 glob"等易错用例 |
-| `tools/gates/envelope-check.mjs` | G3 信封 + G4 小步 + 证据包完整性 + 不许自证 |
-| `tools/gates/selfcheck.mjs` | 死链、失效 SOP 引用、禁用术语 |
-| `.github/workflows/gates.yml` | CI 主流水线。纪律闸门第一天生效，代码闸门随 M1 接入 |
+| `docs/_studio/` | 工作室框架 v1.0.1 只读镜像：宪法、RELAY、岗位、闸门、17 份 SOP、通用闸门工具 |
+| `tools/studio-sync.mjs` | G0 制度镜像完整性。本地哈希 + 回源核对 tag，两层都实测抓到过篡改 |
+| `tools/gates/ownership.test.mjs` | **本项目车道表的断言**。33 条，含"具体 glob 战胜宽泛 glob"等易错用例 |
+| `docs/03-process/ownership.md` | 车道所有权表 |
+| `docs/03-process/staffing.md` | 本项目编制 + 填充框架里的题材/经济/调性占位 |
+| `.github/workflows/gates.yml` | CI 主流水线。G0 与纪律闸门第一天生效，代码闸门随 M1 接入 |
 | `.github/CODEOWNERS` | 文档作用；真正的强制在 CI |
-| `docs/`、`board/` 全套 | 宪章、框架、岗位、闸门、路线图、16 份 SOP、看板模板 |
+| 游戏规格全套 | 愿景、GDD、手感帧数据、经济、美术圣经、技术架构、契约、ADR、路线图 |
 
 ## Backlog（M0 待派）
 

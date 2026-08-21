@@ -2,7 +2,6 @@
 
 > 状态：ACTIVE v1.0 · 所有者：总架构师(A1)
 > 本表是 G5 车道闸门的唯一依据，也用于生成 `.github/CODEOWNERS`。
-> 表的**格式与规则**定义在工作室层 `docs/_studio/docs/03-gates/ownership-schema.md`；这里是本项目的**内容**。
 > **越界修改不看内容直接拒绝**（宪法第四条）。
 
 ---
@@ -17,9 +16,6 @@
    ```
 4. 本表本身由 A1 维护；A1 修改本表需 P0 联署。
 5. 新增 Bot 或新增顶层目录时，**必须先更新本表**，再开工。
-6. `docs/_studio/**` 是工作室框架的只读镜像，owner 记为「人类」，意味着**任何 Bot 都不得修改**。
-   想改制度 → 去 sunset-studio 仓库提 PR → 发新版本 → 在本仓库升级 `.studio-version`。
-   就地改会被两道检查同时拦下（G5 车道 + `tools/studio-sync.mjs` 的逐字节校验）。
 
 ---
 
@@ -27,8 +23,9 @@
 
 | 路径 glob | Owner | 备注 |
 |---|---|---|
+| `@studio/docs/00-charter/constitution.md` | **人类** | 任何 Bot 不得修改 |
 | `docs/00-charter/vision.md` | **人类** | 任何 Bot 不得修改 |
-| `docs/00-charter/glossary.md` | S1 | |
+| `@studio/docs/00-charter/glossary.md` | S1 | |
 | `docs/README.md` | S1 | |
 | `docs/01-game/gdd-core.md` | D1 | |
 | `docs/01-game/feel-spec.md` | D1 | 帧数据表变更需 CI 快照同步 |
@@ -43,11 +40,13 @@
 | `docs/02-tech/adr/INDEX.md` | S1 | 例外：索引由典藏官维护 |
 | `docs/02-tech/infra.md` | O1 | 例外 |
 | `docs/02-tech/backup.md` | O1 | 例外 |
-| `docs/03-process/ownership.md` | A1 | 需 P0 联署 |
-| `docs/03-process/staffing.md` | P0 | 本项目的编制与题材边界 |
+| `@studio/docs/01-framework/framework.md` | P0 | |
+| `@studio/docs/02-roles/roles.md` | P0 | |
+| `@studio/docs/01-framework/cadence.md` | P0 | |
+| `@studio/docs/03-gates/ownership-schema.md` | A1 | 需 P0 联署 |
+| `@studio/docs/03-gates/gates.md` | Q1 | |
 | `docs/04-plan/**` | P0 | 里程碑定义变更需人类批准 |
-| `docs/_studio/**` | **人类** | 工作室框架只读镜像，任何 Bot 不得修改 |
-| `.studio-version` | A1 | 升级框架版本，需 P0 联署 |
+| `docs/04-grokbot/**` | P0 | SOP 变更需 Q1 复核 + 人类批准 |
 | `packages/sim/**` | E1 | |
 | `packages/client/**` | E2 | |
 | `packages/client/src/render/**` | V1 | 例外：渲染管线归视觉总监 |
@@ -66,8 +65,7 @@
 | `assets/**`（其余） | V1 | |
 | `tools/art-lint/**` | V1 | |
 | `tools/asset-gen/**` | V1 | |
-| `tools/gates/**` | Q1 | 本项目专属闸门；通用闸门在镜像里 |
-| `tools/studio-sync.mjs` | Q1 | 校验框架镜像未被就地修改 |
+| `tools/gates/**` | Q1 | |
 | `tools/bootstrap/**` | O1 | |
 | `tools/lanes/**` | O1 | |
 | `tools/board/**` | P0 | |

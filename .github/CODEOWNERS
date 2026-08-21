@@ -1,14 +1,19 @@
 # 由 docs/03-process/ownership.md 生成。不要手工编辑这个文件——改所有权表。
 #
 # ⚠️ 重要：本项目的 Bot 共用人类的 GitHub 账号提交，因此 CODEOWNERS
-# 在这里主要起文档作用，**真正的强制来自 CI 的 tools/gates/lane-check.mjs**。
+# 在这里主要起文档作用，**真正的强制来自 CI 的 docs/_studio/tools/gates/lane-check.mjs**。
 # 这是刻意的：不要依赖我们控制不了的机制。
 #
 # 下面的 @owner 是 Bot 代号，不是 GitHub 用户名。
 
-# ── 宪章层：人类保留 ──
-/docs/00-charter/constitution.md    @HUMAN
+# ── 人类保留 ──
 /docs/00-charter/vision.md          @HUMAN
+
+# ── 工作室框架只读镜像：任何 Bot 不得修改 ──
+# 制度的真相在 sunset-studio 仓库。想改，去那里提 PR、发版本，
+# 然后在本仓库升级 .studio-version。
+/docs/_studio/                      @HUMAN
+/.studio-version                    @A1 @P0
 
 # ── 文档 ──
 /docs/00-charter/glossary.md        @S1
@@ -26,13 +31,9 @@
 /docs/02-tech/adr/INDEX.md          @S1
 /docs/02-tech/infra.md              @O1
 /docs/02-tech/backup.md             @O1
-/docs/03-process/framework.md       @P0
-/docs/03-process/roles.md           @P0
-/docs/03-process/cadence.md         @P0
 /docs/03-process/ownership.md       @A1 @P0
-/docs/03-process/gates.md           @Q1
+/docs/03-process/staffing.md        @P0
 /docs/04-plan/                      @P0
-/docs/05-grokbot/                   @P0
 
 # ── 代码 ──
 /packages/sim/                      @E1
@@ -56,6 +57,7 @@
 /tools/art-lint/                    @V1
 /tools/asset-gen/                   @V1
 /tools/gates/                       @Q1
+/tools/studio-sync.mjs              @Q1
 /tools/bootstrap/                   @O1
 /tools/lanes/                       @O1
 /tools/board/                       @P0

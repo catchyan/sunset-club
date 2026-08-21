@@ -25,11 +25,11 @@
 
 | 你是 | 从这里开始 |
 |---|---|
-| **一个 Agent** | [`AGENTS.md`](AGENTS.md) → 你的角色（`docs/03-process/roles.md`） |
+| **一个 Agent** | [`AGENTS.md`](AGENTS.md) → 你的角色（`docs/_studio/docs/02-roles/roles.md`） |
 | **人类制作人** | [`docs/04-plan/roadmap.md`](docs/04-plan/roadmap.md) → [`board/daily-brief.md`](board/daily-brief.md) |
 | **想了解游戏** | [`docs/00-charter/vision.md`](docs/00-charter/vision.md) → [`docs/01-game/gdd-core.md`](docs/01-game/gdd-core.md) |
-| **想了解协作框架** | [`docs/03-process/framework.md`](docs/03-process/framework.md) |
-| **想把这套东西跑起来** | [`docs/05-grokbot/setup.md`](docs/05-grokbot/setup.md) |
+| **想了解协作框架** | [sunset-studio](https://github.com/catchyan/sunset-studio) |
+| **想把这套东西跑起来** | `docs/_studio/docs/04-grokbot/setup.md` |
 
 ---
 
@@ -38,12 +38,12 @@
 ```
 ├─ AGENTS.md              # Agent 进入仓库的第一件事
 ├─ docs/
-│  ├─ 00-charter/         # 宪法、愿景、术语表 —— 效力最高
+│  ├─ _studio/            # ★ 工作室框架只读镜像（宪法/岗位/闸门/SOP）—— 不可修改
+│  ├─ 00-charter/         # 本作愿景与游戏术语
 │  ├─ 01-game/            # 玩法、手感规格、经济、美术、叙事
 │  ├─ 02-tech/            # 架构、契约、ADR、基础设施
-│  ├─ 03-process/         # ★ RELAY 协作框架、岗位、闸门、所有权、节奏
-│  ├─ 04-plan/            # 路线图与里程碑
-│  └─ 05-grokbot/         # ★ Grok Bot 落地手册、角色档案、SOP、Routines
+│  ├─ 03-process/         # 车道所有权表、本项目编制与题材边界
+│  └─ 04-plan/            # 路线图与里程碑
 ├─ board/                 # 看板：任务、心跳、日报、锁、信任账本
 ├─ evidence/              # 任务证据包
 ├─ packages/              # 代码（sim / client / server / protocol / content / econ-sim …）
@@ -70,7 +70,7 @@
 
 七种失效模式里，三种被做到"物理不可能"（CI 拦死），三种被限制在"最多损失几小时"，一种（品味）由人类兜底。
 
-完整设计与调研过程见 [`docs/03-process/framework.md`](docs/03-process/framework.md)。
+完整设计与调研过程见工作室仓库的 `docs/_studio/docs/01-framework/framework.md`（本地镜像：`docs/_studio/docs/01-framework/framework.md`）。
 
 ---
 
@@ -100,13 +100,15 @@
 | 经济 | 《梦幻西游》 | 产出少而回收多、单位时间产出有锚、账号即资产、用概率与版本把通胀无限拉长 |
 | 手感 | 《只狼》《暗黑破坏神2》 | 攻防节奏 + 清怪爽感 |
 | 画风 | PSX 时代 3D + 现代像素 | 低分辨率 RenderTarget + 调色板量化 + 顶点吸附 |
-| 协作 | MetaGPT / AgileCoder / Spec Kit / 丰田安灯 / 航空检查单 | 见 framework.md §1 的取舍表 |
+| 协作 | MetaGPT / AgileCoder / Spec Kit / 丰田安灯 / 航空检查单 | 见工作室 framework.md §1 的取舍表 |
 
 ---
 
 ## 状态
 
-🚧 **M0 · 地基** — 制度已定稿，等待 Grok Bot 编制上线。
+🚧 **M0 · 地基** — 制度已定稿并从本仓库分离，等待 Grok Bot 编制上线。
+
+工作室层同时处于 **S0 · 框架成型**，见 `docs/_studio/docs/05-studio/studio-roadmap.md`。
 
 ---
 

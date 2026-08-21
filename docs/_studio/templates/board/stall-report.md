@@ -1,6 +1,6 @@
 # 停摆巡检（Stall Report）
 
-> Owner: P0 总督 · 每 3 小时由 routine R2 生成 · 见 `docs/_studio/docs/04-grokbot/routines.md`
+> Owner: P0 总督 · 每 3 小时由 routine R2 生成 · 见 `@studio/docs/04-grokbot/routines.md`
 > **这是本框架对抗"Agent 静默失败"的主防线。**
 > 弱 Agent 最常见的失败不是做错，是**卡住之后什么都不说**。心跳让它必须说话，停摆巡检让"没说话"本身变成可见信号。
 

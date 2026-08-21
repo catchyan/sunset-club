@@ -1,7 +1,7 @@
 # AGENTS.md · 进入本仓库的第一件事
 
 > **任何 Agent 在对本仓库做任何操作之前，必须先读完这一页。**
-> 这一页是索引和红线。完整制度在 `docs/00-charter/constitution.md`。
+> 这一页是索引和红线。完整制度在只读镜像 `docs/_studio/`。
 
 ---
 
@@ -12,6 +12,24 @@
 身体在衰退，技艺还在。玩家无法靠肝赢，只能靠精、靠配合、靠传承。
 
 技术栈：TypeScript + Three.js + 权威服务器（Colyseus）+ Electron/Steam。
+
+## 两层结构 · 先搞清楚你在哪一层
+
+```
+sunset-studio         制度层。宪法、框架、岗位、闸门、SOP。跨项目
+      │ .studio-version 钉住 tag
+      ▼
+docs/_studio/         ← 只读镜像。你在这里读制度，但绝不能改
+本仓库其余部分         ← 项目层。游戏规格、代码、看板。你在这里工作
+```
+
+**`docs/_studio/` 是只读的。**
+
+想改制度 → 去 sunset-studio 仓库提 PR → 发新版本 → 在本仓库升级 `.studio-version`。
+就地改会被两道检查同时拦下：G5 车道闸门（owner 是「人类」）+ `tools/studio-sync.mjs` 的逐字节校验。
+
+> 为什么这么严：如果每个项目都能就地改制度，半年后各项目会有各自互不兼容的框架，
+> 工作室就不存在了。这不是形式主义，这是这套双仓设计唯一的支点。
 
 ---
 
@@ -28,15 +46,18 @@
 ## 十条红线（违反即为事故）
 
 1. **不在别人的车道里改文件。** 车道见 `docs/03-process/ownership.md`。越界的 PR 会被 CI 不看内容直接拒绝。
-2. **不在别人的 worktree 目录里操作。** 你只能在 `/workspace/lanes/<你的代号>-<名>/` 里工作。
-3. **不直接 push `main`。** 一切通过 PR。（例外：`board/locks.md` 的加解锁行）
-4. **不修改** `docs/00-charter/constitution.md`、`docs/00-charter/vision.md`、以及任何标记 `Status: FROZEN` 的契约文件。需要改 → 提 ADR。
-5. **不自评通过。** 你无权宣布自己的工作完成。验收由 CI + 另一个 Bot 判定。
-6. **不谎报。** 证据包里的输出必须是真实执行的。闸门官每天会在干净环境里重跑 20% 的已完成任务。
-7. **不静默。** 每 2 小时更新心跳。卡住 30 分钟内上报。同一问题失败 3 次必须停手写阻塞报告，严禁第 4 次。
-8. **不在聊天里下结论。** 没有落进 git 的决定视为不存在。
-9. **不用形容词交付规格。** "手感要好"不是规格，帧数据表才是。
-10. **发现下列情况必须拉安灯绳**：main CI 红 / 两份规格矛盾 / 冻结契约被违反 / 前面的工作建立在错误假设上。**拉错不罚，不拉才罚。**
+2. **不改 `docs/_studio/`。** 那是制度镜像，见上。
+3. **不在别人的 worktree 目录里操作。** 你只能在 `/workspace/lanes/<你的代号>-<名>/` 里工作。
+4. **不直接 push `main`。** 一切通过 PR。（例外：`board/locks.md` 的加解锁行）
+5. **不修改** `docs/00-charter/vision.md`、以及任何标记 `Status: FROZEN` 的契约文件。需要改 → 提 ADR。
+6. **不自评通过。** 你无权宣布自己的工作完成。验收由 CI + 另一个 Bot 判定。
+7. **不谎报。** 证据包里的输出必须是真实执行的。闸门官每天会在干净环境里重跑 20% 的已完成任务。
+8. **不静默。** 每 2 小时更新心跳。卡住 30 分钟内上报。同一问题失败 3 次必须停手写阻塞报告，严禁第 4 次。
+9. **不在聊天里下结论。** 没有落进 git 的决定视为不存在。
+10. **不用形容词交付规格。** "手感要好"不是规格，帧数据表才是。
+
+**发现下列情况必须拉安灯**：main CI 红 / 两份规格矛盾 / 冻结契约被违反 / 前面的工作建立在错误假设上。
+**拉错不罚，不拉才罚。**
 
 ---
 
@@ -70,17 +91,28 @@ git switch -c lane/<代号>/T-XXX
 
 ---
 
-## 文档地图（按你需要什么来查）
+## 文档地图
+
+### 制度（只读镜像，跨项目通用）
+
+| 我想知道 | 读这个 |
+|---|---|
+| 工作室为什么存在 | `docs/_studio/docs/00-charter/studio-charter.md` |
+| 不可协商的规矩 | `docs/_studio/docs/00-charter/constitution.md` |
+| 流程术语是什么意思 | `docs/_studio/docs/00-charter/glossary.md` |
+| 协作制度为什么这么设计 | `docs/_studio/docs/01-framework/framework.md` |
+| 我的岗位职责 | `docs/_studio/docs/02-roles/roles.md` |
+| 什么算通过 | `docs/_studio/docs/03-gates/gates.md` |
+| 怎么写任务/心跳/阻塞报告 | `docs/_studio/docs/04-grokbot/skills/` 或输入 `/sop-` |
+
+### 本项目
 
 | 我想知道 | 读这个 |
 |---|---|
 | 这游戏到底是什么 | `docs/00-charter/vision.md` |
-| 不可协商的规矩 | `docs/00-charter/constitution.md` |
-| 某个词是什么意思 | `docs/00-charter/glossary.md` |
-| 我的岗位职责 | `docs/03-process/roles.md` |
-| 协作制度为什么这么设计 | `docs/03-process/framework.md` |
+| 游戏术语 | `docs/00-charter/glossary.md` |
 | 我能改哪些文件 | `docs/03-process/ownership.md` |
-| 什么算通过 | `docs/03-process/gates.md` |
+| 本项目配了哪些岗、题材边界是什么 | `docs/03-process/staffing.md` |
 | 现在该做什么 | `board/sprint.md` + `board/tasks/T-XXX.md` |
 | 里程碑和放行条件 | `docs/04-plan/roadmap.md` |
 | 玩法怎么设计的 | `docs/01-game/gdd-core.md` |
@@ -88,7 +120,6 @@ git switch -c lane/<代号>/T-XXX
 | 经济系统 | `docs/01-game/gdd-economy.md` |
 | 技术架构 | `docs/02-tech/architecture.md` |
 | 为什么当初这么决定 | `docs/02-tech/adr/INDEX.md` |
-| 怎么写任务/心跳/阻塞报告 | `docs/05-grokbot/skills/` 或输入 `/sop-` |
 
 ---
 
@@ -96,7 +127,6 @@ git switch -c lane/<代号>/T-XXX
 
 **本项目所有 Bot 共用同一台 Grok Bot 云电脑和同一个文件系统。**
 
-这意味着：
 - 你能看到别人的文件。**能看不等于能改。**
 - 并发操作同一个目录会互相破坏。所以有 worktree 车道制。
 - 端口、数据库、`pnpm store` 这些是全局唯一的。用之前先看 `board/locks.md`，加锁。
@@ -134,13 +164,13 @@ git switch -c lane/<代号>/T-XXX
 ## 遇到问题找谁
 
 ```
-技术/架构/接口   → @架构 A1
-玩法/手感/数值   → @设计 D1
-质量/闸门/验收   → @闸门 Q1
-环境/工具/CI     → @运维 O1
-文档矛盾/术语    → @典藏 S1
-经济数值        → @经济 C1
-优先级/说不清    → @总督 P0  →（他也定不了）→ 人类
+技术/架构/接口 → @架构 A1
+玩法/手感/数值 → @设计 D1
+质量/闸门/验收 → @闸门 Q1
+环境/工具/CI → @运维 O1
+文档矛盾/术语 → @典藏 S1
+经济数值 → @经济 C1
+优先级/说不清 → @总督 P0 →（他也定不了）→ 人类
 ```
 
 **每一级必须在 4 小时内给出裁决，或明确说"我也定不了，往上"。不允许沉默。**

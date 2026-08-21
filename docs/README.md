@@ -1,71 +1,95 @@
 # 文档地图
 
-> 效力顺序（宪法第一条）：
-> **宪法 > 愿景 > 契约 > 规格(GDD) > 计划 > 任务指令 > 个人判断**
->
-> 下级与上级冲突时，**上级胜出**，且发现者有义务报告冲突（拉安灯或记漂移），不许自行"调和"。
+本仓库分两层。**先搞清楚你要找的东西在哪一层。**
+
+```
+docs/_studio/    制度层（只读镜像）    宪法、框架、岗位、闸门、SOP    跨项目
+docs/ 其余       项目层                 游戏规格、技术架构、路线图      本作专属
+```
+
+制度层的真相在 [sunset-studio](https://github.com/catchyan/sunset-studio) 仓库，
+本仓库通过 `.studio-version` 钉住一个版本，`docs/_studio/` 是它的逐字节镜像。
+**镜像只读**，CI 会逐字节校验。
 
 ---
 
-## 00-charter · 宪章层（效力最高，Bot 无权修改）
+## 制度层 · `docs/_studio/`
 
-| 文件 | 内容 | 谁必须读 |
+| 文件 | 内容 | 谁该读 |
 |---|---|---|
-| [`constitution.md`](00-charter/constitution.md) | 20 条不可谈判的原则 | **所有 Bot，每次开工前** |
-| [`vision.md`](00-charter/vision.md) | 我们在做什么、给谁、什么算成功、**什么明确不做** | 所有 Bot |
-| [`glossary.md`](00-charter/glossary.md) | 术语表 + 禁用词 | 所有 Bot |
+| `docs/_studio/docs/00-charter/studio-charter.md` | 工作室章程：两个产品、三条铁律 | 所有 Bot |
+| `docs/_studio/docs/00-charter/constitution.md` | 20 条不可谈判的原则 | **所有 Bot，每次开工前** |
+| `docs/_studio/docs/00-charter/glossary.md` | 流程术语表 | 所有 Bot |
+| `docs/_studio/docs/01-framework/framework.md` | **RELAY 框架**：为什么这么设计，对抗哪些 Agent 失败模式 | 想理解制度的 |
+| `docs/_studio/docs/01-framework/cadence.md` | 日/周/里程碑三层节奏与四向反馈 | P0 |
+| `docs/_studio/docs/02-roles/roles.md` | 14 个岗位的职责、权力、禁区 | 所有 Bot |
+| `docs/_studio/docs/03-gates/gates.md` | 11 道闸门 G1–G9 / H1–H2，含品味评分表 | Q1、所有 Bot |
+| `docs/_studio/docs/03-gates/ownership-schema.md` | 车道表的格式与规则 | A1 |
+| `docs/_studio/docs/04-grokbot/setup.md` | 从零开始的操作步骤 | 人类 |
+| `docs/_studio/docs/04-grokbot/bot-profiles.md` | 每个 Bot 的 description 原文 | 人类 |
+| `docs/_studio/docs/04-grokbot/routines.md` | 自动化 routine 原文 | 人类、P0 |
+| `docs/_studio/docs/04-grokbot/skills/` | 17 份 SOP，注册为 Grok Bot Skill | 所有 Bot |
+| `docs/_studio/docs/05-studio/` | 工作室成熟度、效能指标、能力账本 | P0、Q1、人类 |
 
-## 01-game · 游戏设计
+## 项目层
 
-| 文件 | 内容 | 所有者 |
-|---|---|---|
-| [`gdd-core.md`](01-game/gdd-core.md) | 核心循环、角色、战斗、地下城、传承 | D1 |
-| [`feel-spec.md`](01-game/feel-spec.md) | **帧数据契约**，被 CI 自动断言 | D1 |
-| [`gdd-economy.md`](01-game/gdd-economy.md) | 经济系统 + 模拟器 8 条稳定性判据 | C1 |
-| [`art-bible.md`](01-game/art-bible.md) | 3D 像素规格 + `art-lint` 机检规则 | V1 |
-
-## 02-tech · 技术
-
-| 文件 | 内容 | 所有者 |
-|---|---|---|
-| [`architecture.md`](02-tech/architecture.md) | 选型、仓库结构、三条架构原则、性能预算 | A1 |
-| [`contracts/`](02-tech/contracts/README.md) | **接口契约区**（冻结后才可实现） | A1 |
-| [`adr/INDEX.md`](02-tech/adr/INDEX.md) | 架构决策记录（含回滚条件） | A1 |
-
-## 03-process · 协作框架
+### `00-charter/` · 立项
 
 | 文件 | 内容 |
 |---|---|
-| [`framework.md`](03-process/framework.md) | **RELAY 框架**：为什么这么设计，对抗哪些 Agent 失败模式 |
-| [`roles.md`](03-process/roles.md) | 14 个岗位的职责、权力、禁区、车道 |
-| [`gates.md`](03-process/gates.md) | 11 道闸门 G1–G9 / H1–H2，含品味评分表 |
-| [`ownership.md`](03-process/ownership.md) | 车道所有权表（生成 CODEOWNERS） |
-| [`cadence.md`](03-process/cadence.md) | 日/周/里程碑三层节奏与四向反馈 |
+| `vision.md` | 这游戏到底是什么、给谁玩、什么算成功、**明确不做什么** |
+| `glossary.md` | 本作的游戏术语 |
 
-## 04-plan · 计划
+### `01-game/` · 玩法规格
+
+| 文件 | 内容 | Owner |
+|---|---|---|
+| `gdd-core.md` | 核心循环、角色、战斗系统、地下城、传承 | D1 |
+| `feel-spec.md` | **帧数据表**。手感的唯一真相 | D1 |
+| `gdd-economy.md` | 经济系统、双闸门锚、三货币、稳定性判据 | C1 |
+| `gdd-encounters.md` | 敌人与遭遇设计 | D1 |
+| `gdd-world.md` | 世界观与叙事 | N1 |
+| `art-bible.md` | 3D 像素风格规范、调色板、机检规则 | V1 |
+| `audio-bible.md` | 音频规范 | U1 |
+| `telemetry-spec.md` | 埋点规格 | T1 |
+| `econ-dashboard.md` | 经济看板 | C1 |
+
+### `02-tech/` · 技术
 
 | 文件 | 内容 |
 |---|---|
-| [`roadmap.md`](04-plan/roadmap.md) | M0–M6，**闸门制而非日期制**，每个里程碑有放行条件 |
+| `architecture.md` | 技术选型、monorepo 结构、依赖规则、性能预算 |
+| `contracts/` | **跨模块契约**。冻结后改动需 ADR |
+| `adr/` | 架构决策记录，含回滚条件 |
+| `infra.md` `backup.md` `dependency-graph.md` | 运维 |
 
-## 05-grokbot · 落地手册（人类操作这一层）
+### `03-process/` · 本项目的流程实例
 
 | 文件 | 内容 |
 |---|---|
-| [`setup.md`](05-grokbot/setup.md) | **从零开始的操作步骤**，人类看这个 |
-| [`bot-profiles.md`](05-grokbot/bot-profiles.md) | 每个 Bot 的 description 原文，可直接复制粘贴 |
-| [`routines.md`](05-grokbot/routines.md) | 11 个自动化 routine 的原文 |
-| [`skills/`](05-grokbot/skills/) | 11 份 SOP，注册为 Grok Bot Skill |
+| `ownership.md` | **车道所有权表**。G5 闸门的唯一依据 |
+| `staffing.md` | 本项目配了哪些岗、题材边界、框架占位的填充 |
+
+### `04-plan/` · 计划
+
+| 文件 | 内容 |
+|---|---|
+| `roadmap.md` | M0–M6 里程碑与放行条件 |
 
 ---
 
-## 三条阅读路线
+## 阅读路径
 
-**人类总制作人（你）**
-`README.md` → `05-grokbot/setup.md` → 之后每天只读 `board/daily-brief.md`
+**人类总制作人**
+`README.md` → `docs/_studio/docs/04-grokbot/setup.md` → 之后每天只读 `board/daily-brief.md`
 
-**新加入的 Bot**
-`AGENTS.md` → `00-charter/constitution.md` → 自己在 `03-process/roles.md` 中的那一节 → 自己的车道在 `03-process/ownership.md` 中的那几行
+**新上线的 Bot**
+`AGENTS.md` → `docs/_studio/docs/00-charter/constitution.md` →
+`docs/_studio/docs/02-roles/roles.md` 中自己那一节 →
+`docs/03-process/ownership.md` 中自己的车道 → `docs/03-process/staffing.md`
 
-**想理解这套框架的人**
-`03-process/framework.md`（这是本项目真正原创的部分）
+**想了解游戏设计**
+`00-charter/vision.md` → `01-game/gdd-core.md` → `01-game/feel-spec.md` → `01-game/gdd-economy.md`
+
+**想了解多 Agent 协作框架**
+`docs/_studio/README.md` → `docs/_studio/docs/01-framework/framework.md`
