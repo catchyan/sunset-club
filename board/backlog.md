@@ -13,16 +13,17 @@ a different milestone.
 
 | # | Task | Title | Owner | Milestone |
 |---|---|---|---|---|
-| 1 | T-000 | Split the studio out, mount the framework, rewrite in English | A1 | M0 |
+| 1 | T-001 | Upgrade the framework mirror to v3.0.1 | A1 | M0 |
+| 2 | T-000 | Split the studio out, mount the framework, rewrite in English | A1 | M0 |
 
 ---
 
 ## Not scheduled
 
-Candidates for M0 dispatch once T-000 merges. No cards yet, so no commitments yet.
+Candidates for M0 dispatch. No cards yet, so no commitments yet.
 
 - Repository scaffold: pnpm workspace, TypeScript strict, the six empty packages.
-- The eight negative gate tests from `docs/_studio/docs/04-grokbot/setup.md` step 9, each
+- The nineteen negative gate tests from `docs/_studio/docs/04-grokbot/setup.md` step 9, each
   run once and recorded. A gate nobody has watched fail is a gate nobody knows works.
 - Hello-triangle vertical slice: one screen, one command, the whole pipeline end to end.
 - Freeze the combat-events contract at v1, once the five questions in its section 6 have
