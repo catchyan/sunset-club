@@ -91,7 +91,7 @@ evidence pack, and nothing outside `board/`.
 There is no status to update anywhere. Where your task stands is read from git:
 
 ```bash
-node docs/_studio/tools/board/status.mjs
+node tools/board/status.mjs
 ```
 
 ## Commits
@@ -127,7 +127,7 @@ Every agent works on one filesystem with one set of ports. Seeing another agent'
 not mean you may change them, and anything global needs a lock:
 
 ```bash
-node docs/_studio/tools/lock.mjs acquire <resource> <your-code> "<why>"
+node tools/lock.mjs acquire <resource> <your-code> "<why>"
 ```
 
 Locks are git tags — the push wins or fails, so two agents cannot both hold one. Release

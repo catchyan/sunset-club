@@ -4,8 +4,8 @@ Only two things here are written by hand: what the work *is*, and what order it 
 Everything else is derived.
 
 ```bash
-node docs/_studio/tools/board/status.mjs   # where every task stands, from git and CI
-node docs/_studio/tools/board/stall.mjs    # lanes that have stopped, and nothing else
+node tools/board/status.mjs   # where every task stands, from git and CI
+node tools/board/stall.mjs    # lanes that have stopped, and nothing else
 ```
 
 The previous design kept task status in three files and asked a role to keep them
@@ -29,6 +29,7 @@ every report built on them inherited the error. Now each fact has exactly one ho
 | `milestones/` | P0 | Release checklists, including the human's play session. |
 | `econ/` | C1 | Economy health reports, one per date, in the dashboard's fixed format. |
 | `playtests/` | D1 | Every moment that felt wrong, written down while it still stings. |
+| `fun-audit/` | D1 | One file per date: the verdict after playing it in person, set against what the numbers said. |
 | `ops/` | O1 | Restore drills, incidents, and manual changes owed back to the bootstrap script. |
 
 ---

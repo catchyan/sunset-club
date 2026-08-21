@@ -50,7 +50,7 @@ request. To change the framework, change it upstream and move the pin here.
   [`docs/02-tech/architecture.md`](docs/02-tech/architecture.md), then
   [`docs/02-tech/adr/INDEX.md`](docs/02-tech/adr/INDEX.md) for why.
 - **What is happening right now:** [`board/backlog.md`](board/backlog.md) for what is
-  queued; `node docs/_studio/tools/board/status.mjs` for where everything stands.
+  queued; `node tools/board/status.mjs` for where everything stands.
 
 ## State of the project
 

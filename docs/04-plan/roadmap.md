@@ -60,8 +60,10 @@ raised.
 - [ ] **The boring task.** P0 dispatches something with no interest in it whatsoever — render
       a spinning triangle, add a unit test — and it reaches `main` **without a human
       intervening at any point**, with a complete evidence pack.
-- [ ] **All eight negative tests** from `docs/_studio/docs/04-grokbot/setup.md` step 9 have
-      been run and produced the expected red. Each is recorded with its output.
+- [ ] **Every negative test** in `docs/_studio/docs/04-grokbot/setup.md` step 9 has been run
+      and produced the expected red, each recorded with its output. Task T-004. The count is
+      not repeated here: it was written as eight, the framework grew to nineteen, and this line
+      went on asking for eight.
 - [ ] Three consecutive nights where the generated board plus P0's note takes the human under
       five minutes to read, and carries at most three decisions.
 - [ ] One command rebuilds the whole environment on a blank Linux machine.

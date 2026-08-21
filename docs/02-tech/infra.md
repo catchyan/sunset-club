@@ -39,19 +39,19 @@ Every port ACKs and no service responds: that is the signature of carrier-side r
 > The deployment target is injected through environment variables or GitHub Secrets; locally it lives in `.env` (already in `.gitignore`).
 > This is not only about the server — it applies to any credential. A bot writing documentation will paste a connection string in without thinking about it.
 
-## Branch protection (resolved)
+## Branch protection
 
-**Current state: in force and verified by test.**
+**What the settings must be is not written here.** It is in
+`docs/_studio/docs/04-grokbot/setup.md` §3, and what they actually are is read from GitHub by
+`node tools/verify-protection.mjs`, on O1's weekly routine.
 
-```
-Repository:            catchyan/sunset-club  (public)
-Require PR:            yes, 1 approving review, dismiss stale reviews
-Required status check: gates  (strict)
-enforce_admins:        true
-Force push / delete:   blocked
-```
+This section used to state the settings itself, and by the time anyone read it again two of
+them were wrong — it still required one approving review and a status check named after the
+workflow, which is the exact configuration that caused andon A-2026-08-21-1 and left the
+repository unmergeable for a day. A copy of a setting is a claim that ages; the tool that reads
+the setting cannot.
 
-Verified: `git push origin main` returns `GH006: Protected branch update failed`.
+What belongs here is only what is specific to this repository, and there is one thing:
 
 ### How we got here (for whoever comes next)
 
@@ -74,25 +74,20 @@ On the first configuration `enforce_admins` was set to false, to leave the human
 **Bots push using the human's GitHub account.** The human's account is an admin. Admin exempt = bot exempt.
 The entire protection scheme was completely ineffective against exactly what it was meant to stop.
 
-It is now `true`. The cost is that the human cannot push to main either — which is correct; see the right way to do it below.
+It is now `true`. The cost is that nobody can push to main, the human included, and that is the
+point rather than the price.
 
-### The right way when the human needs to land something directly
+### When something has to land and the gates are the thing that is broken
 
-**Do not** leave `enforce_admins` off for any length of time. Use an explicit, traceable switch with the smallest possible time window:
+Turning protection off is not the answer, and this document used to say it was — it printed the
+commands. Nothing that pushes straight to main leaves a reviewable record of what it did.
 
-```bash
-# 1. Turn it off (this step leaves a record in the repository audit log)
-gh api -X DELETE repos/catchyan/sunset-club/branches/main/protection/enforce_admins
-# 2. Push
-git push origin main
-# 3. Restore it immediately. Not "in a bit"
-gh api -X POST   repos/catchyan/sunset-club/branches/main/protection/enforce_admins
-# 4. Confirm
-gh api repos/catchyan/sunset-club/branches/main/protection/enforce_admins
-```
+The framework's answer is the `break-glass` label: the repair pull request carries it, updates
+`board/andon.md` in the same diff, and the gates that were blocking it downgrade to warnings.
+Human approval is never waived. See `docs/_studio/docs/04-grokbot/skills/sop-andon.md`.
 
-**Any bot executing step 1 above = pull the andon cord immediately + an entry in the trust ledger.** This channel belongs to the human alone.
-Recommendation: add `enforce_admins` to the Require Approval list in Grok Bot's Auto-review.
+A bot that disables `enforce_admins`, force-pushes, or merges with `--admin` is an andon pull
+and an entry in `board/trust-ledger.md`, whatever its reason was.
 
 ## What the draft must state clearly
 

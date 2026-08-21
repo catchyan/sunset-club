@@ -1,6 +1,6 @@
 # Read-only mirror — change nothing here
 
-A byte-for-byte mirror of studio framework `v3.0.2` (commit `e8ac2f1`).
+A byte-for-byte mirror of studio framework `v3.1.0` (commit `0d54aa5`).
 
 **CI verifies it. Editing it turns the build red, and no explanation will be accepted.**
 

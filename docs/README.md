@@ -81,6 +81,6 @@ Never edited here. Changes go upstream and arrive by moving `.studio-version`.
 queue (`backlog.md`) and the envelopes (`tasks/`). Everything else is derived:
 
 ```bash
-node docs/_studio/tools/board/status.mjs   # where every task stands
-node docs/_studio/tools/board/stall.mjs    # lanes that have stopped, and nothing else
+node tools/board/status.mjs   # where every task stands
+node tools/board/stall.mjs    # lanes that have stopped, and nothing else
 ```
