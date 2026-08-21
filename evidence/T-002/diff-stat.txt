@@ -1,0 +1,29 @@
+ .github/workflows/gates.yml                        |   2 +-
+ .studio-version                                    |   2 +-
+ AGENTS.md                                          |   4 +-
+ README.md                                          |   2 +-
+ board/README.md                                    |   5 +-
+ board/backlog.md                                   |  34 +++++--
+ board/econ/.gitkeep                                |   1 -
+ board/fun-audit/.gitkeep                           |   0
+ board/ops/.gitkeep                                 |   1 -
+ board/playtests/.gitkeep                           |   1 -
+ board/tasks/T-001.md                               |   2 +-
+ board/tasks/T-002.md                               | 103 +++++++++++++++++++++
+ board/tasks/T-003.md                               |  78 ++++++++++++++++
+ board/tasks/T-004.md                               |  71 ++++++++++++++
+ docs/02-tech/infra.md                              |  45 ++++-----
+ docs/03-process/ownership.md                       |   1 +
+ docs/04-plan/roadmap.md                            |   6 +-
+ docs/README.md                                     |   4 +-
+ docs/_studio/MANIFEST.json                         |  14 +--
+ docs/_studio/README.md                             |   2 +-
+ docs/_studio/docs/02-roles/O1.md                   |   2 +-
+ docs/_studio/docs/04-grokbot/setup.md              |  27 ++++--
+ docs/_studio/templates/.github/workflows/gates.yml |   2 +-
+ docs/_studio/tools/gates/gates.test.mjs            |  12 +++
+ tools/board/stall.mjs                              |   5 +
+ tools/board/status.mjs                             |   5 +
+ tools/lock.mjs                                     |   5 +
+ tools/verify-protection.mjs                        |   5 +
+ 28 files changed, 375 insertions(+), 66 deletions(-)

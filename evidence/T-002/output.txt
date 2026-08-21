@@ -1,0 +1,32 @@
+$ node tools/studio-sync.mjs --remote
+mirror gate · v3.1.0 · 54 file(s) · verified against upstream
+OK: the mirror matches the pinned version.
+EXIT_CODE=0
+
+$ node docs/_studio/tools/gates/selfcheck.mjs
+selfcheck: 37 markdown file(s)
+OK: no problems.
+EXIT_CODE=0
+
+$ node tools/gates/ownership.test.mjs
+reserved paths
+task-scoped paths
+specificity
+discipline paths
+coverage
+single writer
+
+OK: the ownership table says what it should.
+EXIT_CODE=0
+
+$ node tools/board/status.mjs
+Board · generated 2026-08-21T10:33:19.641Z · 5 task(s)
+
+| Task | State | Owner | Reviewer | Milestone | PR |
+|---|---|---|---|---|---|
+| T-000 | DONE | A1 | human | M0 | #2 |
+| T-001 | DONE | A1 | Q1 | M0 | #4 |
+| T-002 | IN PROGRESS | A1 | Q1 | M0 | - |
+| T-003 | DISPATCHED | A1 | Q1 | M0 | - |
+| T-004 | DISPATCHED | Q1 | A1 | M0 | - |
+EXIT_CODE=0

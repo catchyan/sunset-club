@@ -1,0 +1,35 @@
+The four commands the SOPs, routines and role cards print. Before v3.1.0 each
+resolved to a path that does not exist in a project, and none had ever been run here.
+
+$ node tools/lock.mjs list
+No locks held.
+EXIT_CODE=0
+
+$ node tools/board/status.mjs
+Board · generated 2026-08-21T10:33:30.377Z · 5 task(s)
+
+| Task | State | Owner | Reviewer | Milestone | PR |
+|---|---|---|---|---|---|
+| T-000 | DONE | A1 | human | M0 | #2 |
+| T-001 | DONE | A1 | Q1 | M0 | #4 |
+| T-002 | IN PROGRESS | A1 | Q1 | M0 | - |
+| T-003 | DISPATCHED | A1 | Q1 | M0 | - |
+| T-004 | DISPATCHED | Q1 | A1 | M0 | - |
+EXIT_CODE=0
+
+$ node tools/board/stall.mjs
+stall check · 0 active lane(s) · warn 3h · alert 6h
+OK: every active lane moved recently.
+EXIT_CODE=0
+
+$ node tools/verify-protection.mjs
+gh: Resource not accessible by integration (HTTP 403)
+FAIL: catchyan/sunset-club@main has no branch protection at all.
+Without it every rule in this framework is a suggestion, because anyone can push past it.
+EXIT_CODE=1
+
+verify-protection.mjs reaches GitHub and is refused: the token this pack was
+produced with has no admin scope on the repository. That is why it is not in the
+card's acceptance command. It resolved, loaded and ran, which is what this file
+is evidence of; whether protection is correct is O1's weekly routine, run with a
+token that can read it.

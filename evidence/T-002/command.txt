@@ -1,0 +1,4 @@
+node tools/studio-sync.mjs --remote
+node docs/_studio/tools/gates/selfcheck.mjs
+node tools/gates/ownership.test.mjs
+node tools/board/status.mjs
