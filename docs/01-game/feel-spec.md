@@ -44,7 +44,7 @@ Only in that form can E1 implement it, CI assert it, Q1 accept it, and anyone wh
 | 5 | **Damage number** | `dmg_popup_style` | required | three styles: critical, Poise break, ordinary |
 | 6 | **Hit flash** | `flash_frames`, `flash_color` | 3 frames / palette white | the struck party's material is swapped for an instant |
 
-**Lint tool**: `tools/art-lint/juice-lint.ts`, part of gate G7.
+**Lint tool**: `tools/art-lint/juice-lint.ts`, run by `pnpm art-lint` in gate G6.
 
 ---
 
@@ -136,9 +136,13 @@ Every enemy action must supply:
 
 ## 7. Automated assertions
 
+Each is a root script, because CI runs root scripts. The command underneath is given so the
+script can be rewritten without anyone having to guess what it was supposed to do. The full
+list of scripts the gates require is in `docs/02-tech/architecture.md`.
+
 ### 7.1 Frame-data snapshot test
 ```
-pnpm -C packages/sim test -- frames.snapshot.spec.ts
+pnpm test:frames        # pnpm -C packages/sim test -- frames.snapshot.spec.ts
 ```
 - For each action, drive sim with a fixed input sequence and record the state-machine phase on every tick
 - Compare frame by frame against `packages/content/combat/frames/*.json`
@@ -146,14 +150,14 @@ pnpm -C packages/sim test -- frames.snapshot.spec.ts
 
 ### 7.2 Input latency test
 ```
-pnpm -C packages/client test:latency
+pnpm test:latency       # pnpm -C packages/client test:latency
 ```
 - Headless render, inject input events, capture the render target frame by frame
 - Assert that the first changed pixel occurs within ≤2 frames
 
 ### 7.3 Juice lint
 ```
-pnpm juice-lint
+pnpm art-lint           # runs tools/art-lint, including juice-lint.ts
 ```
 - Scan every combat action's data; check that the six fields are all present and that the assets they reference exist
 
@@ -164,7 +168,11 @@ pnpm bench:combat
 - Fixed scene (4 players + 24 enemies + a screen full of effects), run 600 frames
 - Assert p99 frame time ≤ 18.2ms
 
-**All four of the above are part of gate G7. If any one fails, the PR cannot merge.**
+**All four are gate G6, the `feel` job. If any one fails, the PR cannot merge.**
+
+G6, not G7. G7 is the studio repository's cause-for-framework-change gate and does not run
+here at all — a specification citing a gate that never runs in its own repository describes
+protection nobody has.
 
 ---
 

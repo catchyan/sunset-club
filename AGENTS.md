@@ -57,6 +57,8 @@ In the first paragraph of your reply. Cannot answer one? Do not start — ask P0
 ```bash
 cd /workspace/lanes/<your-code>
 git fetch origin && git rebase origin/main
+# your card must already be on origin/main. If it is not, it grants you nothing:
+# the lane gate reads permissions from the base branch. Ask P0 to dispatch it first.
 # read every file listed in section 2 of your task card
 # answer the three questions
 git switch -c lane/<CODE>/T-XXX
@@ -65,6 +67,14 @@ git switch -c lane/<CODE>/T-XXX
 # run it again, capture the evidence pack
 # open the PR, request the reviewer named on the card
 ```
+
+The reviewer approves by commenting `APPROVED-BY: <their code>`. GitHub's approve button
+cannot be used: every agent drives one account, and an account may not approve its own pull
+request.
+
+Recording something rather than building it — an andon pull, a blocker, a playtest, a
+dispatched card — goes on `board/<CODE>/<slug>` with a `chore(board):` commit. No card, no
+evidence pack, and nothing outside `board/`.
 
 There is no status to update anywhere. Where your task stands is read from git:
 
@@ -80,7 +90,8 @@ node docs/_studio/tools/board/status.mjs
 
 `feat` `fix` `docs` `refactor` `test` `chore` `perf` `content` `art`. Scope is a package or
 module — `sim`, `client`, `econ`, `board`. **CI rejects a commit without `[T-XXX]`**, and the
-task must be on `board/backlog.md`.
+task must be on `board/backlog.md`. The one exception is a `board/` branch, whose commits
+read `chore(board): <subject>` and carry no task id.
 
 ---
 

@@ -155,7 +155,7 @@ jobs:
         if: steps.ws.outputs.ready == 'true'
         run: |
           MISSING=""
-          for s in typecheck lint test gates:deps test:replay test:frames test:latency art-lint bench:combat; do
+          for s in typecheck lint test gates:deps test:replay test:frames test:latency art-lint; do
             node -e "process.exit(require('./package.json').scripts?.['$s'] ? 0 : 1)" || MISSING="$MISSING $s"
           done
           if [ -n "$MISSING" ]; then
@@ -217,9 +217,6 @@ jobs:
       - name: G6 art lint
         if: steps.ws.outputs.ready == 'true'
         run: pnpm art-lint
-      - name: G6 combat performance
-        if: steps.ws.outputs.ready == 'true'
-        run: pnpm bench:combat
 
   summary:
     name: summary

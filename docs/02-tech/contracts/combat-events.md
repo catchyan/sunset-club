@@ -45,7 +45,9 @@ With this contract: the sim emits `hit_confirmed{kind:'heavy'}` and the client l
 | `duet` | A Duet segment connects | 2 frames per segment |
 | `chip` | Chip damage after a parry or block | 1 frame, target only |
 
-**CI assertion**: the set of enum values in this table must be identical across three places — this table, the rows in `docs/01-game/feel-spec.md §3`, and the keys of `packages/content/combat/hitstop.json`. Anything added to one without the others → red.
+**CI assertion, not yet written**: the set of enum values in this table must be identical across three places — this table, the rows in `docs/01-game/feel-spec.md §3`, and the keys of `packages/content/combat/hitstop.json`. Anything added to one without the others → red.
+
+The check does not exist yet, and the three lists already disagree — see drift D-2026-08-21-6. Four of the eight rows differ, including where the eight-frame parry freeze belongs. **Write the check before writing `hitstop.json`, and expect it to be red until D1 settles the design question.** A contract that says CI is watching something CI is not watching is worse than one that says nothing: everyone downstream stops checking by hand.
 
 ---
 

@@ -1,4 +1,4 @@
- .gitattributes                                     |  19 +
+﻿ .gitattributes                                     |  19 +
  .github/CODEOWNERS                                 |  87 ---
  .github/workflows/gates.yml                        | 230 +++----
  .gitignore                                         |   6 +-

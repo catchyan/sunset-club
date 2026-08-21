@@ -86,3 +86,30 @@ the mistake would survive a long time before anyone noticed.
 The exponent was right and the prose was wrong. §4.1 now states both curves — income scales
 with `n`, upkeep with `n^1.4` — because the whole point of the mechanism is the gap between
 them, and a reader who has to infer the comparison will infer it wrongly half the time.
+
+## D-2026-08-21-6 · The hitstop table and the HitKind enum do not match, and both claim CI checks it
+
+- Found: 2026-08-21, by the project-layer audit
+- Kind: number
+- Side A: `docs/01-game/feel-spec.md` §3 lists eight rows, among them
+  "Parry succeeds | **8** | global", "Duet triggers | 10 (on the trigger frame) + 2 per hit"
+  and "Player is hit | 5 | global"
+- Side B: `docs/02-tech/contracts/combat-events.md` §3 lists eight values, among them
+  "`counter` | A post-parry counter connects | 8 frames, global",
+  "`duet` | A Duet segment connects | 2 frames per segment" and "`chip` | 1 frame, target
+  only". There is no `parry` value and no value for being hit.
+- Owner of the specification: @D1, with @A1 on the enum
+- Status: OPEN
+
+Both documents state that CI asserts these two lists are identical, together with the keys of
+`packages/content/combat/hitstop.json`. That assertion would fail on its first run: four of
+the eight rows disagree.
+
+Underneath the mismatch is a real design question, and it is not S1's to answer. Feel spec
+puts the eight-frame freeze on the **parry** and calls it one of the game's high points;
+the contract puts it on the **counter that follows**. Those are different games. The first
+rewards the read; the second rewards the punish. Whoever answers it should answer it in
+`feel-spec.md`, and the enum follows.
+
+Nothing is being changed here in the meantime. Picking a side quietly is how a design
+decision gets made by an archivist at two in the afternoon.

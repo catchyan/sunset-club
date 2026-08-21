@@ -1,6 +1,12 @@
-$ node tools/studio-sync.mjs
-mirror gate · v2.0.1 · 52 file(s) · local only
+$ node tools/studio-sync.mjs --remote
+mirror gate · v3.0.0 · 54 file(s) · verified against upstream
 OK: the mirror matches the pinned version.
+EXIT_CODE=0
+
+$ node docs/_studio/tools/verify-protection.mjs
+protection · catchyan/sunset-club@main · required=[summary]
+OK: protection enforces the gates.
+EXIT_CODE=0
 
 $ node docs/_studio/tools/gates/gates.test.mjs
 glob matching
@@ -8,9 +14,13 @@ specificity
 task token
 branch parsing
 section extraction
+fenced grants
+diff parsing
+self-governing paths
 table parsing
 
 OK: gate engine behaves as specified.
+EXIT_CODE=0
 
 $ node tools/gates/ownership.test.mjs
 reserved paths
@@ -21,13 +31,14 @@ coverage
 single writer
 
 OK: the ownership table says what it should.
+EXIT_CODE=0
 
 $ node docs/_studio/tools/gates/selfcheck.mjs
 selfcheck: 33 markdown file(s)
 OK: no problems.
+EXIT_CODE=0
 
 $ node docs/_studio/tools/gates/spec-check.mjs
 spec gate · project repo · 9 documented gate(s) · 7 CI job(s)
 OK: the gate list matches the workflow.
-
 EXIT_CODE=0

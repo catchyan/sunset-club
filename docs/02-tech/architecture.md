@@ -69,6 +69,28 @@ econ-sim ──> content, shared   (standalone; does not depend on sim)
 - `client` → `server`
 - `content` → any code package (content is pure data)
 
+### 2.2 The scripts the gates run
+
+The commit that creates `pnpm-workspace.yaml` turns eight blocking CI steps on at once, so
+every one of these must exist in the root `package.json` in that same commit. They may be
+stubs that exit zero on the first day; they may not be absent.
+
+| Script | Gate | What it has to do |
+|---|---|---|
+| `typecheck` | G5 build | `tsc --noEmit` across the workspace |
+| `lint` | G5 build | ESLint, including the no-display-strings rule |
+| `test` | G5 build | Unit tests |
+| `gates:deps` | G5 build | The dependency directions above, and simulation purity |
+| `test:replay` | G5 build | Replay a recorded input log; the state hash must match |
+| `test:frames` | G6 feel | `docs/01-game/feel-spec.md` §7.1 |
+| `test:latency` | G6 feel | feel-spec §7.2 |
+| `art-lint` | G6 feel | `tools/art-lint`, including juice-lint. feel-spec §7.3 |
+| `bench:combat` | G6 feel | feel-spec §7.4 |
+
+The workflow checks the list before it runs any of them and fails with the names that are
+missing, because npm's "command not found" points at the runner rather than at the gap. If a
+gate needs a new script, it is added here in the same pull request.
+
 ---
 
 ## 3. Three core architectural principles

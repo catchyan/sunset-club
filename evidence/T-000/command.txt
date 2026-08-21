@@ -1,4 +1,5 @@
-node tools/studio-sync.mjs
+node tools/studio-sync.mjs --remote
+node docs/_studio/tools/verify-protection.mjs
 node docs/_studio/tools/gates/gates.test.mjs
 node tools/gates/ownership.test.mjs
 node docs/_studio/tools/gates/selfcheck.mjs
