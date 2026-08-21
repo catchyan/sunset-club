@@ -1,71 +1,86 @@
-# 文档地图
+# Documentation map
 
-> 效力顺序（宪法第一条）：
-> **宪法 > 愿景 > 契约 > 规格(GDD) > 计划 > 任务指令 > 个人判断**
->
-> 下级与上级冲突时，**上级胜出**，且发现者有义务报告冲突（拉安灯或记漂移），不许自行"调和"。
+Two layers. **Framework** is mirrored read-only from the studio; **project** is this game.
 
----
-
-## 00-charter · 宪章层（效力最高，Bot 无权修改）
-
-| 文件 | 内容 | 谁必须读 |
-|---|---|---|
-| [`constitution.md`](00-charter/constitution.md) | 20 条不可谈判的原则 | **所有 Bot，每次开工前** |
-| [`vision.md`](00-charter/vision.md) | 我们在做什么、给谁、什么算成功、**什么明确不做** | 所有 Bot |
-| [`glossary.md`](00-charter/glossary.md) | 术语表 + 禁用词 | 所有 Bot |
-
-## 01-game · 游戏设计
-
-| 文件 | 内容 | 所有者 |
-|---|---|---|
-| [`gdd-core.md`](01-game/gdd-core.md) | 核心循环、角色、战斗、地下城、传承 | D1 |
-| [`feel-spec.md`](01-game/feel-spec.md) | **帧数据契约**，被 CI 自动断言 | D1 |
-| [`gdd-economy.md`](01-game/gdd-economy.md) | 经济系统 + 模拟器 8 条稳定性判据 | C1 |
-| [`art-bible.md`](01-game/art-bible.md) | 3D 像素规格 + `art-lint` 机检规则 | V1 |
-
-## 02-tech · 技术
-
-| 文件 | 内容 | 所有者 |
-|---|---|---|
-| [`architecture.md`](02-tech/architecture.md) | 选型、仓库结构、三条架构原则、性能预算 | A1 |
-| [`contracts/`](02-tech/contracts/README.md) | **接口契约区**（冻结后才可实现） | A1 |
-| [`adr/INDEX.md`](02-tech/adr/INDEX.md) | 架构决策记录（含回滚条件） | A1 |
-
-## 03-process · 协作框架
-
-| 文件 | 内容 |
-|---|---|
-| [`framework.md`](03-process/framework.md) | **RELAY 框架**：为什么这么设计，对抗哪些 Agent 失败模式 |
-| [`roles.md`](03-process/roles.md) | 14 个岗位的职责、权力、禁区、车道 |
-| [`gates.md`](03-process/gates.md) | 11 道闸门 G1–G9 / H1–H2，含品味评分表 |
-| [`ownership.md`](03-process/ownership.md) | 车道所有权表（生成 CODEOWNERS） |
-| [`cadence.md`](03-process/cadence.md) | 日/周/里程碑三层节奏与四向反馈 |
-
-## 04-plan · 计划
-
-| 文件 | 内容 |
-|---|---|
-| [`roadmap.md`](04-plan/roadmap.md) | M0–M6，**闸门制而非日期制**，每个里程碑有放行条件 |
-
-## 05-grokbot · 落地手册（人类操作这一层）
-
-| 文件 | 内容 |
-|---|---|
-| [`setup.md`](05-grokbot/setup.md) | **从零开始的操作步骤**，人类看这个 |
-| [`bot-profiles.md`](05-grokbot/bot-profiles.md) | 每个 Bot 的 description 原文，可直接复制粘贴 |
-| [`routines.md`](05-grokbot/routines.md) | 11 个自动化 routine 的原文 |
-| [`skills/`](05-grokbot/skills/) | 11 份 SOP，注册为 Grok Bot Skill |
+If a document would still be true for a completely different game, it belongs upstream.
 
 ---
 
-## 三条阅读路线
+## Framework · `docs/_studio/` — read-only
 
-**人类总制作人（你）**
-`README.md` → `05-grokbot/setup.md` → 之后每天只读 `board/daily-brief.md`
+| Question | File |
+|---|---|
+| The rules that outrank everything | `docs/_studio/docs/00-charter/constitution.md` |
+| Why the studio exists | `docs/_studio/docs/00-charter/studio-charter.md` |
+| Process vocabulary | `docs/_studio/docs/00-charter/glossary.md` |
+| How a day runs | `docs/_studio/docs/01-framework/framework.md` |
+| What is scheduled, and who owns it | `docs/_studio/docs/01-framework/cadence.md` |
+| Role cards, one per role | `docs/_studio/docs/02-roles/` |
+| What counts as passing | `docs/_studio/docs/03-gates/gates.md` |
+| The ownership table format | `docs/_studio/docs/03-gates/ownership-schema.md` |
+| The six SOPs | `docs/_studio/docs/04-grokbot/skills/` |
+| Setting up the team | `docs/_studio/docs/04-grokbot/setup.md` |
+| Scheduled routines | `docs/_studio/docs/04-grokbot/routines.md` |
 
-**新加入的 Bot**
-`AGENTS.md` → `00-charter/constitution.md` → 自己在 `03-process/roles.md` 中的那一节 → 自己的车道在 `03-process/ownership.md` 中的那几行
+Never edited here. Changes go upstream and arrive by moving `.studio-version`.
 
-**想理解这套框架的人**
-`03-process/framework.md`（这是本项目真正原创的部分）
+---
+
+## Project
+
+### Charter · `00-charter/`
+
+| File | What |
+|---|---|
+| `vision.md` | What this game is, who for, what success is, what we are not doing. Human-owned |
+| `glossary.md` | Game vocabulary. One definition per term, no synonyms |
+
+### Design · `01-game/`
+
+| File | What |
+|---|---|
+| `gdd-core.md` | The loop, the classes, retirement and lineage |
+| `gdd-world.md` | The world, the characters, what is true about them |
+| `gdd-encounters.md` | Delve structure, enemies, encounter design |
+| `gdd-economy.md` | Currencies, sinks, faucets, services between players |
+| `feel-spec.md` | Frame data. The numbers that decide whether combat is any good |
+| `art-bible.md` | The look, as rules a linter can check |
+| `audio-bible.md` | Sound events, mix budget, loudness targets |
+| `econ-dashboard.md` | Which economy numbers are watched, and their healthy bands |
+| `telemetry-spec.md` | What is measured in play, and why each field exists |
+
+### Technology · `02-tech/`
+
+| File | What |
+|---|---|
+| `architecture.md` | How the pieces fit together |
+| `contracts/` | Interfaces and schemas. A `FROZEN` one changes only through an ADR |
+| `adr/` | Decisions, each with the condition that would reverse it |
+| `dependency-graph.md` | Which package may import which. Enforced in CI |
+| `infra.md` | Environments, CI, deployment |
+| `backup.md` | What is backed up, and the restore that has actually been tested |
+
+### Process · `03-process/`
+
+| File | What |
+|---|---|
+| `ownership.md` | Paths to owners. The only input to the lane gate |
+| `staffing.md` | Which roles are active when, and the role-card placeholder values |
+
+### Plan · `04-plan/`
+
+| File | What |
+|---|---|
+| `roadmap.md` | Milestones, each with an observable release condition |
+
+---
+
+## The board is not documentation
+
+`board/` is working state, not reference. Only two things there are written by hand: the
+queue (`backlog.md`) and the envelopes (`tasks/`). Everything else is derived:
+
+```bash
+node docs/_studio/tools/board/status.mjs   # where every task stands
+node docs/_studio/tools/board/stall.mjs    # lanes that have stopped, and nothing else
+```

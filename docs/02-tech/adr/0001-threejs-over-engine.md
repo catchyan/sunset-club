@@ -1,98 +1,98 @@
-# ADR-0001 · 用 Three.js 自研，而非 Unity / Godot / Unreal
+# ADR-0001 · Build on Three.js rather than Unity / Godot / Unreal
 
-- 状态：**ACCEPTED**
-- 日期：2026-08-20
-- 提出人：A1 总架构师
-- 决定人：人类总制作人
-- 取代：—
+- Status: **ACCEPTED**
+- Date: 2026-08-20
+- Proposed by: A1 Architect
+- Decided by: the human executive producer
+- Supersedes: —
 
-> 这份 ADR 同时是**格式示范**。所有后续 ADR 照此结构写。
+> This ADR doubles as the **format example**. Every later ADR follows this structure.
 
 ---
 
-## 1. 背景
+## 1. Context
 
-《夕阳红俱乐部》是 Steam 上的 4 人联机 ARPG，3D 像素风。开发主力是一支 Grok Bot 团队，人类只做每日决策与品味把关。
+Sunset Club is a four-player online ARPG on Steam, in 3D pixel art. The bulk of the development is done by a team of Grok Bots; the human only makes the daily decisions and guards taste.
 
-选引擎这件事，在这个项目里的约束和普通项目**完全不同**：
+Choosing an engine is constrained **completely differently** here than on an ordinary project:
 
-- 开发者是 LLM Agent。它们**看不到编辑器界面**，只能读写文本文件。
-- Agent 的能力高度依赖训练数据里该技术的样本量与文档质量。
-- 所有产物必须能被 CI 无头验证（宪法第十一条：不许自证）。
-- 并行开发要求**产物可 diff、可评审**。
+- The developers are LLM agents. They **cannot see an editor UI**; they can only read and write text files.
+- An agent's competence depends heavily on how much of a given technology appeared in its training data, and on the quality of that documentation.
+- Every artefact has to be verifiable headlessly in CI (constitution article 7: nobody certifies their own work).
+- Parallel development requires artefacts that **can be diffed and reviewed**.
 
-## 2. 备选方案
+## 2. Alternatives
 
-### 方案 A：Unity
-- ✅ 成熟，Steam 集成一键，性能与工具链最强
-- ❌ **核心问题：Scene/Prefab 是二进制或伪 YAML，Agent 无法可靠编辑，也无法评审 diff。** 一个 prefab 的改动在 PR 里是几百行 GUID 变更，评审者（无论人还是 Bot）看不出改了什么
-- ❌ 大量工作必须在 GUI 里做，Agent 只能用计算机操作，慢且极易出错
-- ❌ 无头 CI 需要 Unity License + 数 GB 镜像，跑一次几分钟
+### Option A: Unity
+- ✅ Mature, one-click Steam integration, the strongest performance and tooling
+- ❌ **The core problem: scenes and prefabs are binary or pseudo-YAML, so agents cannot edit them reliably and cannot review a diff of them.** One prefab change lands in a PR as hundreds of lines of GUID churn, and no reviewer — human or bot — can tell what it did
+- ❌ A great deal of the work has to happen in the GUI, so agents can only get at it through computer use: slow and extremely error-prone
+- ❌ Headless CI needs a Unity license and a multi-gigabyte image, and takes minutes per run
 
-### 方案 B：Godot
-- ✅ 开源，`.tscn` 是文本，比 Unity 可 diff
-- ✅ 内置 3D 像素支持较好
-- ❌ GDScript 无静态类型强度，C# 路径在 Godot 4 的导出仍有坑
-- ❌ **训练数据样本量比 Three.js 少一个量级**，Agent 写出的 Godot 代码正确率明显更低（这是本项目的决定性因素）
-- ❌ 无头测试生态弱
+### Option B: Godot
+- ✅ Open source, and `.tscn` is text, so more diffable than Unity
+- ✅ Reasonable built-in support for 3D pixel art
+- ❌ GDScript has weak static typing, and the C# path in Godot 4 still has export pitfalls
+- ❌ **An order of magnitude fewer samples in training data than Three.js**, so the Godot code agents write is measurably less often correct (this is the deciding factor for this project)
+- ❌ A weak headless testing ecosystem
 
-### 方案 C：Three.js + TypeScript 自研（选中）
-- ✅ **全部产物是 TypeScript 与 JSON**，天然可 diff、可评审、可静态检查
-- ✅ Three.js 的公开样本量在 3D 领域最大，Agent 出错率最低
-- ✅ TypeScript strict 模式是弱 Agent 最有效的护栏——**类型错误在编译期就被拦住，不用等到评审**
-- ✅ Vitest 无头测试秒级，回放测试、帧数据快照测试都好做
-- ✅ 浏览器即可玩 → staging 部署零成本，D1 试玩门槛为零
-- ❌ 引擎级功能（场景编辑器、动画状态机、光照烘焙）要自己造
-- ❌ Steam 需要 Electron 封装（见 ADR 后续）
-- ❌ 性能上限低于原生
+### Option C: Three.js + TypeScript, built ourselves (selected)
+- ✅ **Every artefact is TypeScript or JSON**, which is inherently diffable, reviewable and statically checkable
+- ✅ Three.js has the largest public sample base in 3D, so agents get it wrong least often
+- ✅ TypeScript strict mode is the most effective guard rail for a weak agent — **type errors are caught at compile time, not left for review**
+- ✅ Vitest runs headless in seconds, which makes replay tests and frame-data snapshot tests straightforward
+- ✅ It runs in a browser → staging deployment costs nothing, and the barrier to a D1 playtest is zero
+- ❌ Engine-level features (scene editor, animation state machine, lightmap baking) have to be built
+- ❌ Steam requires an Electron wrapper (see the follow-up ADR)
+- ❌ A lower performance ceiling than native
 
-## 3. 决定
+## 3. Decision
 
-**采用方案 C。**
+**Option C is adopted.**
 
-## 4. 理由
+## 4. Reasoning
 
-决定性的一条：**本项目的瓶颈不是引擎能力，是 Agent 的产出正确率与可审计性。**
+The deciding point: **the bottleneck on this project is not engine capability, it is how often agents produce correct work and how auditable that work is.**
 
-一个 3D 像素 ARPG 用不到 Unity 90% 的功能。而 Unity 那 10% 的便利，要用"产物不可评审"来换——在一个靠自动化闸门保证质量的项目里，这个代价不可接受。宪法第十一条要求任何产出都要有机器可验的证据；`.prefab` 的 diff 给不了这种证据。
+A 3D pixel-art ARPG never touches 90% of Unity's features. And the convenience of the other 10% has to be paid for with artefacts that cannot be reviewed — on a project whose quality rests on automated gates, that price is unacceptable. Constitution article 9 requires evidence for any claim that something works; the diff of a `.prefab` cannot provide it.
 
-反过来，Three.js 缺的东西（场景编辑器、动画状态机）恰好是**我们本来就要写成数据的东西**（见 `contracts/content-schema.md`）。所以"自己造"的成本没有表面上那么高：我们不是在补引擎的课，而是在建这个项目本来就需要的数据驱动管线。
+Conversely, the things Three.js lacks — a scene editor, an animation state machine — are exactly **the things we were going to express as data anyway** (see `contracts/content-schema.md`). So "building it ourselves" costs less than it appears: we are not catching up to an engine, we are building the data-driven pipeline this project needed regardless.
 
-至于性能：目标是 384×216 渲染分辨率、同屏 ≤60k 三角面、4 人房间。这个量级 WebGL 绰绰有余。
+On performance: the target is a 384×216 render resolution, ≤60k triangles on screen, and 4-player rooms. WebGL has plenty of headroom at that scale.
 
-## 5. 后果
+## 5. Consequences
 
-**接受的代价：**
-- 需要自己写：ECS、动画状态机、碰撞查询、场景加载、后处理管线
-- M1 的第一个可玩切片会比用 Unity 慢
-- 美术管线要自建（这也是 `proc_ai` 资产路线的前提）
+**Costs accepted:**
+- We have to write ourselves: the ECS, the animation state machine, collision queries, scene loading, the post-processing pipeline
+- The first playable slice in M1 will land later than it would have with Unity
+- The art pipeline has to be built in-house (which is also the precondition for the `proc_ai` asset route)
 
-**获得的能力：**
-- 每一次改动都能被 diff、被 lint、被无头测试断言
-- Agent 可以完全用文本工具工作，不需要计算机操作 GUI
-- staging 是一个 URL，人类点开就能玩
+**Capabilities gained:**
+- Every change can be diffed, linted and asserted on by headless tests
+- Agents can work entirely with text tools, with no GUI computer use
+- staging is a URL: the human clicks it and plays
 
-**必须补的功课：**
-- ECS 与确定性内核（M1 首要任务）
-- 3D 像素渲染管线（M2）
-- Electron + Steamworks 封装（M6，需提前 spike）
+**Homework we must do:**
+- The ECS and the deterministic core (the first priority in M1)
+- The 3D pixel render pipeline (M2)
+- The Electron + Steamworks wrapper (M6, needs an early spike)
 
-## 6. ★ 回滚条件（可测量）
+## 6. ★ Rollback conditions (measurable)
 
-出现以下**任一**情况，A1 必须提出新 ADR 重新评估引擎选型：
+If **any** of the following occurs, A1 must raise a new ADR to re-evaluate the engine choice:
 
-| # | 条件 | 测量方式 | 复查时点 |
+| # | Condition | How it is measured | Reviewed at |
 |---|---|---|---|
-| 1 | M1 结束时，目标场景（4 玩家 + 24 敌人 + 满屏特效）p99 帧时间 > 25ms，且经一轮优化后仍无法降到 18.2ms 以内 | `pnpm bench:combat` | M1 收敛 |
-| 2 | 自研 ECS + 动画状态机的代码量超过 8000 行，且仍未支撑起 feel-spec §4 的全部动作 | `cloc packages/sim` | M1 收敛 |
-| 3 | M6 spike 证明 Electron 无法可靠支持 Steam Overlay / 成就 / 云存档 | spike 报告 | M2 期间提前做 |
-| 4 | 连续两个里程碑中，"渲染/引擎基础设施"类任务占总任务数 > 40% | 任务统计 | 每里程碑 |
+| 1 | At the end of M1, p99 frame time in the target scene (4 players + 24 enemies + a screen full of effects) is > 25ms and one round of optimisation still cannot bring it under 18.2ms | `pnpm bench:combat` | M1 convergence |
+| 2 | The custom ECS plus animation state machine exceeds 8000 lines and still does not support every action in feel-spec §4 | `cloc packages/sim` | M1 convergence |
+| 3 | The M6 spike shows that Electron cannot reliably support the Steam overlay / achievements / cloud saves | Spike report | Pulled forward into M2 |
+| 4 | Across two consecutive milestones, "rendering / engine infrastructure" tasks account for > 40% of all tasks | Task statistics | Every milestone |
 
-**回滚代价评估**：M1 结束前回滚，损失约一个里程碑；M2 之后回滚，`packages/sim` 的纯逻辑部分（ECS、战斗、内容数据）可以完整迁移，损失主要在 `packages/client`。因此**第 3 条必须在 M2 期间就 spike 验证，不能拖到 M6**。
+**Cost of rolling back**: rolling back before the end of M1 costs roughly one milestone. Rolling back after M2, the pure-logic parts of `packages/sim` (ECS, combat, content data) migrate intact, and the loss is mostly `packages/client`. Which is why **condition 3 must be verified by a spike during M2 and cannot wait until M6**.
 
 ---
 
-## 7. 相关
+## 7. Related
 
 - `docs/02-tech/architecture.md §1`
-- ADR-0002（联机方案）
+- ADR-0002 (the multiplayer decision)

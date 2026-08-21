@@ -1,0 +1,35 @@
+The production failure behind andon A-2026-08-21-1.
+
+Before:
+
+$ gh api repos/catchyan/sunset-club/branches/main/protection
+{
+  "required_status_checks": { "strict": true, "contexts": ["gates"] },
+  "required_pull_request_reviews": { "required_approving_review_count": 1, ... },
+  "enforce_admins": { "enabled": true }
+}
+
+$ gh pr view 2 --json mergeable,mergeStateStatus
+{"mergeStateStatus":"BLOCKED","mergeable":"MERGEABLE"}
+
+$ gh api repos/catchyan/sunset-club/commits/b5e9426/check-runs --jq '.check_runs[].name' | sort -u
+build
+docs
+envelope
+feel
+lane
+mirror
+summary
+
+No check named 'gates'. That is the workflow's name. GitHub matches job names, so the
+required check never reported and the pull request could not merge, while all seven
+gates on it were green.
+
+After:
+
+$ gh api repos/catchyan/sunset-club/branches/main/protection --jq '{contexts:.required_status_checks.contexts, reviews:.required_pull_request_reviews}'
+{"contexts":["summary"],"reviews":null}
+
+Reviews are null because every agent drives one GitHub account and GitHub will not let an
+account approve its own pull request. Peer review is enforced by the envelope gate reading
+APPROVED-BY from the timeline instead.

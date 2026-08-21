@@ -1,173 +1,173 @@
-# 美术圣经 · 3D 像素
+# Art Bible · 3D Pixel
 
-> 状态：DRAFT v0.1 · 所有者：视觉总监(V1) · 冻结需人类批准
-> **本文档中标 🤖 的条款由 `tools/art-lint` 自动检查，不合规资产直接拒收。**
-
----
-
-## 0. 画风一句话
-
-**PSX 时代的 3D 骨架，穿着现代像素艺术的皮。** 低分辨率、有限调色板、硬边、顶点会抖，但构图与色彩是当代的审美。
-
-## 1. 为什么选这个画风
-
-1. **可被程序化与 AI 大批量生产。** 严格的调色板与低面数约束意味着"合规"是可机检的，AI 生成的东西能自动过滤——这是我们能用 Agent 团队做美术的前提。
-2. **与主题契合。** 低分辨率天然带旧感、记忆感、褪色感。"英雄迟暮"需要的就是这个。
-3. **性能便宜。** 384×216 的渲染分辨率，Three.js 在浏览器里能轻松跑满 60 帧。
-4. **辨识度高。** 3D 像素在 2026 年仍然不算烂大街，一张截图就能被认出来。
+> Status: DRAFT v0.1 · Owner: Visual Director (V1) · Freezing requires human approval
+> **Clauses marked 🤖 are checked automatically by `tools/art-lint`. A non-compliant asset is rejected outright.**
 
 ---
 
-## 2. 渲染规格 🤖
+## 0. The style in one line
 
-| 参数 | 值 | 不可协商 |
+**A PSX-era 3D skeleton wearing modern pixel art.** Low resolution, limited palette, hard edges, vertices that wobble — but the composition and the colour are contemporary.
+
+## 1. Why this style
+
+1. **It can be mass-produced procedurally and by AI.** A strict palette and a low triangle budget mean compliance is machine-checkable, so AI output can be filtered automatically. That is the precondition for an agent team producing art at all.
+2. **It fits the theme.** Low resolution carries age, memory, and fading for free. That is exactly what heroes in twilight needs.
+3. **It is cheap to render.** At a render resolution of 384×216, Three.js holds 60 fps in a browser with headroom to spare.
+4. **It is recognisable.** 3D pixel is still not everywhere in 2026; one screenshot is enough to identify the game.
+
+---
+
+## 2. Render spec 🤖
+
+| Parameter | Value | Non-negotiable |
 |---|---|---|
-| 渲染分辨率 | **384 × 216** | ✅ |
-| 上采样 | 整数倍 NearestFilter（1080p = 5×，1440p = 6.67× 需 letterbox 或 6× + 边框） | ✅ |
-| 抗锯齿 | **关闭**（MSAA off，FXAA off） | ✅ |
-| Mipmap | **关闭** | ✅ |
-| 纹理过滤 | NearestFilter | ✅ |
-| 调色板 | `assets/palettes/sunset-40.png`（40 色） | ✅ |
-| 抖动 | Bayer 4×4 有序抖动 | |
-| 顶点吸附 | 吸附到 384×216 网格 | ✅ |
-| 相机像素吸附 | **必须**。否则移动时画面会抖 | ✅ |
-| UI 层 | **不进后处理**，全分辨率单独渲染 | ✅ |
+| Render resolution | **384 × 216** | ✅ |
+| Upscale | integer-multiple NearestFilter (1080p = 5×, 1440p = 6.67× needs letterbox, or 6× plus a border) | ✅ |
+| Anti-aliasing | **off** (MSAA off, FXAA off) | ✅ |
+| Mipmaps | **off** | ✅ |
+| Texture filter | NearestFilter | ✅ |
+| Palette | `assets/palettes/sunset-40.png` (40 colours) | ✅ |
+| Dither | Bayer 4×4 ordered dither | |
+| Vertex snapping | snap to the 384×216 grid | ✅ |
+| Camera pixel snapping | **required**. Without it the image shakes while the camera moves | ✅ |
+| UI layer | **not put through post-processing**, rendered separately at full resolution | ✅ |
 
-> ⚠️ **相机像素吸附是 3D 像素风最常见的翻车点。**
-> 相机位置必须量化到渲染分辨率的像素网格，否则静止物体在相机移动时会出现"爬行"的抖动。
-> 验收方法：录一段相机匀速平移的 10 秒视频，逐帧看静止物体的边缘是否稳定。
+> ⚠️ **Camera pixel snapping is the most common way a 3D pixel style falls over.**
+> Camera position must be quantised to the pixel grid of the render resolution, or static objects will crawl as the camera moves.
+> Acceptance procedure: record 10 seconds of the camera panning at constant speed and step through it frame by frame, checking that the edges of static objects hold still.
 
 ---
 
-## 3. 调色板 · sunset-40 🤖
+## 3. Palette · sunset-40 🤖
 
-40 色，分五组。**所有贴图的每一个像素都必须精确落在调色板内，容差 0。**
+40 colours in five groups. **Every pixel of every texture must land exactly on a palette entry, tolerance 0.**
 
-| 组 | 色数 | 用途 | 色调方向 |
+| Group | Colours | Use | Hue direction |
 |---|---|---|---|
-| 暖光 | 8 | 夕阳、火把、金属高光 | 橙金 → 暗红 |
-| 冷影 | 8 | 阴影、夜色、石材 | 蓝紫 → 深靛 |
-| 肌肤与布料 | 8 | 角色 | 褪色的赭、灰绿、旧棉白 |
-| 环境中性 | 10 | 地面、墙体、木材 | 灰褐阶梯 |
-| 强调色 | 6 | **只用于战斗反馈** | 纯白（闪白）、警告红、招架金、破防紫、治疗青、毒绿 |
+| Warm light | 8 | sunset, torches, metal highlights | orange-gold → dark red |
+| Cool shadow | 8 | shadow, night, stone | blue-violet → deep indigo |
+| Skin and cloth | 8 | characters | faded ochre, grey-green, old cotton white |
+| Environment neutrals | 10 | ground, walls, wood | grey-brown ramp |
+| Accents | 6 | **combat feedback only** | pure white (hit flash), warning red, parry gold, break purple, heal cyan, poison green |
 
-### 强调色纪律 ⚠️
-**强调色只能用于战斗反馈，绝不用于环境装饰。**
-理由：低分辨率下玩家的信息通道极窄。如果环境里有红色，玩家就无法一眼看出"这个红色预警是危险"。
+### Accent discipline ⚠️
+**Accent colours may be used for combat feedback and never for environment decoration.**
+Reason: at this resolution the player's information channel is very narrow. If there is red in the environment, the player can no longer tell at a glance that a red warning means danger.
 
-这条是**可读性 > 好看**的第一实践。
+This is the first practical application of **readability outranks looks**.
 
 ---
 
-## 4. 模型规格 🤖
+## 4. Model spec 🤖
 
-| 类型 | 三角面上限 | 贴图尺寸 |
+| Type | Triangle limit | Texture size |
 |---|---|---|
-| 玩家角色 | 1500 | 128×128 |
-| 精英敌人 | 1000 | 128×128 |
-| 杂兵 | 600 | 64×64 |
-| 首领 | 3000 | 256×256 |
-| 道具/掉落物 | 200 | 32×32 |
-| 场景模块（一个房间块） | 2000 | 256×256（图集） |
+| Player character | 1500 | 128×128 |
+| Elite enemy | 1000 | 128×128 |
+| Trash enemy | 600 | 64×64 |
+| Boss | 3000 | 256×256 |
+| Item / drop | 200 | 32×32 |
+| Scene module (one room block) | 2000 | 256×256 (atlas) |
 
-**Texel density**：**1 世界单位 = 16 texel**，误差 ±5%。🤖
-这一条保证了所有物件的像素颗粒感一致——违反它，画面就会出现"有的地方像素大有的地方像素小"的廉价感。
+**Texel density**: **1 world unit = 16 texels**, tolerance ±5%. 🤖
+This clause keeps the pixel grain identical across every object. Break it and the image shows large pixels in one place and small pixels in another, which reads as cheap.
 
-**贴图规则** 🤖：
-- 尺寸必须是 2 的幂，且 ≤256
-- 无 alpha 渐变（只允许 0 或 255，硬边）
-- 无法线贴图、无 PBR 贴图。只有 albedo + 可选 emissive mask
-
----
-
-## 5. 光照
-
-- **主光**：一盏方向光，模拟低角度夕阳（仰角 15–25°）。这是本作的视觉签名。
-- **环境光**：冷色调（蓝紫），与主光形成暖冷对比。
-- **动态光**：每个场景最多 4 盏点光（火把、符阵、技能特效）。
-- **烘焙优先**：静态场景的光照尽量烘进顶点色，减少动态计算与闪烁。
-
-> ⚠️ 低分辨率 + 调色板量化下，**平滑的光照渐变会变成难看的色带**。
-> 对策：接受硬边阴影（cel 化，2–3 阶），用抖动过渡而不是渐变。
-> 如果一个效果需要平滑渐变才好看，说明它不适合这个画风，换掉它。
+**Texture rules** 🤖:
+- dimensions must be powers of two and ≤256
+- no alpha gradients (0 or 255 only, hard edges)
+- no normal maps, no PBR maps. Albedo only, plus an optional emissive mask
 
 ---
 
-## 6. 角色设计语言
+## 5. Lighting
 
-主题是英雄迟暮。角色设计必须让人**一眼看出"这个人年轻时很厉害，现在不行了"**：
+- **Key light**: one directional light standing in for a low sun (elevation 15–25°). This is the game's visual signature.
+- **Ambient light**: cool (blue-violet), set against the warm key for contrast.
+- **Dynamic lights**: at most 4 point lights per scene (torches, talisman arrays, ability effects).
+- **Bake first**: bake static scene lighting into vertex colours wherever possible, to cut dynamic computation and flicker.
 
-| 手段 | 具体做法 |
+> ⚠️ At low resolution and under palette quantisation, **a smooth lighting gradient turns into ugly banding**.
+> The counter: accept hard-edged shadows (cel-shaded, 2–3 steps) and use dithering for transitions instead of gradients.
+> If an effect needs a smooth gradient to work, it does not belong in this style. Replace it.
+
+---
+
+## 6. Character design language
+
+The theme is heroes in twilight. A character design has to make it **visible at a glance that this person was formidable once and is not any more**:
+
+| Means | How |
 |---|---|
-| **剪影** | 剪影仍然英挺（说明底子在），但有一处明显的破损/歪斜 |
-| **姿态** | 待机姿势有细微的重心偏移、护着某个部位 |
-| **装备** | 装备是好装备，但旧了、补过、不成套 |
-| **颜色** | 用褪色版本的鲜艳色（曾经的华服现在是灰玫瑰而不是玫瑰红） |
-| **动画** | 起手慢、收招快（技艺还在，爆发力没了） |
+| **Silhouette** | the silhouette is still upright (the foundation is intact), with one clear break or tilt in it |
+| **Posture** | the idle pose carries a slight shift of weight, guarding one part of the body |
+| **Equipment** | the equipment is good equipment, but old, patched, and mismatched |
+| **Colour** | faded versions of bright colours (the fine robe of years ago is grey-rose now, not rose red) |
+| **Animation** | slow wind-up, fast recovery (the Craft is intact, the explosiveness is gone) |
 
-**反例警戒**：不要画成佝偻的老人。他们是**过气的高手**，不是**老年人**。60 岁的拳王仍然站得很直，只是膝盖不行了。
+**What to avoid**: do not draw hunched old people. These are **former masters**, not **the elderly**. A boxing champion at 60 still stands straight; it is the knees that are gone.
 
 ---
 
-## 7. 动画规范
+## 7. Animation spec
 
-| 项 | 规格 |
+| Item | Spec |
 |---|---|
-| 帧率 | 逻辑 30Hz，动画采样 30fps（与逻辑对齐，便于帧数据断言） |
-| 插值 | **关闭**或极短。像素风要"卡"，不要"滑" |
-| 攻击动画 | 必须与 `feel-spec.md` 的前摇/判定/后摇帧数**逐帧对齐** 🤖 |
-| 预警姿势 | 敌人攻击预警必须有一个**静止 3 帧**的姿势（poser frame），这是可读性的关键 |
-| 命中反馈 | 受击方必须有位移 + 闪白 + 至少 2 帧的形变 |
+| Frame rate | logic at 30 Hz, animation sampled at 30 fps (aligned with logic, so frame data can be asserted) |
+| Interpolation | **off**, or extremely short. Pixel style should snap, not slide |
+| Attack animation | must align **frame for frame** with the wind-up / active / recovery frame counts in `feel-spec.md` 🤖 |
+| Telegraph pose | an enemy attack telegraph must contain a pose **held still for 3 frames** (poser frame); this is the key to readability |
+| Hit feedback | the character taking the hit must show displacement + hit flash + at least 2 frames of deformation |
 
 ---
 
-## 8. UI 规范
+## 8. UI spec
 
-- UI **不进后处理**，在全分辨率层渲染（低分辨率下文字不可读）
-- 字体：像素字体用于数字与标题；正文用可读的现代衬线/黑体
-- HUD 元素最少化：血条、韧条、气、精力、队友状态。**没有小地图**（地下城靠记路，这是设计）
-- 伤害跳字：暴击 / 破防 / 普通三种样式，颜色取自强调色组
-- 所有文本走 i18n key 🤖
-
----
-
-## 9. `tools/art-lint` 检查项清单
-
-这是 V1 最重要的交付物。运行 `pnpm art-lint`，检查：
-
-```
-[palette]      所有贴图像素 ∈ sunset-40，容差 0
-[texel]        1 世界单位 = 16 texel，误差 ±5%
-[tris]         三角面数不超过类型上限
-[texsize]      贴图尺寸是 2 的幂且 ≤256
-[alpha]        无 alpha 渐变（只有 0 或 255）
-[mipmap]       资产元数据中 mipmap = false
-[naming]       文件命名符合 <类型>_<名称>_<变体>.<扩展名>
-[structure]    资产在正确的目录下
-[accent]       强调色未出现在环境资产中
-[anim-frames]  攻击动画帧数与 content/combat/frames/*.json 一致
-[juice]        每个战斗动作挂齐触感六件套
-```
-
-**任何一项不过 → 资产被拒收，不进仓库。**
-
-> V1 的铁律：**绝不手工放行不合规资产。**
-> "这个稍微超一点没关系"是画风崩坏的开始。如果某条规则频繁挡住合理的东西，
-> 那就改规则（走 ADR），而不是破例。
+- UI is **not put through post-processing**; it renders on a full-resolution layer (text is unreadable at 384×216)
+- Fonts: pixel font for numbers and headings; body text in a readable modern serif or sans
+- Minimal HUD elements: health, Endurance, Chi, Vigor, teammate status. **No minimap** (finding the way through a Delve is the design)
+- Damage numbers: three styles — critical / break / normal — coloured from the accent group
+- All text goes through an i18n key 🤖
 
 ---
 
-## 10. AI 生成资产的工作流
+## 9. `tools/art-lint` checklist
+
+This is V1's most important deliverable. Run `pnpm art-lint`, which checks:
 
 ```
-1. V1 写生成提示词模板 + 约束（tools/asset-gen/prompts/）
-2. 批量生成候选（一次 8–16 个）
-3. 自动后处理：调色板量化 → 尺寸规整 → 去 alpha 渐变
-4. 跑 art-lint，自动淘汰不合规的
-5. V1 从通过的里挑（只做审美判断，不做合规判断）
-6. 入库
+[palette]      every texture pixel ∈ sunset-40, tolerance 0
+[texel]        1 world unit = 16 texels, tolerance ±5%
+[tris]         triangle count within the limit for the type
+[texsize]      texture dimensions are powers of two and ≤256
+[alpha]        no alpha gradients (0 or 255 only)
+[mipmap]       asset metadata has mipmap = false
+[naming]       filename matches <type>_<name>_<variant>.<ext>
+[structure]    the asset sits in the correct directory
+[accent]       accent colours do not appear in environment assets
+[anim-frames]  attack animation frame counts match content/combat/frames/*.json
+[juice]        every combat action carries the complete Juice Six
 ```
 
-**M2 的放行条件之一**：AI 生成资产的**一次通过率 ≥50%**。
-低于这个数说明生成约束不够强 —— 应该改 `asset-gen` 的提示词与后处理，而不是靠人力筛选。
-这是"可递归优化"在美术管线上的落点。
+**Any single failure → the asset is rejected and does not enter the repository.**
+
+> V1's iron law: **never wave a non-compliant asset through by hand.**
+> "It is only slightly over" is where a style starts to come apart. If a rule frequently blocks work that is reasonable,
+> change the rule (through an ADR) instead of making an exception.
+
+---
+
+## 10. Workflow for AI-generated assets
+
+```
+1. V1 writes the generation prompt templates and constraints (tools/asset-gen/prompts/)
+2. Generate candidates in batches (8–16 at a time)
+3. Automatic post-processing: palette quantisation → dimension normalisation → alpha gradient removal
+4. Run art-lint, discard the non-compliant automatically
+5. V1 picks from what passed (an aesthetic judgement only, never a compliance judgement)
+6. Commit to the repository
+```
+
+**One of M2's release conditions**: AI-generated assets pass **at ≥50% on the first attempt**.
+Below that number the generation constraints are too weak — the fix is `asset-gen`'s prompts and post-processing, not more human filtering.
+This is where "recursively self-correcting" lands in the art pipeline.

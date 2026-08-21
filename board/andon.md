@@ -1,44 +1,62 @@
-# 安灯记录（Andon）
+# Andon
 
-> 任何 Bot 都可以拉绳。**拉错不受任何责备，不拉才是过错。**
-> 只有总督 P0 能把状态改为 CLOSED，且必须在相关方确认修复后。
-> 有 OPEN 状态的安灯时，**全线停止接新任务**。
+Append-only. Add your own entry; never edit anyone else's.
 
-## 必须拉绳的四种情况
+Four triggers, and only these four:
 
-1. `MAIN_RED` — main 分支 CI 红
-2. `SPEC_CONFLICT` — 两份规格互相矛盾
-3. `CONTRACT_VIOLATION` — 冻结契约被违反
-4. `WRONG_ASSUMPTION` — 发现前面的工作建立在错误假设上
+1. The default branch is red.
+2. Two specifications contradict each other and code is being written against one of them.
+3. A `FROZEN` contract was violated.
+4. Work in flight rests on an assumption now known to be false.
 
-犹豫算不算 → **拉**。误报成本几十分钟，漏报成本几天。
+Anything else is a blocker report. Keeping the list short is what keeps the cord meaningful.
 
-## 格式（新的加在最上面）
-
-```markdown
-## 🔴 ANDON-YYYY-MMDD-NN · <一句话>
-- 拉绳人:
-- 时间:
-- 类型: MAIN_RED | SPEC_CONFLICT | CONTRACT_VIOLATION | WRONG_ASSUMPTION
-- 现象: <客观描述，贴原文/报错/两处矛盾的原文引用>
-- 影响范围:
-- 我建议的第一步:
-- 状态: OPEN
-
-<关闭时补>
-- 状态: CLOSED
-- 关闭时间:
-- 根因:
-- 修复:
-- ★ 哪道闸门本该拦住它？为什么没拦住？应该新增什么检查？
-```
+**Pulling unnecessarily is never penalised. Failing to pull is.** A false alarm costs an
+hour. An unpulled cord costs everything built on the broken assumption between now and
+whenever somebody eventually notices, which is always later than this.
 
 ---
 
-## 当前状态：✅ 无 OPEN 安灯
+## A-2026-08-21-1 · Nothing in this repository could merge
 
----
+- Pulled by: A1 at 2026-08-21T08:05:00Z
+- Type: false-assumption
+- Affected: T-000, and every task that would have followed it. Nothing to stop, because
+  nothing had started — which is the only reason this cost a day instead of a month.
+- Evidence: `gh api repos/catchyan/sunset-club/branches/main/protection` returned
+  `required_status_checks.contexts = ["gates"]`. That is the workflow's name; GitHub matches
+  job names, and the jobs here are mirror, lane, envelope, docs, build, feel, summary. The
+  required check never reported. Pull request #2 showed seven green gates and
+  `mergeStateStatus: BLOCKED`. Captured in `evidence/T-000/protection.txt`.
+- Second cause on the same configuration: `required_approving_review_count: 1`, which no
+  shared account can ever satisfy, because GitHub will not let an account approve its own
+  pull request.
+- Assumption now known to be false: that a green pull request is a mergeable one, and more
+  generally that a gate which has been read is a gate that works. Three audits of the
+  framework found sixteen more defects of the same shape.
+- Status: CLOSED at 2026-08-21T09:10:00Z
+- What was actually wrong: the repository's own configuration, which is the one thing no
+  gate in the repository can see. Behind it, a framework that had never been used: the
+  hand-written CI here was written from a paragraph of prose because no template shipped,
+  and it is where both the unreachable required check and the missing upstream mirror
+  comparison came from.
+- What was done: protection corrected to require `summary`, with reviews left to the
+  envelope gate's `APPROVED-BY` since a shared account cannot use GitHub's. Framework
+  v3.0.0 closed the audit findings; this repository pins it and now takes its workflow from
+  the shipped template.
+- Which gate should have caught it: **none existed.** Now R11 runs
+  `node docs/_studio/tools/verify-protection.mjs` weekly, and G4 refuses a workflow with no
+  `summary` job or one whose `needs` list omits a gate. Neither could have caught it from
+  inside; the first check that matters here runs from outside the repository.
 
-## 历史
+<!--
+On close, replace the status line with all three of these:
 
-*（暂无）*
+- Status: CLOSED at <ISO timestamp>
+- What was actually wrong:
+- What was done:
+- Which gate should have caught it: <gate id, or "none exists">
+
+The last line is mandatory. "None exists" is the only legitimate source of new gates —
+the constitution requires a real incident before the process is allowed to grow.
+-->

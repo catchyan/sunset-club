@@ -1,122 +1,69 @@
-# 夕阳红俱乐部 · Sunset Club
+# Sunset Club
 
-> 一款 3D 像素风、四人联机的动作角色扮演游戏。
-> 主题：**英雄迟暮**。身体在垮，技艺还在。
+A four-player cooperative action role-playing game in 3D pixel art, for Steam.
 
-四个过气的传奇——退役的王国刀剑教头、三城头牌舞娘、被逐出师门的老符匠、断了一条腿的前近卫队长——重新走进地下城。他们的力量、敏捷、体质每天都在真实衰退且不可逆；但技艺、判断与彼此的默契只增不减。
+Combat and structure follow Shining Soul II. The economy has the depth of Fantasy Westward
+Journey. The subject is heroes in twilight.
 
-**核心张力**：你无法靠肝赢，只能靠精、靠配合、靠传承。
+Your characters are past their best. A blade instructor whose wrists no longer hold a guard.
+A former lead dancer who still knows exactly where the beat is. An exiled talisman-maker
+whose hands shake. A guard captain with one leg. Stamina falls across a career and never
+comes back, and no amount of playing changes that.
 
-当一个角色老到握不住剑，他不会死——他退休，成为导师，把绝技、旧伤的经验和一部分名声传给下一个人。这既是叙事的落点，也是整个经济系统的心脏。
-
----
-
-## 这个仓库是什么
-
-**这不是一个普通的代码仓库。它同时是一套多 Agent 协作制度的载体。**
-
-本项目由一个人类制作人 + 一支 Grok Bot 组成的 Agent 团队开发。仓库里的 `docs/` 不是"文档"，而是**这支团队的运行时**——制度、契约、SOP、看板，全部以文件形式存在，可 diff、可回滚、可审计。
-
-设计目标写在宪法里：**哪怕是一群能力不稳定的 Agent，产出也必须是可行、可递归优化、可审核的。**
+What does not decline is Craft — and Craft is only ever gained. So the game cannot be won by
+grinding. It is won by precision, by coordination, and by what one character passes to the
+next. When a character retires, they become a mentor, and what they knew becomes the next
+character's starting point.
 
 ---
 
-## 从哪开始读
+## Two repositories
 
-| 你是 | 从这里开始 |
-|---|---|
-| **一个 Agent** | [`AGENTS.md`](AGENTS.md) → 你的角色（`docs/03-process/roles.md`） |
-| **人类制作人** | [`docs/04-plan/roadmap.md`](docs/04-plan/roadmap.md) → [`board/daily-brief.md`](board/daily-brief.md) |
-| **想了解游戏** | [`docs/00-charter/vision.md`](docs/00-charter/vision.md) → [`docs/01-game/gdd-core.md`](docs/01-game/gdd-core.md) |
-| **想了解协作框架** | [`docs/03-process/framework.md`](docs/03-process/framework.md) |
-| **想把这套东西跑起来** | [`docs/05-grokbot/setup.md`](docs/05-grokbot/setup.md) |
-
----
-
-## 目录结构
+This one holds the game. [`sunset-studio`](https://github.com/catchyan/sunset-studio) holds
+how the team works.
 
 ```
-├─ AGENTS.md              # Agent 进入仓库的第一件事
-├─ docs/
-│  ├─ 00-charter/         # 宪法、愿景、术语表 —— 效力最高
-│  ├─ 01-game/            # 玩法、手感规格、经济、美术、叙事
-│  ├─ 02-tech/            # 架构、契约、ADR、基础设施
-│  ├─ 03-process/         # ★ RELAY 协作框架、岗位、闸门、所有权、节奏
-│  ├─ 04-plan/            # 路线图与里程碑
-│  └─ 05-grokbot/         # ★ Grok Bot 落地手册、角色档案、SOP、Routines
-├─ board/                 # 看板：任务、心跳、日报、锁、信任账本
-├─ evidence/              # 任务证据包
-├─ packages/              # 代码（sim / client / server / protocol / content / econ-sim …）
-├─ assets/                # 美术与音频
-├─ tools/                 # 闸门、车道管理、美术 lint、资产生成
-└─ deploy/                # 部署
+sunset-studio    the constitution, the roles, the gates, the tooling
+    │
+    │  pinned in .studio-version, mirrored read-only into docs/_studio/
+    ▼
+sunset-club      this game: design, code, content, milestones
 ```
 
----
+The separation is deliberate. Games are output; a team that can build them repeatedly is the
+asset, and it only stays an asset if it lives somewhere no single game can bend it.
 
-## RELAY 协作框架（一分钟版）
-
-所有 Grok Bot **共用一台云电脑和一个文件系统**，且单个 Bot 严格串行。所以多 Agent 协作的本质是**接力赛**——交接棒的质量决定一切。
-
-五条制度，各堵一组典型失效：
-
-| 字母 | 制度 | 堵住的失效 |
-|---|---|---|
-| **R** | 留痕制 — 一切结论落盘为 git 文件，聊天只是指针 | 上下文蒸发 |
-| **E** | 信封制 — 任务必须八段齐全，缺一段接单者有权拒绝 | 规格空隙自由发挥、接口幻觉 |
-| **L** | 车道制 — git worktree 物理隔离 + 路径所有权 + CI 越界检查 | 越界修改、共享单机冲突 |
-| **A** | 断言制 — 机器验收 + 证据包 + 红队抽检，禁止自评通过 | 谎报完成、品味缺失 |
-| **Y** | 让位制 — 心跳、三振出局、停摆巡检、安灯绳 | 静默死循环 |
-
-七种失效模式里，三种被做到"物理不可能"（CI 拦死），三种被限制在"最多损失几小时"，一种（品味）由人类兜底。
-
-完整设计与调研过程见 [`docs/03-process/framework.md`](docs/03-process/framework.md)。
+`docs/_studio/` is read-only and CI verifies it against the upstream tag on every pull
+request. To change the framework, change it upstream and move the pin here.
 
 ---
 
-## 里程碑
+## Where to start
 
-按**闸门**排期，不按时间排期。放行条件不满足就不进下一个，无论花多久。
+- **An agent joining the team:** [`AGENTS.md`](AGENTS.md), then your role card in
+  `docs/_studio/docs/02-roles/`, then `/sop-task`. Nothing else is required reading.
+- **Understanding the game:** [`docs/00-charter/vision.md`](docs/00-charter/vision.md), then
+  [`docs/01-game/gdd-core.md`](docs/01-game/gdd-core.md).
+- **Understanding the economy:**
+  [`docs/01-game/gdd-economy.md`](docs/01-game/gdd-economy.md).
+- **Understanding how it is built:**
+  [`docs/02-tech/architecture.md`](docs/02-tech/architecture.md), then
+  [`docs/02-tech/adr/INDEX.md`](docs/02-tech/adr/INDEX.md) for why.
+- **What is happening right now:** [`board/backlog.md`](board/backlog.md) for what is
+  queued; `node docs/_studio/tools/board/status.mjs` for where everything stands.
 
-| # | 代号 | 核心问题 | 一句话放行判据 |
-|---|---|---|---|
-| M0 | 地基 | 这套流程本身能跑吗？ | 一个平凡的 PR 全自动走完九道闸门 + **四条负向验收全部被系统抓住** |
-| M1 | 手感 | 打起来爽吗？ | 人类拿手柄砍 10 分钟不想放下 |
-| M2 | 画风 | 看着对吗？ | 一张静态截图能让陌生人问"这什么游戏" |
-| M3 | 同行 | 四个人打起来还爽吗？ | 4 人在 100ms 模拟延迟下打完一层，无橡皮筋 |
-| M4 | 老去 | 长循环成立吗？ | 一个角色从入役到退休传承，跑通且有情绪 |
-| M5 | 市集 | 经济活了吗？ | 模拟器 365 天全绿 + 20 人实测一周物价不崩 |
-| M6 | 长昏 | 能卖吗？ | Steam EA 版本可购买可运行 |
+## State of the project
 
-详见 [`docs/04-plan/roadmap.md`](docs/04-plan/roadmap.md)。
+Milestone zero. The pipeline is being built; there is no game to play yet.
 
----
+Progress is not tracked in a status file anywhere. It is read from git and CI, because a
+status file is a second answer to a question that already has one, and it is always the
+stale one.
 
-## 设计参照
+## Stack
 
-| 维度 | 参照 | 我们取的内核 |
-|---|---|---|
-| 玩法 | 《光明之魂2》(GBA) | 四人合作、职业互补、Force Link 组合技、装备需鉴定、三矿按纯度与排列锻造 |
-| 经济 | 《梦幻西游》 | 产出少而回收多、单位时间产出有锚、账号即资产、用概率与版本把通胀无限拉长 |
-| 手感 | 《只狼》《暗黑破坏神2》 | 攻防节奏 + 清怪爽感 |
-| 画风 | PSX 时代 3D + 现代像素 | 低分辨率 RenderTarget + 调色板量化 + 顶点吸附 |
-| 协作 | MetaGPT / AgileCoder / Spec Kit / 丰田安灯 / 航空检查单 | 见 framework.md §1 的取舍表 |
+TypeScript strict · Three.js · deterministic ECS simulation · authoritative server ·
+pnpm workspace · Vitest · Electron for Steam.
 
----
-
-## 状态
-
-🚧 **M0 · 地基** — 制度已定稿，等待 Grok Bot 编制上线。
-
----
-
-## 开发
-
-```bash
-pnpm install
-pnpm dev          # 客户端开发服务器
-pnpm test         # 全量测试
-pnpm gates        # 本地跑一遍所有可自动化的闸门
-```
-
-环境搭建（空白机器）：`bash tools/bootstrap/setup.sh`
+The simulation package imports no DOM, no rendering, no network, and no filesystem, and CI
+enforces that. It is what makes replay tests and server authority possible at the same time.

@@ -1,302 +1,303 @@
-# 经济系统设计 · 《夕阳红俱乐部》
+# Economy Design · Sunset Club
 
-> 状态：DRAFT v0.1 · 所有者：经济师(C1) · 冻结需人类批准
-> 铁律：**任何影响产出或回收的改动，必须先通过 `packages/econ-sim` 的模拟闸门。** 见第 9 章。
-
----
-
-## 0. 先说清楚我们抄的是什么，以及为什么不能照抄
-
-《梦幻西游》经济能稳 20 年，靠的是三根支柱：
-
-1. **点卡是锚。** 玩家的单位在线时间有一个明确的人民币价格（0.6 元/小时），于是"一小时的产出值多少钱"是可计算的，于是**所有物品的成本都能回溯到一个共同的分母**。
-2. **回收渠道远多于产出渠道。** 点修、点技能、装备修理、宝石合成、召唤兽寿命、交易手续费……金币被持续地、强制地销毁。
-3. **藏宝阁双轨制。** 同一件东西既有游戏币价格又有人民币价格，两者必须配平，否则存在套利空间，于是市场自己会校准。
-
-我们**不能**照抄的部分：
-- 没有点卡（买断制），所以第 1 根支柱要换材料。
-- 不做现金交易（愿景明确的非目标），所以第 3 根支柱整根拿掉。
-- 没有运营团队天天盯盘调控，所以**必须用算法替代人工调控**。
-
-我们的替代方案：**用「精力」替代点卡做时间锚，用「门票」做算法化的自动回收阀，用「服务型职业」替代现金市场提供价值发现。**
+> Status: DRAFT v0.1 · Owner: Economist (C1) · Freezing requires human approval
+> Iron law: **any change that moves a faucet or a sink must clear the simulation gate in `packages/econ-sim` first.** See section 9.
 
 ---
 
-## 1. 锚：精力 × 门票 双闸门
+## 0. What we are copying, and why we cannot copy it straight
 
-### 1.1 精力（Vigor）— 时间锚
+Fantasy Westward Journey has kept its economy standing for twenty years on three pillars:
 
-| 属性 | 设定 |
+1. **The subscription card is the anchor.** A player's unit of online time carries an explicit price in yuan (0.6 yuan per hour), so "what is an hour of output worth" is computable, and therefore **the cost of every item traces back to one shared denominator**.
+2. **Far more sinks than faucets.** Per-point repair, skill levelling, equipment repair, gem fusion, pet lifespan, trade commission — coin is destroyed continuously and compulsorily.
+3. **The dual-track auction house.** The same object carries both an in-game price and a yuan price, and the two have to stay in balance or an arbitrage window opens, so the market calibrates itself.
+
+The parts we **cannot** copy:
+- No subscription card (buy-to-play), so pillar one needs different material.
+- No real-money trading (an explicit non-goal in the vision), so pillar three comes out whole.
+- No live-operations team watching the market every day, so **algorithms have to replace manual intervention**.
+
+Our substitution: **Vigor replaces the subscription card as the time anchor, the Delve Permit becomes an algorithmic automatic sink, and service professions replace the cash market as the price-discovery mechanism.**
+
+---
+
+## 1. The anchor: Vigor × Delve Permit, two gates
+
+### 1.1 Vigor — the time anchor
+
+| Property | Setting |
 |---|---|
-| 再生 | 每个**账号**每 24 小时再生 120 点（不是每角色，防多开） |
-| 上限 | 360 点（3 天存量，照顾周末玩家） |
-| 消耗 | 进地下城 40/次；采集 5/次；锻造 15/次；授课 10/次；接单代打 30/次 |
-| 不可交易 | 是。精力不能买卖、不能赠送 |
-| 加速 | 无。**不卖精力，不卖加速。** 这是不可谈判的 |
+| Regeneration | 120 points per **account** per 24 hours (not per character — this blocks multiboxing) |
+| Cap | 360 points (three days of stock, for weekend players) |
+| Costs | Delve entry 40 each; gathering 5 each; forging 15 each; teaching 10 each; contract carry 30 each |
+| Not tradable | Correct. Vigor cannot be bought, sold, or gifted |
+| Acceleration | None. **We do not sell Vigor and we do not sell speed-ups.** This is not negotiable |
 
-**作用**：全服每日总产出的**硬上限** = 活跃账号数 × 120 精力 ÷ 单位精力产出。
+**Effect**: the **hard ceiling** on server-wide daily output = active accounts × 120 Vigor ÷ output per unit of Vigor.
 
-这一条让"单位时间的产出价值"重新变得可计算——不是用人民币计价，而是用**精力**计价。任何物品的成本都能回溯到"它需要多少精力才能造出来"。这就是我们的分母。
+This makes "the output value of a unit of time" computable again — priced not in yuan but in **Vigor**. The cost of any item traces back to "how much Vigor does it take to make". That is our denominator.
 
-> **设计意图**：精力闸门直接服务于立意。老人不能连轴转。这个机制不是运营手段，它就是主题本身。
+> **Design intent**: the Vigor gate serves the premise directly. Old people cannot work around the clock. This mechanic is not a live-operations lever; it is the theme itself.
 
-### 1.2 地下城门票（Delve Permit）— 算法化回收阀
+### 1.2 Delve Permit — the algorithmic sink
 
-进入**收益型地下城**（有价值掉落的）需要门票。门票由 NPC「俱乐部管事」以银币售卖。
+Entering a **paying Delve** (one with valuable drops) requires a Delve Permit. Permits are sold for Silver by the NPC Club steward.
 
-**这是全游戏最重要的一个公式**：
+**This is the single most important formula in the game**:
 
 ```
 P(t) = P_base × clamp( (M(t) / M_target) ^ α , 0.5 , 4.0 )
 
-P(t)      : 本周期门票价格（银币）
-P_base    : 基准价（初始 2,000 银币，随全服平均等级缓慢上调）
-M(t)      : 当前全服银币存量（含玩家背包、仓库、挂单冻结）
-M_target  : 目标银币存量 = 活跃账号数 × 人均目标持有量（初始 50,000）
-α         : 弹性系数，初始 1.5
-clamp     : 单周期涨跌幅限制在基准的 0.5× ~ 4× 之间
-周期      : 每 6 小时重算一次，价格变动平滑到 30 分钟内完成（避免抢购/踩踏）
+P(t)      : permit price this cycle (Silver)
+P_base    : base price (2,000 Silver initially, rising slowly with server-average level)
+M(t)      : current server-wide Silver stock (player bags, vaults, Silver frozen in listings)
+M_target  : target Silver stock = active accounts × target holding per account (50,000 initially)
+α         : elasticity coefficient, 1.5 initially
+clamp     : movement per cycle bounded to 0.5×–4× of base
+cycle     : recomputed every 6 hours; price moves are smoothed over 30 minutes (no buying rushes or stampedes)
 ```
 
-**它是一个负反馈控制器**：
-- 银币多了（通胀） → 门票变贵 → 回收加速 + 产出门槛提高 → 银币回落
-- 银币少了（通缩） → 门票变便宜 → 玩家更容易进本 → 产出加速 → 银币回升
+**It is a negative-feedback controller**:
+- Silver rises (inflation) → permits get expensive → recycling accelerates and the bar to produce rises → Silver falls back
+- Silver falls (deflation) → permits get cheap → players enter Delves more easily → output accelerates → Silver recovers
 
-**为什么这个设计是必须的**：我们没有运营团队。梦幻靠人工"削副本产出、加云游道人"来调控，我们靠这个控制器自动做。**这也是"可审核"的体现——调控逻辑是一条公式，可以被模拟、被验证、被审计，而不是拍脑袋。**
+**Why this design is mandatory**: we have no live-operations team. Fantasy Westward Journey regulates by hand — cutting instance output, adding wandering-merchant faucets — and we let this controller do the same job automatically. **It is also where "auditable" becomes concrete: the regulation logic is one formula, so it can be simulated, verified, and audited rather than guessed at.**
 
-**透明度**：门票价格、当前全服银币存量、目标存量，全部在游戏内「行情」界面公开。玩家可以研究、预测、套利。**这本身就是一个元游戏。**
+**Transparency**: permit price, current server-wide Silver stock, and target stock are all published in the in-game Market screen. Players can study it, forecast it, and arbitrage it. **That is a metagame in its own right.**
 
-### 1.3 双闸门的意义
+### 1.3 What the two gates do together
 
-| 闸门 | 限制什么 | 特性 |
+| Gate | Limits | Character |
 |---|---|---|
-| 精力 | 一个人**能做多少事** | 硬上限，绝对公平（多开无效） |
-| 门票 | 一次事**值不值得做** | 软调节，自动稳定 |
+| Vigor | how much one person **can do** | hard ceiling, strictly fair (multiboxing gains nothing) |
+| Delve Permit | whether a given action **is worth doing** | soft regulator, self-stabilising |
 
-两者相乘，全服产出总量既有天花板，又能自我调节。这就是我们的"点卡 + 藏宝阁"。
+Multiplied together, total server output has both a ceiling and a way to correct itself. This is our "subscription card + auction house".
 
 ---
 
-## 2. 三种货币
+## 2. Three currencies
 
-| 货币 | 可交易 | 来源 | 去向 | 定位 |
+| Currency | Tradable | Sources | Uses | Role |
 |---|---|---|---|---|
-| **银币 Silver** | ✅ 完全自由 | 任务、卖战利品给 NPC（保底低价）、玩家交易 | 门票、修理、鉴定、学费、手续费、传承费、俱乐部维护 | 日常流通货币 |
-| **声望 Renown** | ❌ 绑定账号 | 高难度首通、被玩家好评的授课、稀有绝技收集、赛季排行 | 解锁高阶配方、俱乐部设施升级、导师席位扩容 | **防工作室的核心** |
-| **遗产 Legacy** | ⚠️ 极受限（仅可用于自己的传承，不可交易） | **只有角色退休时结算** | 传家宝（唯一的"无级别"级装备来源）、新角色开局天赋、导师能力上限 | 账号资产的顶层锚 |
+| **Silver** | ✅ fully free | quests, selling loot to NPCs (low floor price), player trade | permits, repair, appraisal, tuition, commissions, Lineage fees, Club upkeep | everyday circulating currency |
+| **Renown** | ❌ account-bound | high-difficulty first clears, teaching rated well by other players, rare Memory collection, seasonal ladders | unlocking advanced recipes, Club facility upgrades, more Mentor seats | **the core anti-farming measure** |
+| **Legacy** | ⚠️ severely restricted (usable only for your own Lineage, never tradable) | **settled only when a character retires** | heirlooms (the only source of "levelless" grade equipment), starting talents for a new character, Mentor ability ceilings | the top-level anchor of account worth |
 
-### 为什么是三种
+### Why three
 
-- **银币**负责流动性与价格发现。它必须能自由交易，否则市场不存在。
-- **声望**负责封住工作室。**顶级内容的钥匙不可交易**——工作室可以刷银币，但刷不出声望，因为声望来自"高难度首通"和"被真人好评"。
-- **遗产**负责长期资产沉淀。它把"你玩了三百小时"这件事变成一个不可被购买的东西。**这是账号价值的真正来源，也是玩家不会弃号的理由。**
+- **Silver** carries liquidity and price discovery. It has to trade freely or there is no market.
+- **Renown** shuts the door on gold farmers. **The key to top-tier content is not tradable** — a farm can grind Silver but cannot grind Renown, because Renown comes from high-difficulty first clears and from being rated well by real people.
+- **Legacy** carries long-term accumulation. It turns "you played three hundred hours" into something nobody can buy. **This is where account worth actually comes from, and it is the reason a player does not walk away from an account.**
 
-> 对照梦幻：银币≈梦幻币，声望≈门贡/帮贡/三界功绩（不可交易），遗产≈无级别武器与老账号沉淀。区别在于我们把"不可交易的顶层价值"做得更硬。
+> Against Fantasy Westward Journey: Silver ≈ their coin, Renown ≈ sect / guild / realm merit (untradable), Legacy ≈ levelless weapons and the sediment of an old account. The difference is that we make the untradable top layer harder.
 
 ---
 
-## 3. 产出侧（Sources）
+## 3. Faucets (sources)
 
-**设计原则：产出渠道少、可预测、全部受精力闸门约束。**
+**Design principle: few faucets, predictable, all of them behind the Vigor gate.**
 
-| 渠道 | 产出 | 精力 | 备注 |
+| Channel | Output | Vigor | Notes |
 |---|---|---|---|
-| 地下城探索 | 材料、未鉴定装备、图纸残页、银币（少量） | 40 | 主要产出。需门票 |
-| 日常委托 | 银币（固定）、少量材料 | 0 | 每日 3 条，保底收入，不需门票。**新手和休闲玩家的生命线** |
-| 采集点 | 矿石、药材（有纯度属性） | 5/次 | 地下城内与野外，每日次数上限 |
-| 拆解 | 材料（从装备回收） | 0 | 装备的出口，见 6.3 |
-| 授课 | 银币（来自其他玩家） | 10 | **不产生新银币，只转移** |
-| 代工/代打 | 银币（来自其他玩家） | 15–30 | **不产生新银币，只转移** |
+| Delve run | materials, unappraised equipment, recipe fragments, Silver (small) | 40 | the main faucet. Needs a Delve Permit |
+| Daily commissions | Silver (fixed), a few materials | 0 | three per day, floor income, no permit needed. **The lifeline for new and casual players** |
+| Gathering nodes | ore, herbs (they carry Purity) | 5 each | inside Delves and in the field, daily count capped |
+| Salvage | materials (recovered from equipment) | 0 | the exit route for equipment. Recovery rate undefined — Q6 |
+| Teaching | Silver (from other players) | 10 | **creates no new Silver, only moves it** |
+| Contract work / carries | Silver (from other players) | 15–30 | **creates no new Silver, only moves it** |
 
-**关键点**：真正**凭空产生**银币的只有前两项（地下城少量 + 日常委托），而且都很少。绝大部分银币的来源是**卖东西给 NPC 的保底回收价**，而这个价格被刻意压低（约为玩家间成交价的 30–50%），目的是把玩家推向玩家间交易。
+**Key point**: only the first two lines create Silver **out of nothing** (a small amount from Delves, plus daily commissions), and both are small. Most Silver reaches players through **the NPC floor price paid for goods**, and that price is deliberately depressed — roughly 30–50% of what the same item fetches between players — in order to push players toward player-to-player trade.
 
 ---
 
-## 4. 回收侧（Sinks）
+## 4. Sinks
 
-**设计原则：回收渠道多、日常化、随玩家变强而增大。**
+**Design principle: many sinks, part of daily life, growing as the player grows stronger.**
 
-| 渠道 | 回收强度 | 说明 |
+| Channel | Recycling strength | Notes |
 |---|---|---|
-| **地下城门票** | ★★★★★ | 主阀门，算法调节。预计占总回收 35–45% |
-| **装备修理** | ★★★★ | 耐久机制。高级装备修理费指数上升 |
-| **鉴定** | ★★★ | 未鉴定装备必须鉴定。NPC 鉴定贵，玩家鉴定师便宜但要排队 |
-| **传承费** | ★★★ | 每次传承按传承内容的价值收费。这是长循环里最大的一次性支出 |
-| **交易税（累进）** | ★★★ | 拍卖行手续费：≤1万 3%，1万–10万 5%，>10万 8%。抑制大额囤积倒卖 |
-| **锻造失败与消耗** | ★★★ | 锻造消耗矿石与银币，且有品质随机性 |
-| **养伤 / 旧伤护理** | ★★ | 每次探索后的固定开销，随旧伤等级上升 |
-| **俱乐部维护费** | ★★ | 每周按俱乐部规模（导师数、设施数）收取。**这是防止无限囤积导师的关键** |
-| **药品与消耗品** | ★★ | 战斗中的日常消耗 |
-| **学费** | ★（转移为主） | 玩家→玩家，但抽 5% 税 |
+| **Delve Permit** | ★★★★★ | the main valve, algorithmically regulated. Projected at 35–45% of all recycling |
+| **Equipment repair** | ★★★★ | durability. Repair cost on high-grade equipment rises exponentially |
+| **Appraisal** | ★★★ | unappraised equipment has to be appraised. The NPC is expensive; a player appraiser is cheap but you wait in line |
+| **Lineage fee** | ★★★ | charged per Lineage against the value of what is passed on. The largest single outlay in the long loop |
+| **Trade tax (progressive)** | ★★★ | auction house commission: ≤10k 3%, 10k–100k 5%, >100k 8%. Discourages large-lot hoarding and resale |
+| **Forging losses and consumption** | ★★★ | forging burns ore and Silver, and quality is partly random |
+| **Convalescence / Old Wound care** | ★★ | a fixed cost after each run, rising with Old Wound rank |
+| **Club upkeep** | ★★ | charged weekly against Club size (Mentor count, facility count). **This is what stops unlimited Mentor hoarding** |
+| **Medicine and consumables** | ★★ | routine combat spend |
+| **Tuition** | ★ (mostly a transfer) | player → player, but 5% is taxed |
 
-### 4.1 俱乐部维护费的特殊作用
-玩家会想无限积累导师（因为导师能授课赚钱）。维护费按 `导师数²` 的亚线性增长（实际用 `n^1.4`）收取，制造一个**自然的最优规模**，超过就不划算。这防止了"大号碾压"的马太效应。
+### 4.1 What Club upkeep is really for
+Players will want to accumulate Mentors without limit, because a Mentor earns Silver by teaching. Upkeep grows faster than the number of Mentors but slower than its square — in practice `n^1.4`, so income scales with `n` and cost with `n^1.4` — which produces a natural optimum Club size beyond which further Mentors stop paying for themselves. That blocks the rich-get-richer effect of the oversized veteran account.
 
-### 4.2 公积金（回收再分配）
-所有交易税与部分门票收入进入「俱乐部公积金」，**不是销毁，而是变成每周活动的奖池**——但奖池发放的是**声望和材料**，不是银币。
+### 4.2 Common Fund (recycle, then redistribute)
+All trade tax and part of permit revenue flow into the **Common Fund**. It is **not destroyed; it becomes the prize pool for weekly events** — but the pool pays out **Renown and materials, never Silver**.
 
-这实现了：**回收银币（通缩），发放非通胀资源（保持玩家获得感）**。这一手是我们对梦幻的改进——梦幻的回收是纯销毁，玩家只感到痛；我们把痛转化成了全服的公共品。
+That gives us: **Silver removed (deflationary), non-inflationary resources handed back (players still gain something)**. This is our one improvement on Fantasy Westward Journey: their recycling is pure destruction and the player feels only the loss, while we turn the loss into a server-wide public good.
 
 ---
 
-## 5. 生产链与匠艺
+## 5. Production chains and craft
 
-### 5.1 三格锻造（借鉴光明之魂2 并深化）
+### 5.1 Three-slot forging (taken from Shining Soul II and deepened)
 
-《光明之魂2》的原设计：三块矿石放上铁砧，**总纯度**决定产出等级，**排列顺序**决定是武器还是防具。这是一个确定性配方表——玩家可以研究、可以写攻略。我们保留这个精髓，并加三层深度：
+The original design in Shining Soul II: three pieces of ore on the anvil, where **total purity** sets the grade of the output and **the order they are placed in** decides whether the result is a weapon or armour. It is a deterministic recipe table — players can research it and write it down. We keep that core and add three layers of depth:
 
 ```
-产出 = F(矿石类型序列, 纯度总和, 锻造者技艺, 炉温状态)
+Output = F(ore type sequence, total purity, forger's Craft, forge heat state)
 
-第一层：矿石类型序列  → 决定产出的「类别」与「词条池」（确定性，可查表）
-第二层：纯度总和      → 决定产出的「等级档位」（确定性，可查表）
-第三层：锻造者技艺    → 决定品质分布的「偏移」（技艺越高，好结果概率越大）
-第四层：炉温状态      → 一个需要玩家实时操作的小游戏（拉风箱节奏），影响 ±1 档
+Layer one   : ore type sequence  → sets the output category and its affix pool (deterministic, table-lookup)
+Layer two   : total purity       → sets the output grade band (deterministic, table-lookup)
+Layer three : forger's Craft     → shifts the quality distribution (higher Craft, higher chance of a good roll)
+Layer four  : forge heat state   → a real-time minigame (bellows rhythm) worth ±1 band
 ```
 
-- 第一、二层是**知识**：可以被研究、被记录、被交易（见 5.3 手札）。
-- 第三层是**服务**：技艺高的玩家可以帮人锻造收工费。
-- 第四层是**技巧**：手残和手巧的人有差别，但差别可控（±1 档）。
+- Layers one and two are **knowledge**: they can be researched, recorded, and traded (see 5.3, the Codex).
+- Layer three is **service**: a player with high Craft can forge for others and charge a fee.
+- Layer four is **execution**: clumsy hands and deft hands differ, but the spread is bounded (±1 band).
 
-**这四层的组合让"锻造"同时是知识经济、服务经济和技巧游戏。**
+**Those four layers together make forging a knowledge economy, a service economy, and a skill game at the same time.**
 
-### 5.2 鉴定
-地下城掉落的装备大部分未鉴定（带问号）。鉴定后才知道词条。
-- NPC 鉴定：贵（银币回收阀），即时。
-- 玩家鉴定师：便宜，但需要对方在线接单；**技艺高的鉴定师有概率"看出"额外隐藏词条**（这是给鉴定师的差异化价值）。
+### 5.2 Appraisal
+Most equipment dropped in a delve is unappraised (marked with a question mark). Affixes stay hidden until it is appraised.
+- NPC appraisal: expensive (a Silver sink), instant.
+- Player appraiser: cheap, but the appraiser has to be online to take the job; **an appraiser with high Craft has a chance to "spot" an extra hidden affix**, which is the appraiser's differentiated value.
 
-### 5.3 手札（Codex）— 把攻略变成商品
+### 5.3 Codex — turning guides into goods
 
-**这是本经济系统我最想要的一个设计。**
+**This is the design in this economy that I want most.**
 
-- 玩家可以在游戏内书写「手札」：记录配方、绝技记忆的触发条件、首领的攻略、词缀应对。
-- 手札是**可交易的道具**，可以在拍卖行卖。
-- 手札有**真伪问题**：内容可以是错的。买家买之前只能看到摘要和作者声望。
-- 导师可以为手札**背书**，背书者的声望会因为手札被证伪而受损。
+- Players can write a **Codex** in game: recipes, the conditions that trigger a Memory, boss tactics, affix counters.
+- A Codex is a **tradable item** and can be sold at the auction house.
+- A Codex **can be wrong**. Before buying, the buyer sees only the summary and the author's Renown.
+- A Mentor can **endorse** a Codex; the endorser's Renown suffers when that Codex is disproved.
 
-于是产生了一个完整的**信息市场**：
-- 先驱者研究出配方 → 写手札卖高价
-- 信息扩散 → 手札贬值
-- 新版本/新词缀 → 新一轮信息不对称
-- 骗子写假手札 → 声望机制惩罚 → 声望成为信誉货币
+The result is a complete **information market**:
+- pioneers work out a recipe → write a Codex and sell it high
+- the information spreads → the Codex loses value
+- a new version or a new affix rotation → a fresh round of information asymmetry
+- frauds write false Codices → Renown penalises them → Renown becomes a reputation currency
 
-这一条把《梦幻西游》里存在于游戏外的攻略生态**内化成了游戏系统**，是本作经济设计相对参照物的最大原创点。
+This takes the guide ecosystem that lives outside Fantasy Westward Journey and **turns it into a system inside the game**. It is the largest original departure from our references.
 
 ---
 
-## 6. 服务型经济（本作的经济灵魂）
+## 6. The service economy (the soul of this economy)
 
-传统游戏经济是**物品经济**（我卖你一把剑）。本作的核心是**劳动经济**（我帮你把剑打好）。这直接来自立意——老兵的价值是手艺，不是战利品。
+A traditional game economy is a **goods economy** (I sell you a sword). The core of this one is a **labour economy** (I forge your sword for you). That comes straight from the premise: a veteran's worth is craft, not loot.
 
-| 职业 | 提供什么 | 定价依据 | 门槛 |
+| Profession | Provides | Priced on | Requirement |
 |---|---|---|---|
-| **导师** | 训练服务（提升技艺、传授绝技） | 导师的技艺等级 + 声望 | 需退休角色 |
-| **匠人** | 代工锻造 | 技艺 + 历史成品品质记录（公开） | 高锻造技艺 |
-| **鉴定师** | 鉴定 + 发现隐藏词条 | 技艺 + 成功率记录 | 高鉴定技艺 |
-| **护卫** | 带低等级玩家过难关 | 通关记录 + 声望 | 高难度通关经历 |
-| **推拿师** | 旧伤护理（比 NPC 快且便宜） | 技艺 | 特定绝技记忆 |
-| **著者** | 撰写手札 | 声望 + 手札历史准确率 | 知识与经历 |
+| **Mentor** | training (raising Craft, passing on a Memory) | the Mentor's Craft rank + Renown | a retired character |
+| **Artisan** | contract forging | Craft + public record of past output quality | high forging Craft |
+| **Appraiser** | appraisal + finding hidden affixes | Craft + success record | high appraisal Craft |
+| **Escort** | taking lower-level players through hard content | clear record + Renown | a history of high-difficulty clears |
+| **Bonesetter** | Old Wound care (faster and cheaper than the NPC) | Craft | a specific Memory |
+| **Author** | writing a Codex | Renown + the historical accuracy of their Codices | knowledge and experience |
 
-### 6.1 接单板（Job Board）
-俱乐部里的一块公告板，玩家发布需求与报价，服务者接单。所有交易记录公开（谁给谁做了什么、评价如何），形成**声誉市场**。
+### 6.1 Job Board
+A notice board in the Club where players post what they need and what they will pay, and service providers take the job. Every transaction record is public — who did what for whom, and how it was rated — which makes it a **reputation market**.
 
-### 6.2 为什么服务经济更有深度
-1. **不可囤积**：服务不能像物品一样囤起来等涨价，供给天然受精力闸门约束。
-2. **信息含量高**：服务质量有差异，需要评价体系，需要声誉，需要口碑传播——这些都是社交内容。
-3. **抗工作室**：工作室可以刷物品，但很难刷"被真人好评的授课记录"。
-4. **符合立意**：老兵靠手艺吃饭，这是主题的机制化。
+### 6.2 Why a service economy has more depth
+1. **It cannot be hoarded.** A service cannot be stockpiled like an item and held for a price rise; supply is bounded by the Vigor gate by construction.
+2. **It carries information.** Service quality varies, so it needs ratings, reputation, and word of mouth — all of which are social content.
+3. **It resists gold farming.** A farm can grind items; it is far harder to grind a record of teaching that real people rated well.
+4. **It fits the premise.** A veteran lives on craft. This is the theme turned into a mechanic.
 
 ---
 
-## 7. 折旧与流动（没有永恒的东西）
+## 7. Depreciation and turnover (nothing is permanent)
 
-一个经济崩溃的常见原因是**资产永久保值**，导致老玩家的存量碾压新玩家的增量。本作强制折旧：
+A common way for an economy to collapse is **assets holding their value forever**, which lets the veteran's stock crush the newcomer's flow. This game depreciates by force:
 
-| 资产 | 折旧机制 |
+| Asset | Depreciation mechanism |
 |---|---|
-| 装备 | 耐久损耗；修理费递增；修理次数上限后需"重铸"（消耗材料，属性小幅随机） |
-| 角色 | 体魄不可逆衰退 → 强制退休 → 强制轮换 |
-| 默契度 | 7 天不同行则缓慢衰减 |
-| 手札 | 版本更新/词缀轮换后部分内容失效（系统标记为"过时"） |
-| 导师 | 每周维护费；授课次数受精力约束 |
-| 声望 | **不折旧**（这是唯一的永久资产之一，因为它不可交易，不会造成通胀） |
-| 遗产 | **不折旧**（同上） |
+| Equipment | durability wear; rising repair cost; past a repair-count limit it must be reforged (consumes materials, stats re-roll slightly) |
+| Character | irreversible Stamina decline → mandatory Retire → mandatory rotation |
+| Rapport | decays slowly after seven days without travelling together |
+| Codex | parts stop being true after a version update or an affix rotation (the system marks them "outdated") |
+| Mentor | weekly upkeep; teaching count bounded by Vigor |
+| Renown | **does not depreciate** (one of the only permanent assets, because it is untradable and therefore cannot inflate) |
+| Legacy | **does not depreciate** (same reason) |
 
-**原则：可交易的东西一定折旧，不可交易的东西可以永恒。**
+**Principle: anything tradable depreciates; anything untradable may be permanent.**
 
 ---
 
-## 8. 反通胀与反工作室清单
+## 8. Anti-inflation and anti-farming checklist
 
-| 威胁 | 对策 |
+| Threat | Countermeasure |
 |---|---|
-| 银币通胀 | 门票算法调控器（负反馈）+ 多渠道回收 + 交易累进税 |
-| 多开刷本 | 精力按**账号**再生，不按角色 |
-| 工作室卖币 | 银币能买到的东西有上限；顶级内容需声望，声望不可交易 |
-| 大号垄断 | 俱乐部维护费亚线性增长；精力上限硬顶 |
-| 物价崩盘（通缩） | 门票变便宜 → 产出恢复；公积金活动注入需求 |
-| 卡 bug 刷资源 | 所有货币/物品变更写审计日志（E3 铁律）；每日异常检测；可回滚 |
-| 拍卖行操纵 | 累进税抑制大额；挂单有时限与费用；行情公开减少信息优势 |
-| 新老差距 | 遗产与传承让新角色不从零开始；日常委托给保底收入；护卫服务提供上车通道 |
+| Silver inflation | the permit controller (negative feedback) + many sinks + progressive trade tax |
+| Multiboxed farming | Vigor regenerates per **account**, not per character |
+| Farms selling currency | there is a ceiling on what Silver can buy; top-tier content needs Renown, and Renown is untradable |
+| Veteran account monopoly | Club upkeep rises faster than linearly with Club size; the Vigor cap is a hard ceiling |
+| Price collapse (deflation) | permits get cheaper → output recovers; Common Fund events inject demand |
+| Exploit farming | every currency and item change writes an audit log (E3 iron law); daily anomaly detection; rollback possible |
+| Auction house manipulation | the progressive tax discourages large lots; listings carry a time limit and a fee; public market data reduces information advantage |
+| Gap between new and old players | Legacy and Lineage mean a new character does not start from zero; daily commissions give floor income; Escort services provide a way in |
 
 ---
 
-## 9. 稳定性判据（模拟器闸门）
+## 9. Stability criteria (the simulator gate)
 
-**任何经济改动进主干前，必须在 `packages/econ-sim` 跑通并附报告。**
+**No economy change enters main without a clean run in `packages/econ-sim` and an attached report.**
 
-### 9.1 模拟设定
-- 10,000 个模拟账号，分布：休闲 60%（每日 1 次探索）/ 中度 30%（3 次）/ 硬核 8%（6 次，用满精力）/ 工作室 2%（最大化银币产出策略）
-- 365 个游戏内日
-- 每个模拟账号有简化的决策策略（贪心买最划算的东西、按 ROI 选择活动）
-- 输出全套时间序列
+### 9.1 Simulation setup
+- 10,000 simulated accounts, distributed: casual 60% (one run per day) / moderate 30% (three) / hardcore 8% (six, all Vigor spent) / farm 2% (a strategy that maximises Silver output)
+- 365 in-game days
+- each simulated account runs a simplified decision policy (buy greedily by value, choose activities by ROI)
+- full time series output
 
-### 9.2 通过标准（硬性）
+### 9.2 Pass criteria (hard)
 
-| 指标 | 通过带 | 说明 |
+| Metric | Pass band | Notes |
 |---|---|---|
-| 年化银币通胀率 | **-5% ~ +15%** | 略微通胀是健康的（新玩家进入） |
-| 人均银币持有量 | 90 天后进入稳态，波动 <±25% | 不能持续单向漂移 |
-| 基尼系数（银币） | **< 0.55** | 高于此值说明贫富分化失控 |
-| 门票价格 | 在 clamp 区间内，且**不长期贴边** | 贴上界 = 回收不足；贴下界 = 产出不足 |
-| 休闲玩家 90 日财富增长 | **> 0**，且能负担基础消费 | 休闲玩家不能被挤出市场 |
-| 工作室策略的 ROI | **≤ 中度玩家的 1.5 倍** | 高于此值说明有可刷的漏洞 |
-| 主要物品中位价 | 90 日后稳定，波动 <±30% | 物价可预期 |
-| 声望获取速率 | 与银币持有量**弱相关**（|r| < 0.3） | 证明有钱买不到声望 |
+| Annualised Silver inflation | **-5% to +15%** | mild inflation is healthy (new players arriving) |
+| Silver held per account | reaches steady state by day 90, swing <±25% | must not drift one way indefinitely |
+| Gini coefficient (Silver) | **< 0.55** | above this, wealth concentration is out of control |
+| Permit price | inside the clamp band, and **not pinned to an edge for long** | pinned to the ceiling = not enough recycling; pinned to the floor = not enough output |
+| Casual player wealth growth over 90 days | **> 0**, and able to cover basic spending | casual players must not be priced out of the market |
+| ROI of the farm strategy | **≤ 1.5× the moderate player's** | above this there is a farmable hole |
+| Median price of key items | stable after day 90, swing <±30% | prices have to be predictable |
+| Renown acquisition rate | **weakly correlated** with Silver held (|r| < 0.3) | proof that money cannot buy Renown |
 
-**任一项不达标 → 改动不许进主干。** 报告写进 `board/econ-reports/`。
+**Any one of these missed → the change does not enter main.** The report goes in `board/econ/`.
 
-### 9.3 上线后的持续监控
-T1 平衡官每周出经济体检报告，指标同上但用真实数据。任一指标出带 → 自动进日报的风险区。
-
----
-
-## 10. 玩家可见的经济界面
-
-- **行情板**：全服银币存量 / 目标存量 / 门票价格曲线（近 30 天）/ 主要物品中位价
-- **拍卖行**：搜索、筛选、历史成交价曲线
-- **摆摊**：在俱乐部门口摆摊，可挂 6 件物品 + 自定义招牌文字（社交向）
-- **接单板**：服务型职业的供需匹配
-- **我的账本**：个人的收支流水，分类统计（这是给"游戏商人"型玩家的核心工具）
-
-**设计意图**：把经济数据全部公开，让"研究经济"成为一种可以炫技的玩法。梦幻的经济分析生态长在贴吧里，我们让它长在游戏里。
+### 9.3 Continuous monitoring after launch
+C1 publishes a weekly economy health report — the same metrics, computed on live data. Any metric outside its band goes to P0 for the nightly report the same day, and a metric outside its band for three consecutive reports is an andon pull, not a note.
 
 ---
 
-## 11. 分期落地
+## 10. Economy screens the player can see
 
-| 里程碑 | 经济内容 |
+- **Market board**: server-wide Silver stock / target stock / permit price curve (last 30 days) / median price of key items
+- **Auction house**: search, filter, historical sale price curves
+- **Stall**: set up a stall outside the Club, up to 6 items listed plus custom sign text (social)
+- **Job Board**: supply-and-demand matching for the service professions
+- **My ledger**: personal income and outgoings, categorised (the core tool for the merchant-minded player)
+
+**Design intent**: publish all the economy data, so that studying the economy becomes a playstyle a player can show off. Fantasy Westward Journey's economic analysis ecosystem grew on forums; we want ours to grow inside the game.
+
+---
+
+## 11. Delivery by milestone
+
+| Milestone | Economy content |
 |---|---|
-| M4 | 精力系统、银币、基础产出与回收、传承与遗产 |
-| M5 | 门票调控器、拍卖行、三货币完整、服务型职业（导师/匠人/鉴定师）、行情板、经济模拟器闸门 |
-| M6 | 手札系统、接单板、公积金活动、声誉体系、平衡官埋点 |
+| M4 | Vigor system, Silver, basic faucets and sinks, Lineage and Legacy |
+| M5 | permit controller, auction house, all three currencies, service professions (Mentor / Artisan / Appraiser), market board, economy simulator gate |
+| M6 | Codex system, Job Board, Common Fund events, reputation system, live economy instrumentation |
 
-## 12. 尚未决定的问题
+## 12. Open questions
 
-| # | 问题 | 需在此前解决 |
+| # | Question | Resolve before |
 |---|---|---|
-| Q1 | 是否要有跨服市场？（倾向：单服独立，避免流动性过剩摧毁小服） | M5 |
-| Q2 | 精力 120/天 是否合适？需真实测试。太少劝退，太多失去闸门作用 | M4 |
-| Q3 | 门票的 α 弹性系数取值，需模拟器扫参 | M5 |
-| Q4 | 手札的"证伪"机制如何防止恶意举报？ | M6 |
-| Q5 | 是否允许玩家间直接银币赠与？（倾向：允许但有额度与税，否则会绕过拍卖行税） | M5 |
+| Q1 | Do we want a cross-server market? (leaning: each server stands alone, so excess liquidity does not destroy small servers) | M5 |
+| Q2 | Is 120 Vigor per day the right number? Needs live testing. Too little drives players away, too much and the gate stops gating | M4 |
+| Q3 | The value of the permit elasticity coefficient α — needs a parameter sweep in the simulator | M5 |
+| Q4 | How does the Codex "disproved" mechanism resist malicious reporting? | M6 |
+| Q5 | Do we allow direct Silver gifts between players? (leaning: allow, with a cap and a tax, otherwise it routes around the auction house tax) | M5 |
+| Q6 | What fraction of an item's materials does salvage return, and does it scale with grade? Below roughly a third nobody salvages and equipment never leaves circulation; above roughly two thirds forging becomes free | M5 |

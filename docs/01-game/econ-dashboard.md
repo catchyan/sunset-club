@@ -1,41 +1,41 @@
-# 经济仪表盘（Economy Dashboard）
+# Economy Dashboard
 
-> 状态：**STUB** · 所有者：C1 经济官 · 起草时点：**M5**
-> 占位文件。理由见 `gdd-encounters.md` 开头。
+> Status: **STUB** · Owner: C1 Economy Lead · Drafting starts: **M5**
+> Placeholder file. Rationale at the top of `gdd-encounters.md`.
 
 ---
 
-## 起草前置条件
+## Preconditions for drafting
 
-- [ ] `telemetry-spec.md` 完成
-- [ ] `packages/econ-sim/` 蒙特卡洛模拟器可用
-- [ ] `gdd-economy.md` 的八条稳定性判据已有明确计算口径
+- [ ] `telemetry-spec.md` complete
+- [ ] the `packages/econ-sim/` Monte Carlo simulator available
+- [ ] the eight stability criteria in `gdd-economy.md` each have an explicit computation rule
 
-## 本文件将要定义的东西
+## What this file will define
 
-这份文档定义 `board/econ-reports/<date>.md` 的固定格式——也就是 C1 每天要看的那一屏。
+This document defines the fixed format of `board/econ/<date>.md` — the one screen C1 reads every day.
 
-八条稳定性判据的**每日实测值 + 模拟预测值 + 偏差**，加上：
+The **daily measured value, the simulated prediction, and the deviation** for each of the eight stability criteria, plus:
 
-| 分区 | 内容 |
+| Section | Content |
 |---|---|
-| 水龙头 | 各来源的货币投放量与占比，24h / 7d / 30d |
-| 水槽 | 各去向的回收量与占比 |
-| 净流 | 投放 − 回收，以及它相对总存量的比例 |
-| 价格 | 关键物品的成交价中位数与波动 |
-| 门票 | 算法定价的当前值与近期轨迹（**重点看有没有振荡**） |
-| 分层 | 各层地下城的时薪与活跃占比 |
-| 服务型经济 | 导师 / 工匠 / 手札的收入分布 |
-| 异常 | 自动标记的离群账号与可疑交易 |
+| Faucets | currency issued per source, with shares, over 24h / 7d / 30d |
+| Sinks | currency recovered per destination, with shares |
+| Net flow | issued − recovered, and its ratio to total stock |
+| Prices | median sale price and volatility for key items |
+| Permits | current algorithmic price and recent trajectory (**watch specifically for oscillation**) |
+| Tiers | hourly earnings and share of activity for each Delve tier |
+| Service economy | income distribution across Mentors / Artisans / Codices |
+| Anomalies | automatically flagged outlier accounts and suspicious trades |
 
-## 两条设计纪律
+## Two design disciplines
 
-**第一，仪表盘的目的是发现异常，不是展示数据。**
-如果一屏里有 40 个数字全是绿的，人（和 Bot）会停止阅读它。
-默认视图应该只显示**偏离预期的项**，正常项折叠。
+**First, the dashboard exists to surface anomalies, not to display data.**
+If one screen holds 40 numbers and every one of them is green, people (and bots) stop reading it.
+The default view should show only **the items outside their expected band**, with normal items collapsed.
 
-**第二，每个指标都要有"预期区间"，而不只是当前值。**
-"银币日投放 1.2 亿"这个数字本身没有信息量。
-"银币日投放 1.2 亿，预期区间 0.9–1.15 亿，**超出上限**"才有。
+**Second, every metric needs an expected band, not just a current value.**
+"120 million Silver issued today" carries no information on its own.
+"120 million Silver issued today, expected band 90–115 million, **above the ceiling**" does.
 
-没有预期区间的指标不许上仪表盘——它只会制造噪音。
+A metric without an expected band does not go on the dashboard — all it produces is noise.

@@ -1,75 +1,75 @@
-# 项目愿景 · 《夕阳红俱乐部》
+# Project Vision · Sunset Club
 
-> 状态：DRAFT v0.1 · 所有者：人类制作人 · 变更需人类批准
-> 本文件是全项目的**第一真相**。任何设计、代码、美术、经济决策与本文件冲突时，以本文件为准；若本文件本身需要改，走 ADR 流程并由人类批准。
+> Status: DRAFT v0.1 · Owner: the human producer · Changes require human approval
+> This file is the project's **first truth**. Where any design, code, art, or economy decision conflicts with it, this file wins; if this file itself has to change, that goes through the ADR process and needs human approval.
 
 ---
 
-## 一句话
+## In one line
 
-四个身体在垮、技艺还在的老家伙，重新走进地下城。
+Four old-timers whose bodies are giving out and whose craft is not, walking back into the Delve.
 
-## 电梯陈述
+## Elevator pitch
 
-《夕阳红俱乐部》是一款 3D 像素风、四人联机的动作角色扮演游戏。你扮演的不是天选之子，而是**过气的传奇**——退役的王国刀剑教头、艳惊三城的头牌舞娘、被逐出师门的老符匠、断了一条腿的前近卫队长。他们的力量、敏捷、体质每一天都在真实衰退，且不可逆；但技艺、判断与彼此的默契只增不减。
+Sunset Club is a 3D pixel-art, four-player online action role-playing game. You do not play the chosen one. You play someone who **used to be somebody** — a retired royal blade instructor, a dancer who once headlined in three cities, an old talisman-maker expelled from his school, a former guard captain with one ruined leg. Their Might, Agility and Endurance decline a little every day, and the decline does not reverse; their Craft, their judgement and their read on each other only ever grow.
 
-游戏的核心张力是：**你无法靠肝赢，只能靠精、靠配合、靠传承。**
+The tension the whole game rests on: **you cannot win by grinding. Only by precision, by coordination, and by Lineage.**
 
-当一个角色老到握不住剑，他不会死——他退休，回到俱乐部的躺椅上，成为导师。他把绝技、旧伤的经验、以及一部分名声，传给下一个人。这个「传承」既是叙事的落点，也是整个经济系统的心脏。
+When a character gets too old to hold a sword, he does not die — he Retires to a deck chair back at the Club and becomes a Mentor. He passes on his Memories, what he learned the hard way about his Old Wounds, and part of his Renown. This Lineage is both where the story lands and the heart of the entire economy.
 
-## 立意与调性
+## Intent and tone
 
-**英雄迟暮。** 不卖惨，不搞笑，是**克制的浪漫**。
+**Heroes in twilight.** Not misery, not comedy — **restrained romance**.
 
-参考坐标：
-- 情绪：《老无所依》的苍凉；《疯狂麦克斯》里老兵仅存的尊严；《武林外传》的市井温度。
-- 玩法：《光明之魂2》（GBA）——四人合作、职业互补、Force Link 组合技、装备需鉴定、三矿按纯度与排列锻造。
-- 经济：《梦幻西游》——产出渠道少而回收渠道多、单位时间产出有锚、账号即资产、靠概率与版本把通胀无限拉长。
+Reference points:
+- Mood: the bleakness of *No Country for Old Men*; the last shred of dignity a veteran keeps in *Mad Max*; the ordinary street-level warmth of *My Own Swordsman*.
+- Play: *Shining Soul II* (GBA) — four-player co-op, complementary classes, Force Link combination attacks, equipment that must be identified, three ores forged by Purity and arrangement.
+- Economy: *Fantasy Westward Journey* — few faucets and many sinks, an anchor on output per unit of time, the account itself as the asset, and probability plus content updates stretching inflation out indefinitely.
 
-**必须避免的三种滑坡**（写进宪法，任何人可据此否决提案）：
-1. **滑向搞笑**。老年题材极易变成尬笑。本作允许幽默，但幽默必须来自尊严，不能来自嘲弄衰老本身。
-2. **滑向致郁**。衰退是机制，不是惩罚。每一次衰退都必须同时打开一扇新门（新的 build 路线、新的绝技回忆、新的传承机会）。
-3. **滑向数值堆砌**。这个游戏的深度来自「选择」和「关系」，不来自更大的数字。任何"+10% 伤害"式的设计需要额外论证。
+**Three slopes we must not slide down** (written into the constitution; anyone may veto a proposal on these grounds):
+1. **Sliding into comedy.** Old age as a subject turns into cheap laughs very easily. Humour is allowed here, but it has to come from dignity, never from mocking the decline itself.
+2. **Sliding into despair.** Decline is a mechanic, not a punishment. Every step of decline must open a door at the same time — a new build direction, a new Memory to recall, a new chance at Lineage.
+3. **Sliding into stat inflation.** This game's depth comes from **choices** and **relationships**, not from bigger numbers. Any "+10% damage" style design needs a separate justification.
 
-## 目标玩家
+## Who it is for
 
-- 玩过《暗黑破坏神2》《光明之魂》《魔女之泉》这类"手感优先"的 ARPG，对触感有要求。
-- 在《梦幻西游》《EVE》《Path of Exile》里花过时间研究经济、做过游戏内商人。
-- 有 3–4 人的固定小队，愿意每周开黑两三次。
-- 对"过了三十岁的人"这件事有共鸣。
+- People who have played feel-first ARPGs — *Diablo II*, *Shining Soul*, *Witch Spring* — and are particular about how a hit lands.
+- People who have spent time studying the economy in *Fantasy Westward Journey*, *EVE* or *Path of Exile*, and have played in-game merchant.
+- People with a settled group of 3–4 who are willing to get together and play two or three evenings a week.
+- People to whom "being over thirty" means something.
 
-## 目标平台与形态
+## Target platform and shape
 
-| 维度 | 决策 | 备注 |
+| Dimension | Decision | Notes |
 |---|---|---|
-| 首发平台 | Steam（PC / Windows 优先） | Electron + steamworks.js 封装 Web 技术栈 |
-| 技术栈 | TypeScript + Three.js + 权威服务器 | 初版浏览器可跑，便于 agent 自动化验证 |
-| 联机 | 持久化账号 + 全服共享经济 + 4 人小队副本 | 单服目标 300–1000 CCU |
-| 商业模式 | 买断制 + 赛季外观（不做玩家间现金交易） | 经济系统为**纯游戏币闭环** |
-| 语言 | 简体中文优先，英文次之 | 全文本走 i18n key，不硬编码 |
-| 发布节奏 | 抢先体验（Early Access）→ 正式版 | 不设死线，质量与品味优先 |
+| Launch platform | Steam (PC / Windows first) | Electron + steamworks.js wrapping the web stack |
+| Tech stack | TypeScript + Three.js + authoritative server | The first version runs in a browser, which makes agent-driven verification straightforward |
+| Multiplayer | Persistent accounts + one shared server-wide economy + 4-player party runs | 300–1000 CCU per server as the target |
+| Business model | Buy-to-play + seasonal cosmetics (no cash trading between players) | The economy is a **closed loop in game currency only** |
+| Language | Simplified Chinese first, English second | All text goes through i18n keys, never hard-coded |
+| Release cadence | Early Access → 1.0 | No deadlines; quality and taste come first |
 
-## 什么叫「做成了」
+## What counts as having made it
 
-按优先级排序的成功判据。上一条不满足，下一条无意义。
+Success criteria in priority order. If the previous one is not met, the next one is meaningless.
 
-1. **手感**：一个人拿着手柄，什么剧情都没有，光是砍三个杂兵，砍十分钟不想放下。
-2. **配合**：四个人打一场，结束后有人说"刚才那下配合牛逼"。
-3. **看相**：一张静态截图放到社交平台上，有陌生人问"这是什么游戏"。
-4. **经济**：有玩家在论坛自发写"本周银币行情分析"，且分析是对的。
-5. **传承**：有玩家在角色退休时截图发朋友圈，配文有情绪。
+1. **Feel**: one person with a controller, no story whatsoever, cutting down three trash mobs — ten minutes in, they still do not want to put it down.
+2. **Coordination**: four people finish one fight, and afterwards somebody says "that bit we just pulled off was great".
+3. **Look**: a single static screenshot posted to social media, and a stranger asks "what game is this?"
+4. **Economy**: a player writes a "Silver market report for the week" on a forum, unprompted, and the analysis is correct.
+5. **Lineage**: a player screenshots a character's Retirement and posts it, with a caption that carries something.
 
-这五条是里程碑闸门的最终裁决标准（见 `docs/04-plan/roadmap.md`）。
+These five are the final standard the milestone gates judge against (see `docs/04-plan/roadmap.md`).
 
-## 非目标（明确不做）
+## Non-goals (explicitly not doing)
 
-- 不做开放世界。地下城 + 城镇 + 俱乐部据点，三种场景，够了。
-- 不做 PvP 竞技场（至少 1.0 之前不做）。经济系统的稳定性优先于对抗内容。
-- 不做手机端（1.0 之前）。技术栈保留移植可能，但不为此牺牲 PC 体验。
-- 不做现金交易 / NFT / 区块链。经济闭环内可以极深，但不与法币打通。
-- 不做"逼氪"的任何形式。赛季只卖外观，且外观不影响可读性。
+- No open world. A Delve, a town, and the Club as a home base — three kinds of location is enough.
+- No PvP arena (at least not before 1.0). The stability of the economy comes before adversarial content.
+- No mobile (before 1.0). The stack keeps a port possible, but the PC experience will not be sacrificed for it.
+- No cash trading, NFTs or blockchain. The closed economic loop may go arbitrarily deep, but it never connects to real currency.
+- No monetisation designed to pressure players into paying. Seasons sell cosmetics only, and cosmetics never affect readability.
 
-## 词汇（正式术语见 glossary.md）
+## Vocabulary (the formal terms live in glossary.md)
 
-本文档中出现的核心专有名词，全项目必须统一使用，不得同义替换：
-**俱乐部 / 在役角色 / 导师 / 技艺(Craft) / 体魄(Stamina，属性组) / 精力(Vigor，每日资源) / 旧伤 / 绝技记忆 / 合击 / 默契度 / 传承 / 遗产 / 声望 / 银币 / 地下城门票**。
+The core proper nouns in this document are used project-wide with no synonyms substituted:
+**Club / Active / Mentor / Craft / Stamina (the attribute group) / Vigor (the daily resource) / Old Wound / Memory / Duet / Rapport / Lineage / Legacy / Renown / Silver / Delve Permit**.

@@ -1,34 +1,33 @@
-# 遥测规格（Telemetry Spec）
+# Telemetry Spec
 
-> 状态：**STUB** · 所有者：T1 平衡官 · 起草时点：**M4 起草，M5 前必须完成**
-> 占位文件。理由见 `gdd-encounters.md` 开头。
+> Status: **STUB** · Owner: C1 · Drafting: **starts at M4, must be complete before M5**
+> Placeholder file. Rationale at the top of `gdd-encounters.md`.
 
 ---
 
-## 起草前置条件
+## Preconditions for drafting
 
-- [ ] M4 的角色生命周期（成长、退役、传承）已实现
-- [ ] `contracts/telemetry-events.md` 草案
+- [ ] M4's character lifecycle (growth, Retire, Lineage) implemented
+- [ ] a draft of `contracts/telemetry-events.md`
 
-## 为什么这份规格必须早于经济系统
+## Why this spec has to come before the economy
 
-`/sop-econ-change` 的铁律一：**先建监控，再动数值。**
+Iron law one of the economy-change SOP: **build the monitoring first, then move the numbers.**
 
-没有遥测数据支撑的经济改动一律拒绝。所以遥测规格必须在 M5 开始前就位——
-否则 M5 一上来就会陷入"我觉得这个掉率有点高"的凭感觉调参，而那正是经济系统崩掉的标准路径。
+An economy change with no telemetry behind it is refused, without exception. So the telemetry spec has to be in place before M5 starts — otherwise M5 opens with "this drop rate looks a bit high to me" tuning by feel, and that is the standard route to an economy that collapses.
 
-## 本文件将要回答的问题
+## Questions this file will answer
 
-1. **埋点清单**：每个事件的名称、字段、触发时机、采样率。
-2. **经济八条判据对应的指标怎么算**：通胀率、基尼系数、时薪、服务型玩家收入、脚本收益率……每一条都要有明确的计算口径。
-3. **隐私边界**：不采集什么。
-4. **性能约束**：埋点异步写，不阻塞游戏逻辑（`architecture.md §7`）。
-5. **看板**：`board/telemetry/<week>.md` 的固定格式。
-6. **异常告警**：什么样的数据波动应该自动触发告警而不是等周报。
+1. **Event list**: the name, fields, trigger point, and sampling rate of every event.
+2. **How the eight economy criteria are computed**: inflation rate, Gini coefficient, hourly earnings, service-player income, scripted-farming return rate — each one needs an unambiguous definition.
+3. **Privacy boundary**: what we do not collect.
+4. **Performance constraint**: events are written asynchronously and never block game logic (`architecture.md §7`).
+5. **Board**: the fixed format of `board/telemetry/<week>.md`.
+6. **Anomaly alerts**: which data movements should raise an alert automatically instead of waiting for the weekly report.
 
-## 一条设计纪律
+## One design discipline
 
-**先想清楚"这个数字变了我会做什么"，再决定要不要采集它。**
+**Work out "what will I do when this number moves" before deciding whether to collect it.**
 
-采集一个没有对应行动的指标，唯一的效果是让周报变长、让真正重要的信号被淹没。
-如果回答不出"这个数涨了 20% 我会怎么办"，就不要采集它。
+Collecting a metric with no action attached to it does one thing: it makes the weekly report longer and buries the signals that matter.
+If you cannot answer "what will I do if this number rises 20%", do not collect it.

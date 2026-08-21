@@ -1,72 +1,72 @@
-# 契约区（Contracts）
+# Contracts
 
-> Owner: A1 总架构师 · 冻结需人类总制作人批准
+> Owner: A1 · Freezing requires the human's approval
 
-宪法第七条：**任何跨模块的数据结构、网络消息、存档格式、内容数据，必须先在这里定义 schema 并被冻结，然后才能有人写实现。**
+Constitution, article 2 — contracts before implementations: **any cross-module data structure, network message, save format or content data has its schema defined here and frozen before anyone writes an implementation against it.**
 
-这条规则存在的唯一原因：多个 Bot 并行时，**接口对不上是最贵的返工**。一个 Bot 花 3 小时写的东西，因为另一个 Bot 对字段名的理解不同而全部作废——这种事在没有契约区的项目里每周都会发生。
+There is exactly one reason this rule exists: when several bots work in parallel, **mismatched interfaces are the most expensive rework there is**. Three hours of one bot's work thrown away because another bot understood a field name differently — in projects without a contract zone, that happens weekly.
 
 ---
 
-## 1. 契约的三种状态
+## 1. The three states of a contract
 
-| 状态 | 含义 | 谁能改 |
+| State | Meaning | Who may change it |
 |---|---|---|
-| `DRAFT` | 正在讨论，**任何人不得开始实现** | A1 直接改 |
-| `FROZEN` | 已冻结，可以开始实现 | **无人**。必须走 ADR |
-| `SUPERSEDED` | 已被新版本取代 | 只读，保留供追溯 |
+| `DRAFT` | Under discussion; **nobody may start implementing** | A1 edits directly |
+| `FROZEN` | Frozen; implementation may begin | **Nobody**. It takes an ADR |
+| `SUPERSEDED` | Replaced by a newer version | Read-only, kept for traceability |
 
-每个契约文件头部必须有：
+Every contract file must carry this at the top:
 
 ```markdown
-> Status: FROZEN | Version: 3 | Frozen at: 2026-09-01 | Frozen by: 人类总制作人
+> Status: FROZEN | Version: 3 | Frozen at: 2026-09-01 | Frozen by: the human
 > Supersedes: v2 (ADR-0007)
 ```
 
-## 2. 冻结流程
+## 2. The freezing process
 
 ```
-A1 起草 (DRAFT)
-  → 常委会评审（相关实现方必须发言："我按这个能不能实现？"）
-  → A1 修订
-  → 人类总制作人批准
-  → 标记 FROZEN，版本号 +1
-  → 此时且仅此时，总督才可以派发依赖该契约的任务
+A1 drafts (DRAFT)
+  → Monday planning review (every implementing role must say "can I build against this or not?")
+  → A1 revises
+  → the human approves
+  → marked FROZEN, version +1
+  → then, and only then, P0 may dispatch tasks that depend on this contract
 ```
 
-**总督 P0 的硬约束**：任务信封第 4 段引用的契约若是 `DRAFT`，这张任务卡不许发出去。
+**Hard constraint on P0**: if a contract referenced in section 4 of a task card is still `DRAFT`, that card does not go out.
 
-## 3. 变更流程（契约已 FROZEN 之后）
+## 3. The change process (after a contract is FROZEN)
 
-发现契约有问题时——这很正常，不丢人：
+When a contract turns out to be wrong — which is normal, and nothing to be embarrassed about:
 
-1. **停手。** 不要"先按我理解的改一下代码，回头再说"。
-2. 按 `/sop-adr` 提 ADR，说明：为什么现在的契约不行、至少两个备选方案、变更的代价。
-3. A1 评审 → 人类批准。
-4. 契约版本 +1，旧版标 `SUPERSEDED`。
-5. A1 负责列出**所有受影响的代码位置**，总督派迁移任务。
+1. **Stop.** Not "let me just change the code the way I understand it and sort this out later".
+2. Raise an ADR per `/sop-adr` covering: why the current contract does not work, at least two alternatives, and the cost of the change.
+3. A1 reviews → the human approves.
+4. Contract version +1; the old version is marked `SUPERSEDED`.
+5. A1 is responsible for listing **every affected code location**, and the Steward dispatches the migration tasks.
 
-**未经 ADR 修改 FROZEN 契约 = 立即拉安灯，且 1 次即记入信任账本升级为双人复核。** 这是本项目最严重的违规，比写错代码严重得多——写错代码只影响一个模块，破坏契约影响所有人。
+**Modifying a FROZEN contract without an ADR = pull the andon cord immediately, and one occurrence goes into the trust ledger as an escalation to two-person review.** This is the most serious violation in this project, far worse than writing bad code — bad code affects one module, a broken contract affects everybody.
 
-## 4. 契约与代码的关系
+## 4. How contracts relate to code
 
-契约文档是**人读的**，`packages/protocol/` 是**机器读的**，两者必须一致。
+Contract documents are **for humans**, `packages/protocol/` is **for machines**, and the two must agree.
 
-- 单一定义源：`packages/protocol/src/**` 用 Zod 定义
-- 由 Zod 生成：TS 类型、运行时校验器、JSON Schema
-- CI 检查：契约文档里的字段表与 Zod 定义逐字段比对（`tools/gates/contract-sync.ts`）
-- 不一致 → CI 红，且由 S1 记入 `board/drift.md`
+- Single source of definition: `packages/protocol/src/**`, defined with Zod
+- Generated from Zod: TS types, runtime validators, JSON Schema
+- CI check: the field tables in the contract documents are compared field by field against the Zod definitions (`tools/gates/contract-sync.ts`)
+- A mismatch → CI red, and S1 records it in `board/drift.md`
 
-## 5. 契约清单
+## 5. Contract inventory
 
-| 契约 | 文件 | 状态 | 需要它的里程碑 | 谁依赖它 |
+| Contract | File | State | Milestone that needs it | Who depends on it |
 |---|---|---|---|---|
-| 战斗事件 | `combat-events.md` | **DRAFT v0** | M1 | E1-sim, E2-client, V1, U1 |
-| 内容数据 schema | `content-schema.md` | **DRAFT v0** | M1 | E1-sim, D1, T1, V1 |
-| 网络协议 | `net-protocol.md` | *未起草* | M3 | E1, E2, E3 |
-| 存档与角色 | `save-format.md` | *未起草* | M4 | E3, C1 |
-| 经济账本 | `economy-ledger.md` | *未起草* | M5 | E3, C1, T1 |
-| 遥测事件 | `telemetry-events.md` | *未起草* | M5 | T1, C1 |
+| Combat events | `combat-events.md` | **DRAFT v0** | M1 | E1, E2, V1, U1 |
+| Content data schema | `content-schema.md` | **DRAFT v0** | M1 | E1, D1, V1 |
+| Network protocol | `net-protocol.md` | *not drafted* | M3 | E1, E2, E3 |
+| Saves and characters | `save-format.md` | *not drafted* | M4 | E3, C1 |
+| Economy ledger | `economy-ledger.md` | *not drafted* | M5 | E3, C1 |
+| Telemetry events | `telemetry-events.md` | *not drafted* | M5 | C1, D1 |
 
-> **不提前起草未来里程碑的契约。** 契约先行指的是"实现之前"，不是"越早越好"。
-> 过早冻结的契约会基于错误假设，比没有契约更糟。M3 的网络协议要等 M1 的战斗系统跑起来、知道每 tick 到底要同步什么之后再写。
+> **Do not draft contracts for future milestones ahead of time.** Contracts first means "before the implementation", not "the earlier the better".
+> A contract frozen too early is built on wrong assumptions, which is worse than having no contract. The M3 network protocol waits until the M1 combat system is running and we know what actually has to be synchronised each tick.

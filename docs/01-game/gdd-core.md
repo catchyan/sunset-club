@@ -1,274 +1,277 @@
-# 核心玩法设计 · 《夕阳红俱乐部》
+# Core Gameplay Design · Sunset Club
 
-> 状态：DRAFT v0.1 · 所有者：设计总监(D1) · 冻结需人类批准
-> 上位文件：`docs/00-charter/vision.md`（冲突以愿景为准）
-> 下位文件：`docs/01-game/feel-spec.md`（帧数据契约，本文只给设计意图，数字以 feel-spec 为准）
+> Status: DRAFT v0.1 · Owner: Design Director (D1) · Freezing requires human approval
+> Governing document: `docs/00-charter/vision.md` (on conflict, the vision wins)
+> Subordinate document: `docs/01-game/feel-spec.md` (the frame-data contract; this file states design intent only, the numbers in feel-spec are authoritative)
 
 ---
 
-## 1. 玩法一句话
+## 1. The game in one sentence
 
-四个身体在衰退的老兵，靠精准、配合和一身老手艺，把地下城一层层啃下来；打不动了就退休当师父，把本事传给下一个。
+Four veterans whose bodies are failing take a Delve apart one floor at a time, on precision, coordination and a lifetime of Craft; when they can no longer fight they Retire, become Mentors, and hand what they know to whoever comes next.
 
-## 2. 核心循环
+## 2. The core loop
 
 ```
-        ┌──────────────────────────────────────────────┐
-        │                                              │
-   俱乐部（据点）                                       │
-   ├─ 挑选在役角色 / 编队                                │
-   ├─ 向导师学技艺（花银币+精力）                          │
-   ├─ 锻造·鉴定·修理（自己做或雇玩家）                      │
-   ├─ 逛市集（拍卖行/摆摊/接单）                           │
-   └─ 买地下城门票 ─────────────────┐                    │
-                                   ↓                    │
-                             地下城（4人合作）             │
-                             ├─ 消耗精力                  │
-                             ├─ 战斗（体魄消耗、旧伤风险）    │
-                             ├─ 触发绝技记忆（探索）         │
-                             ├─ 合击（默契度成长）          │
-                             └─ 掉落：材料/未鉴定装备/线索   │
-                                   ↓                    │
-                             结算与归来                    │
-                             ├─ 体魄永久衰退一点点           │
-                             ├─ 旧伤加重/新增                │
-                             └─ 声望/银币/材料入账 ──────────┘
-                                   ↓
-                      （当体魄跌破阈值）
-                                   ↓
-                              退休仪式
-                              ├─ 结算「遗产」
-                              ├─ 转为导师（可授课赚钱）
-                              └─ 传承给新角色 → 回到俱乐部
+        ┌─────────────────────────────────────────────────────────────────────┐
+        │                                                                     │
+   CLUB (home base)                                                           │
+   ├─ pick the Active, build the party                                        │
+   ├─ learn Craft from a Mentor (Silver + Vigor)                              │
+   ├─ forge, identify, repair (do it yourself or hire a player)               │
+   ├─ work the market (auction house, stall, Job Board)                       │
+   └─ buy a Delve Permit ─────────────┐                                       │
+                                      ↓                                       │
+                            DELVE (4-player co-op)                            │
+                            ├─ spends Vigor                                   │
+                            ├─ combat: Stamina drain, Old Wound risk          │
+                            ├─ trigger a Memory (exploration)                 │
+                            ├─ Duet (Rapport grows)                           │
+                            └─ drops: materials, unidentified gear, leads     │
+                                      ↓                                       │
+                            SETTLE UP AND COME HOME                           │
+                            ├─ Stamina drops a little, permanently            │
+                            ├─ Old Wound worsens, or a new one appears        │
+                            └─ Renown, Silver, materials banked ──────────────┘
+                                      ↓
+                        (when Stamina falls below threshold)
+                                      ↓
+                             RETIREMENT RITE
+                             ├─ settle Legacy
+                             ├─ becomes a Mentor, can teach for Silver
+                             └─ Lineage to a new character → back to the Club
 ```
 
-**两个时间尺度**：
-- **短循环（15–40 分钟）**：一次地下城探索。这是手感和爽感的战场。
-- **长循环（20–60 小时）**：一个角色从入役到退休。这是情感和经济的战场。
+**Two time scales**:
+- **Short loop (15–40 minutes)**: one Delve run. This is where feel and payoff are decided.
+- **Long loop (20–60 hours)**: one character from first duty to Retire. This is where the emotion and the economy are decided.
 
 ---
 
-## 3. 视角与操作
+## 3. Camera and controls
 
-### 3.1 视角
-固定 3/4 俯视（等距倾角约 30°），低 FOV 透视相机（FOV 25–30，接近正交但保留一点纵深）。相机跟随有阻尼，战斗时轻微拉近。
+### 3.1 Camera
 
-**理由**：这是像素艺术在 3D 里最稳的黄金视角，也是《光明之魂2》和《暗黑破坏神》系的读图习惯。
+Fixed 3/4 top-down view (isometric tilt 30°), low-FOV perspective camera (FOV 25–30 — close to orthographic, but keeping some depth). Camera follow is damped and pulls in slightly during combat.
 
-### 3.2 操作方案
+**Reason**: this is the steadiest angle for pixel art rendered in 3D, and it matches the reading habits players bring from Shining Soul II and the Diablo line.
 
-同时支持手柄与键鼠，**以手柄为设计基准**（因为要做打击感）。
+### 3.2 Control scheme
 
-| 手柄 | 键鼠 | 动作 |
+Gamepad and keyboard-and-mouse are both supported. **The gamepad is the design baseline**, because impact has to be built for it.
+
+| Gamepad | Keyboard/mouse | Action |
 |---|---|---|
-| 左摇杆 | WASD | 移动（八向自由，非网格） |
-| 右摇杆 | 鼠标位置 | 面向 / 瞄准 |
-| A / ✕ | 左键 | **轻攻击**（可连段，长按 = 蓄力） |
-| X / □ | 右键 | **重攻击 / 职业主动作** |
-| B / ○ | 空格 | **闪避翻滚**（有无敌帧，消耗体魄） |
-| Y / △ | E | **交互 / 拾取** |
-| RB / R1 | Shift | **架势键**（长按进入职业专属架势，见 3.3） |
-| LB / L1 | Q | **切换武器组**（借鉴光明之魂2 的 L 键武器栏） |
-| RT / R2 | 1–4 | **绝技**（消耗「气」） |
-| LT / L2 | Tab | **道具栏快用**（借鉴光明之魂2 的 R 键道具栏） |
-| 十字键 | F1–F4 | **指令轮盘**（喊话/集合/求救/进攻，co-op 沟通） |
-| Start | Esc | 菜单 |
+| Left stick | WASD | Move (free eight-direction, not grid) |
+| Right stick | Mouse position | Facing / aim |
+| A / ✕ | Left button | **Light attack** (chains; hold = charge) |
+| X / □ | Right button | **Heavy attack / class signature action** |
+| B / ○ | Space | **Dodge roll** (has invincible frames, spends Stamina) |
+| Y / △ | E | **Interact / pick up** |
+| RB / R1 | Shift | **Stance key** (hold to enter the class Stance, see 3.3) |
+| LB / L1 | Q | **Swap weapon set** (from the L-button weapon rack in Shining Soul II) |
+| RT / R2 | 1–4 | **Signature move** (spends Chi) |
+| LT / L2 | Tab | **Quick-use item slot** (from the R-button item rack in Shining Soul II) |
+| D-pad | F1–F4 | **Command wheel** (call out / regroup / need help / push in — co-op communication) |
+| Start | Esc | Menu |
 
-### 3.3 「架势」——本作的操作核心创新
+### 3.3 Stance — the control innovation of this game
 
-老兵不靠反应快，靠**读人**。长按架势键，角色进入职业专属的防御姿态：
+A veteran does not fight on reaction speed. He fights on **reading the other man**. Hold the stance key and the character enters a defensive posture specific to their class:
 
-- 进入架势后移动变慢，但获得**招架窗口**（Parry Window）。
-- 在敌人攻击命中前的特定帧内松开架势键 → **招架成功**：敌人硬直、自己回复体魄、积累「气」。
-- 招架失败（时机错） → 进入短暂破绽，且消耗体魄。
+- Movement slows inside Stance, but the character gains a **parry window**.
+- Release the stance key during the specific frames before an enemy attack lands → **Parry**: the enemy is staggered, Endurance is restored, Chi accumulates.
+- A failed Parry (wrong timing) → a brief opening, and Stamina is spent.
 
-**为什么这个机制服务于立意**：年轻人靠翻滚硬吃，老兵靠一次精准的招架换来喘息。招架成功是本作唯一能**回复体魄**的战斗行为，这在机制上强制玩家"用脑子打"，而不是"用血条换"。
+**Why this mechanic serves the theme**: the young roll through attacks and eat them. A veteran buys one breath with one clean Parry. A successful Parry is the only combat action in this game that **restores Stamina**, which forces the player to fight with their head instead of trading their health bar for progress.
 
-不同职业的架势不同：
-| 职业 | 架势形态 | 招架成功效果 |
+Each class has a different Stance:
+
+| Class | Stance form | On a successful Parry |
 |---|---|---|
-| 刀剑教头 | 中段架剑 | 反击斩（高伤，附带破防） |
-| 头牌舞娘 | 侧身错步 | 位移到敌人背后，下一击必暴击 |
-| 老符匠 | 立符结界 | 反弹投射物；近战招架则短暂定身敌人 |
-| 前近卫队长 | 举盾（含义肢） | 全队 1.5 秒减伤 20%（团队向） |
+| Blade Instructor | Blade held level, mid-guard | Counter-cut (high damage, carries Poise damage) |
+| Lead Dancer | Sidestep past the shoulder | Displaces behind the enemy; the next hit is a guaranteed critical |
+| Talisman-Maker | Standing talisman ward | Reflects projectiles; a melee Parry roots the enemy briefly |
+| Guard Captain | Raised shield, braced on the prosthesis | 20% damage reduction for the whole party for 1.5 seconds (team-facing) |
 
 ---
 
-## 4. 角色：四个人
+## 4. The characters: four people
 
-不做"职业系统"，做**四个具体的人**。他们有名字、有过去、有各自的残缺。（1.0 后可扩展到 6–8 人）
+There is no class system. There are **four specific people**. They have names, they have pasts, and each of them is missing something. (Expandable to 6–8 after 1.0.)
 
-### 4.1 陆老三 · 退役王国刀剑教头
-- **过去**：教出过三任禁军统领，最后一任在政变里死了，他被削职。
-- **身体**：右肩旧伤（当年替学生挡的一刀），连续 3 次重攻击后触发，禁用重攻击 8 秒。
-- **玩法**：中距离、节奏型。轻重攻击混合连段，招架是他的核心。攻守兼备但没有位移，怕被围。
-- **绝技方向**：破招（针对特定敌人动作的反制）、教学（给队友短时增益）。
+### 4.1 Lu Laosan · retired Blade Instructor to the kingdom
+- **Past**: he trained three successive commanders of the palace guard. The last one died in a coup, and Lu was stripped of his post.
+- **Body**: Old Wound in the right shoulder, from the cut he took for a student. Triggers after 3 consecutive heavy attacks; heavy attacks are disabled for 8 seconds.
+- **Play**: mid-range, rhythm-led. Mixed light and heavy chains; the Parry is his core. Balanced attack and defence, but no movement tool, so being surrounded is his problem.
+- **Signature direction**: breaking a move (answers aimed at specific enemy actions), instruction (short-lived bonuses for allies).
 
-### 4.2 苏九娘 · 三城头牌舞娘
-- **过去**：曾是最贵的舞者，膝盖是被人打断的，凶手至今没找到。
-- **身体**：双膝旧伤，连续闪避 3 次后触发，闪避距离减半 12 秒。
-- **玩法**：极高机动、极低血量。靠错步和背击输出。是全队里最需要走位的角色，也是天花板最高的。
-- **绝技方向**：连舞（连续命中不中断则伤害递增）、迷惑（让敌人互相攻击）。
+### 4.2 Su Jiuniang · lead dancer of three cities
+- **Past**: she was the most expensive dancer there was. Her knees were broken for her. Nobody was ever caught.
+- **Body**: Old Wound in both knees. Triggers after 3 consecutive dodges; dodge distance is halved for 12 seconds.
+- **Play**: very high mobility, very low health. Damage comes from sidesteps and back attacks. She needs more positioning than anyone else on the team, and she has the highest ceiling.
+- **Signature direction**: chained dance (damage climbs while the run of hits stays unbroken), confusion (enemies attack each other).
 
-### 4.3 老聂 · 被逐出师门的符匠
-- **过去**：为了救人用了禁术，被师门除名，现在靠给人写平安符糊口。
-- **身体**：眼睛快瞎了（视野半径比别人小 25%，但敌人弱点会高亮显示——他"看不见"却"看得出"）。
-- **玩法**：远程、布置型。提前铺符阵，把战场变成自己的主场。单体输出弱，控场极强。
-- **绝技方向**：符阵（区域效果）、禁术（高风险高回报，会加重旧伤）。
+### 4.3 Lao Nie · a Talisman-Maker expelled from his school
+- **Past**: he used a forbidden art to save someone and was struck from the rolls. He gets by writing protection charms.
+- **Body**: nearly blind (sight radius 25% smaller than everyone else's, but enemy weak points are highlighted for him — he cannot *see*, and he can still *tell*).
+- **Play**: ranged, prepared. He lays talisman arrays in advance and turns the room into ground of his own choosing. Weak single-target damage, very strong control.
+- **Signature direction**: talisman arrays (area effects), forbidden arts (high risk, high return; they worsen Old Wounds).
 
-### 4.4 钟不二 · 前近卫队长
-- **过去**：断了一条腿，用的是自己打的义肢。他守的那个人还是死了。
-- **身体**：义肢会"卡住"——受到重击时有概率进入 2 秒僵直，需要队友近身帮忙"敲一下"才能解除（**强制协作点**）。
-- **玩法**：坦克 + 团队保护。举盾、拉仇恨、给队友挡刀。伤害最低，但没他很多内容打不过。
-- **绝技方向**：护卫（转移伤害到自己）、震慑（群体控制）。
+### 4.4 Zhong Bu'er · former Guard Captain
+- **Past**: he lost a leg and walks on a prosthesis he forged himself. The man he was guarding died anyway.
+- **Body**: the prosthesis **seizes** — a heavy hit has a chance to lock him in place for 2 seconds, and an ally has to come into contact range and knock it loose (**a forced coordination point**).
+- **Play**: tank and party protection. Raise the shield, hold aggro, take the hit meant for someone else. Lowest damage on the team, and a great deal of content is unbeatable without him.
+- **Signature direction**: guarding (redirect damage onto himself), overawe (crowd control).
 
-**设计原则**：每个人的"残缺"都同时是**限制**和**特色**。老聂视野小但看得见弱点；钟不二会卡住但那让队友有事做。**残缺不是 debuff，是玩法。**
-
----
-
-## 5. 三条数值轴
-
-这是本作数值系统与传统 ARPG 最大的不同。
-
-### 5.1 技艺（Craft）— 只增不减
-- 通过战斗、训练、传承获得。是角色的**能力上限**。
-- 决定：招式的判定帧宽度、伤害系数、锻造品质分布、能学的绝技层级。
-- **永不衰退。** 这是"老兵"的尊严所在。
-
-### 5.2 体魄（Stamina）— 只减不增（长期）
-三个子属性：**力（Might）/ 捷（Agility）/ 韧（Endurance）**。
-
-- **战斗内**：作为消耗资源（翻滚耗捷、重击耗力、承伤耗韧），战斗中可通过招架回复。
-- **长期**：每完成一次地下城，按难度与受伤情况**永久扣减**一小部分（例：一次标准难度扣 0.3–1.2 点，总量 100 起步）。
-- 装备、药物、俱乐部设施可提供**临时加成**，但不能逆转基础值。
-- 当任一子属性跌破 30% → 角色进入「力竭期」，强烈提示该退休了。
-
-**这条轴是全游戏的时钟。** 它让"肝"变得无意义：肝得越多，角色老得越快。
-
-### 5.3 默契（Rapport）— 队伍资产
-- 记录角色 A 与角色 B 一起完成的战斗次数与合击次数。
-- 决定：能否触发合击、合击的强度、组队时的额外增益。
-- **会衰减**：超过 7 个游戏内日不一起行动，默契缓慢下降。
-- 跨账号有效——你和朋友的固定队会积累真实的默契。这是社交黏性的机制化。
+**Design principle**: what each of them is missing is at the same time a **limit** and their identity. Lao Nie sees less and sees weak points; Zhong Bu'er seizes up, and that gives his allies something to do. **What is missing is not a debuff. It is the gameplay.**
 
 ---
 
-## 6. 战斗系统
+## 5. Three value axes
 
-### 6.1 设计目标
-- 手感基准：《光明之魂2》的清脆 + 《只狼》的攻防节奏 + 《暗黑2》的清怪爽感，三者取中。
-- 一场标准遭遇：4–8 秒解决一个杂兵组，30–90 秒解决一个精英。
-- 玩家的注意力应该在**敌人身上**，不是在自己的技能冷却上。
+This is where the numbers in this game differ most from a traditional ARPG.
 
-### 6.2 战斗要素
+### 5.1 Craft — only ever rises
+- Earned through combat, training and Lineage. It is the character's **ceiling**.
+- It sets: judgement window width for each move, damage coefficients, forging quality spread, the tier of signature moves the character can learn.
+- **It never decays.** This is where the veteran's dignity lives.
 
-**破防条（Poise）**：每个敌人有破防条，被打会累积。破防后进入 3 秒虚弱，可被处决（高伤 + 全屏可见的处决动画）。破防条随时间恢复。
-→ 这提供了"合力打一个"的动机，是 co-op 的核心张力来源。
+### 5.2 Stamina — only falls (over a career)
+Three sub-values: **Might / Agility / Endurance**.
 
-**弱点标记**：老聂能看到敌人弱点（背后/关节/护甲缝隙）。攻击弱点破防加倍。
-→ 这让老聂即使输出低也不可或缺，也是"经验丰富的老人看得出门道"的具象化。
+- **In combat**: a consumable resource (rolling spends Agility, heavy attacks spend Might, absorbing hits spends Endurance), and a Parry restores it mid-fight.
+- **Over a career**: every completed Delve **permanently subtracts** a small amount, scaled by difficulty and by injuries taken (example: one standard-difficulty run costs 0.3–1.2 points, against a starting total of 100).
+- Gear, medicine and Club facilities grant **temporary bonuses**, but nothing reverses the base value.
+- When any sub-value drops below 30% → the character enters the **exhaustion phase**, a hard signal that it is time to Retire.
 
-**气（Chi）**：绝技资源。只能通过**招架成功、破防、合击**获得，**不能靠平砍攒**。
-→ 强制玩家玩"高级操作"才能用绝技，而不是无脑平砍充能。
+**This axis is the clock for the whole game.** It makes grinding self-defeating: the more you grind, the faster the character ages.
 
-**体魄消耗**：翻滚、重击、承伤都消耗体魄。体魄清空 = 大硬直（非常危险）。
-→ 老兵不能一直动。这是节奏的来源。
+### 5.3 Rapport — a party asset
+- Records how many fights and how many Duets character A has completed with character B.
+- It sets: whether a Duet can trigger, how strong the Duet is, and the extra bonuses the pair gets while grouped.
+- **It decays**: more than 7 in-game days apart and Rapport falls slowly.
+- It works across accounts — you and the friends you always play with accumulate real Rapport. This is social stickiness turned into a mechanic.
 
-### 6.3 合击（Duet）— 借鉴并演化光明之魂2 的 Force Link
+---
 
-**触发条件**：两名角色在特定的**时机 + 空间关系**下同时满足条件，系统自动提示（角色身上出现共鸣光效，0.8 秒窗口内按架势键触发）。
+## 6. Combat
 
-示例：
-| 合击名 | 参与者 | 触发条件 | 效果 |
+### 6.1 Design goals
+- Feel baseline: the crispness of Shining Soul II, the attack-and-defence rhythm of Sekiro, and the room-clearing payoff of Diablo II. Take the midpoint of the three.
+- One standard encounter: 4–8 seconds to finish a group of trash, 30–90 seconds to finish an elite.
+- The player's attention belongs **on the enemy**, not on their own cooldowns.
+
+### 6.2 Combat elements
+
+**Poise**: every enemy has a Poise meter that fills as it takes hits. When it breaks, the enemy is weakened for 3 seconds and can be executed (high damage plus an execution animation legible across the whole screen). Poise recovers over time.
+→ This is the reason to gang up on one target, and the main source of co-op tension.
+
+**Weak point marking**: Lao Nie can see enemy weak points (the back, the joints, the gaps in armour). Hitting a weak point doubles Poise damage.
+→ This keeps Lao Nie necessary despite low damage, and it is the concrete form of "the old man can tell how the thing works".
+
+**Chi**: the resource for signature moves. Earned only by **a successful Parry, a Poise break, or a Duet**. **Ordinary attacks never build it.**
+→ The player has to execute at a high level to spend a signature move, rather than charging one up with mindless swings.
+
+**Stamina cost**: rolling, heavy attacks and absorbing hits all spend Stamina. Stamina at zero = a long stagger (very dangerous).
+→ A veteran cannot keep moving. This is where the rhythm comes from.
+
+### 6.3 Duet — taken from Shining Soul II's Force Link and pushed further
+
+**Trigger condition**: two characters satisfy the conditions at the same **moment and in the right spatial relationship**; the game signals it automatically (a resonance effect appears on both characters, and the stance key triggers it within a 0.8-second window).
+
+Examples:
+
+| Duet | Pair | Trigger condition | Effect |
 |---|---|---|---|
-| 旧日双人舞 | 教头 + 舞娘 | 教头招架成功的瞬间，舞娘在敌人 90°–180° 扇区内 | 舞娘瞬移切入，双人连击 8 段，不消耗体魄 |
-| 铁壁引雷 | 队长 + 符匠 | 队长举盾承受攻击时，符匠在其身后 3 单位内 | 盾面反射符阵，对锥形区域造成雷击 + 群体破防 |
-| 断刃 | 教头 + 队长 | 敌人破防瞬间两人同时在其近身 | 双人处决，必定掉落一件额外材料 |
-| 残影 | 舞娘 + 符匠 | 舞娘连续命中 5 段以上时，符匠对其施加符文 | 舞娘留下的残影会重复她 3 秒内的攻击 |
+| Dance of Old Days | Instructor + Dancer | the instant the Instructor lands a Parry, with the Dancer inside the enemy's 90°–180° arc | the Dancer blinks in; an 8-hit two-person chain that costs no Stamina |
+| Iron Wall, Drawn Lightning | Captain + Talisman-Maker | while the Captain is absorbing an attack behind the raised shield, with the Talisman-Maker within 3 units behind him | the shield face reflects a talisman array, dealing lightning damage in a cone plus Poise damage to the group |
+| Broken Blade | Instructor + Captain | both are in contact range the instant an enemy's Poise breaks | a two-person execution; always drops one extra material |
+| Afterimage | Dancer + Talisman-Maker | the Talisman-Maker marks the Dancer with a rune while she has 5 or more hits in a row | the afterimage she leaves behind repeats her attacks from the last 3 seconds |
 
-**合击的三条设计铁律**：
-1. **不能靠 macro 触发。** 必须依赖真实的战场时机，让"配合成功"有情绪。
-2. **必须双方都有贡献感。** 不允许"一个人按键，另一个人是道具"。
-3. **必须视觉上极其醒目。** 合击是这游戏的高光时刻，要做到全屏都知道发生了什么。
+**Three iron rules for Duets**:
+1. **A macro must not be able to trigger one.** It has to depend on a real moment in the fight, so that pulling it off carries feeling.
+2. **Both players must feel they contributed.** No arrangement where one person presses a key and the other is a prop.
+3. **It must be visually unmissable.** A Duet is this game's high point; every player on screen should know what just happened.
 
-**默契度的作用**：默契 0 时只能触发 1 级合击（伤害基准）；默契满时触发 3 级（额外效果，如附加破防、回复气）。
+**What Rapport does**: at Rapport 0, only tier 1 Duets trigger (baseline damage); at full Rapport, tier 3 triggers (extra effects such as added Poise damage or Chi restored).
 
-### 6.4 旧伤（Old Wounds）
+### 6.4 Old Wounds
 
-每个角色 2–3 个先天旧伤，冒险中可能新增。
+Each character carries 2–3 Old Wounds from the start and can pick up more in the field.
 
-- **触发**：满足条件（如"连续 3 次重攻击"）后发作，产生一个临时的严重限制。
-- **恢复**：本次探索内不恢复；回到俱乐部后需要"养伤"（消耗精力和银币，或雇玩家提供的推拿服务）。
-- **加重**：在旧伤发作状态下继续使用对应动作 → 旧伤等级提升，触发阈值永久下降。
-- **利用**：部分绝技需要"在旧伤发作时"才能使用（豁出去的招式）。**这是把惩罚变成资源的关键设计。**
+- **Trigger**: the wound flares once its condition is met (such as "3 consecutive heavy attacks"), imposing one severe temporary limit.
+- **Recovery**: none for the rest of the run. Back at the Club the wound has to be tended (costs Vigor and Silver, or hire the massage service another player sells).
+- **Worsening**: keep using the matching action while the wound is flared → the Old Wound rises a level and its trigger threshold falls permanently.
+- **Exploitation**: some signature moves can be used **only while an Old Wound is flared** — the moves a man throws when he has stopped caring. **This is the design that turns a penalty into a resource.**
 
-### 6.5 绝技记忆（Muscle Memory）— 技能系统的重构
+### 6.5 Memory (muscle memory) — the skill system rebuilt
 
-老兵**不学新招，只想起旧招**。
+A veteran **does not learn new moves. He remembers old ones.**
 
-- 绝技不在技能树里买，而是通过**在特定情境下触发回忆**解锁。
-- 例：陆老三在雨天的地下城里，对上手持双刀的敌人并招架成功 3 次 → 触发回忆过场（一段 5 秒的黑白闪回）→ 解锁「破双刀式」。
-- 每个角色 12–18 个绝技记忆，触发条件写在内容数据里，玩家需要**探索、推测、交流**才能找全。
-- 部分触发条件极其隐晦（例：带着某件特定的旧物品进入某个房间）。
+- Signature moves are not bought on a skill tree. They unlock by **triggering a recollection in a specific situation**.
+- Example: Lu Laosan, in a Delve on a rainy floor, facing an enemy with paired blades, lands 3 Parries → the recollection scene fires (a 5-second black-and-white flashback) → unlocks Paired-Blade Break.
+- Each character has 12–18 Memories. Trigger conditions live in the content data, and players have to **explore, guess and talk to each other** to find them all.
+- Some trigger conditions are deliberately obscure (example: carrying one specific old item into one specific room).
 
-**这个设计的三重收益**：
-1. 把"技能树"变成"考古"，探索欲拉满。
-2. 天然产生**攻略经济**（见经济系统的「手札」道具）。
-3. 完美服务立意——你不是在变强，你是在想起自己曾经多强。
-
----
-
-## 7. 地下城
-
-### 7.1 结构
-- 手工设计的**房间模块** + 程序化拼接（不做全程序生成，保证设计密度）。
-- 一次探索 = 3–5 层，每层 6–12 个房间，末层有首领。
-- 层与层之间有**营地**：可以喘口气、用道具、简单交流，但不能补精力。
-
-### 7.2 词缀（Modifiers）
-每周轮换的全服词缀（借鉴 Diablo 3 的大秘境和 PoE 的地图词缀），例：
-- 「阴雨」：视野降低，但雷属性伤害提升，且某些雨天限定的绝技记忆可触发
-- 「回响」：敌人死亡时留下残影，3 秒后重复一次生前最后的攻击
-- 「旧疾」：旧伤触发阈值 -1，但战利品品质 +1 档
-
-**词缀轮换是经济系统的节拍器**：它让不同材料的需求周期性波动，产生真实的行情。
-
-### 7.3 难度与人数缩放
-- 缩放靠**敌人组合与数量**，不靠血量膨胀（对齐 co-op 设计原则）。
-- 1 人也能打，但部分内容（如钟不二义肢卡住、需要两人同时踩的机关、合击专属房间）**必须多人**。
-- 掉落个人独立（personal loot），杜绝抢装备。
+**Three returns from this design**:
+1. It turns the skill tree into archaeology, which puts pressure on exploration.
+2. It produces a **strategy-guide economy** on its own (see the Codex item in the economy design).
+3. It serves the theme exactly — you are not becoming stronger, you are remembering how strong you were.
 
 ---
 
-## 8. 传承与退休（Lineage）
+## 7. The Delve
 
-这是长循环的终点，也是经济系统的入口。
+### 7.1 Structure
+- Hand-designed **room modules** stitched together procedurally (not fully procedural, so that design density survives).
+- One run = 3–5 floors, 6–12 rooms per floor, a boss on the last floor.
+- Between floors there is a **Camp**: take a breath, use items, say a few words. No Vigor is recovered there.
 
-### 8.1 退休
-当角色任一体魄子属性跌破 30%，玩家可以（也被强烈引导）执行「退休仪式」：
-- 一段专属的告别演出（每个角色不同，N1 负责）
-- 结算**遗产（Legacy）**：按该角色一生的成就（通关数、绝技收集度、合击次数、最高难度、被其他玩家评价）计算
-- 角色转为**导师**，永久留在俱乐部
+### 7.2 Modifiers
+A server-wide modifier set rotating weekly (borrowed from Diablo III Greater Rifts and Path of Exile map mods), for example:
+- "Rain": sight is reduced, lightning damage is raised, and certain rain-only Memories become triggerable
+- "Echo": an enemy leaves an afterimage on death that repeats its last attack 3 seconds later
+- "Old Ailment": Old Wound trigger thresholds -1, loot quality +1 tier
 
-### 8.2 导师能做什么
-1. **传承**：把最多 N 项技艺、1–2 个绝技记忆、旧伤应对经验传给一个新角色。新角色不是从零开始。
-2. **授课**：给**其他玩家**的角色提供训练。玩家自定价，收银币。这是核心的**服务型经济**。
-3. **背书**：为一件装备/一份手札背书，提高其市场信任度（可交易的声誉资产）。
-4. **回忆**：在俱乐部里，导师之间会互相对话。这是叙事的主要载体，也是玩家的情感锚。
+**The modifier rotation is the metronome of the economy**: it makes demand for different materials swing on a cycle, which produces a real market.
 
-### 8.3 为什么退休不是死亡
-死亡会让玩家产生损失厌恶并流失。退休让**角色的价值被固化成资产**（导师 + 遗产 + 传承），玩家不但不亏，反而"存下了东西"。这既是情感设计，也是经济设计。
+### 7.3 Difficulty and player-count scaling
+- Scaling comes from **enemy composition and count**, not from health inflation (aligned with the co-op design principle).
+- 1 player can clear it, but part of the content **requires more than one**: Zhong Bu'er's prosthesis seizing, mechanisms two people have to stand on at once, Duet-only rooms.
+- Loot is personal (personal loot), so nobody fights over gear.
 
 ---
 
-## 9. 尚未决定的问题（Open Questions）
+## 8. Lineage and Retirement
 
-供 `clarify` 阶段处理，必须在对应里程碑前解决：
+This is the end of the long loop and the entrance to the economy.
 
-| # | 问题 | 需在此前解决 |
+### 8.1 Retire
+When any Stamina sub-value drops below 30%, the player may — and is strongly steered to — perform the **Retirement Rite**:
+- A farewell scene of that character's own (different for each; N1 owns it)
+- Settle **Legacy**: computed from that character's whole career (runs cleared, Memory collection, Duet count, highest difficulty, how other players rated them)
+- The character becomes a **Mentor** and stays in the Club permanently
+
+### 8.2 What a Mentor can do
+1. **Lineage**: pass up to N points of Craft, 1–2 Memories, and hard-won knowledge of Old Wounds on to a new character. The new character does not start from zero.
+2. **Teach**: train the characters of **other players**. The player sets the price and takes Silver. This is the core **service economy**.
+3. **Vouch**: vouch for a piece of gear or a Codex, raising how much the market trusts it (a tradable reputation asset).
+4. **Remember**: inside the Club, Mentors talk to each other. This is the main vehicle for the narrative, and the player's emotional anchor.
+
+### 8.3 Why Retire is not death
+Death triggers loss aversion, and players leave. Retire **fixes the character's value into assets** — a Mentor, Legacy, Lineage — so the player has not lost anything; they have put something away. That is emotional design and economic design at once.
+
+---
+
+## 9. Open questions
+
+For the `clarify` stage to handle. Each must be resolved before the milestone named:
+
+| # | Question | Resolve before |
 |---|---|---|
-| Q1 | 死亡惩罚是什么？（倾向：不死亡，只有"重伤撤退"，损失本次战利品 + 额外体魄衰退） | M1 |
-| Q2 | 一个账号同时能有几个在役角色？（倾向：1 个在役 + 无限导师，强化情感投入） | M3 |
-| Q3 | 是否允许同一队伍出现两个相同角色？（倾向：不允许，四个人就是四个人） | M3 |
-| Q4 | 体魄衰退速度的手感？需要真实试玩后调。太快让人焦虑，太慢没有张力 | M4 |
-| Q5 | 绝技记忆的触发提示强度？完全不提示会劝退，提示太多会毁掉发现感 | M4 |
+| Q1 | What is the death penalty? (Leaning: no death; only a "carried out wounded" retreat that costs this run's loot plus extra Stamina decay) | M1 |
+| Q2 | How many Actives can one account hold at once? (Leaning: 1 Active plus unlimited Mentors, to concentrate emotional investment) | M3 |
+| Q3 | May the same character appear twice in one party? (Leaning: no. Four people means four people) | M3 |
+| Q4 | What Stamina decay rate do we ship? Settle it by playtest. Too fast and players are anxious, too slow and the tension is gone | M4 |
+| Q5 | How strongly should a Memory trigger be hinted at? No hint at all drives players away; too much hint destroys the discovery | M4 |

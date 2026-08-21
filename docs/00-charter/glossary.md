@@ -1,91 +1,83 @@
-# 术语表
+# Glossary
 
-> 状态：ACTIVE v1.0 · 所有者：典藏官(S1)
-> **全项目必须统一使用本表的术语，不得同义替换。** 引入新术语必须先加进本表。
-> S1 每日的漂移检测会扫描同义词混用。
+> Status: ACTIVE v2.0 · Owner: S1
+> **Every document uses these words and no synonyms.** A new term goes in this table before
+> it goes anywhere else. The daily drift check scans for synonym use.
+
+Process vocabulary is not here. It is cross-project and lives at the studio layer:
+`docs/_studio/docs/00-charter/glossary.md` — lane, envelope, gate, evidence pack, andon,
+three strikes, drift.
+
+The test: **would a different game still need this word?** Yes, studio table. No, this one.
 
 ---
 
-## 游戏世界
+## The world
 
-| 术语 | 英文 | 定义 | 常见误用 |
-|---|---|---|---|
-| **俱乐部** | Club | 玩家的据点，也等价于"玩家账号"。里面有在役角色与退休导师 | 公会、行会 |
-| **在役角色** | Active | 当前可以出战的角色。一个账号同时只有 1 个（待定，见 gdd-core Q2） | 主角、人物 |
-| **导师** | Mentor | 退休后的角色。可传承、可授课、可背书 | 师父、教练、NPC |
-| **地下城** | Delve | 主要的战斗与产出场景。3–5 层结构 | 副本、迷宫、地牢 |
-| **营地** | Camp | 地下城层与层之间的休息点 | 存档点、篝火 |
-
-## 角色数值
-
-| 术语 | 英文 | 定义 | 常见误用 |
-|---|---|---|---|
-| **技艺** | Craft | **只增不减**的能力轴。决定能力上限：判定帧宽度、伤害系数、锻造品质分布 | 熟练度、技能等级、经验 |
-| **体魄** | Stamina | **长期只减**的属性组，含三个子属性 | 体力、耐力、生命 |
-| ├ **力** | Might | 体魄子属性。重击消耗 | 力量、攻击力 |
-| ├ **捷** | Agility | 体魄子属性。翻滚消耗 | 敏捷、速度 |
-| └ **韧** | Endurance | 体魄子属性。承伤消耗；招架成功可回复 | 耐力、防御 |
-| **默契** | Rapport | 角色两两之间的队伍资产。决定合击等级。7 天不同行会衰减 | 好感度、友情 |
-| **气** | Chi | 绝技资源。**只能**通过招架成功 / 破防 / 合击获得，平砍不产生 | 怒气、能量、法力 |
-| **破防条** | Poise | 敌人的韧性条。打满后进入 3 秒虚弱，可被处决 | 韧性、平衡、架势条 |
-
-## 核心机制
-
-| 术语 | 英文 | 定义 | 常见误用 |
-|---|---|---|---|
-| **架势** | Stance | 长按架势键进入的防御姿态，是招架的前置 | 格挡、防御、举盾 |
-| **招架** | Parry | 在架势中于正确时机松开，成功则敌人硬直 + 回复韧 + 积气 | 弹反、格挡、反击 |
-| **合击** | Duet | 两名角色在特定时机与空间关系下触发的双人技。分 1–3 级 | 组合技、连携、Force Link |
-| **旧伤** | Old Wound | 角色的先天或后天伤患。满足条件后发作，产生临时限制。可养不可愈 | debuff、负面状态、伤病 |
-| **绝技记忆** | Memory | 通过在特定情境触发回忆而解锁的技能。**不是学会的，是想起来的** | 技能、绝招、天赋 |
-| **传承** | Lineage | 导师把技艺、绝技、旧伤经验传给新角色的行为 | 继承、遗传 |
-| **退休** | Retire | 体魄跌破阈值后角色转为导师的仪式。**不是死亡** | 死亡、退役、下线 |
-| **触感六件套** | Juice Six | 屏震 / 命中停顿 / 粒子 / 音效 / 伤害跳字 / 受击闪白 | 打击感、特效 |
-
-## 经济
-
-| 术语 | 英文 | 定义 | 常见误用 |
-|---|---|---|---|
-| **精力** | Vigor | 每**账号**每日再生 120、上限 360 的行动资源。不可交易、不可加速。**时间锚** | 体力、行动力、疲劳值 |
-| **地下城门票** | Delve Permit | 进入收益型地下城所需，用银币购买，价格由算法调控。**主回收阀** | 门票、钥匙、入场券 |
-| **银币** | Silver | 主流通货币，完全自由交易 | 金币、游戏币 |
-| **声望** | Renown | **绑定账号不可交易**的货币。解锁高阶配方与俱乐部升级。防工作室核心 | 名望、荣誉、积分 |
-| **遗产** | Legacy | 角色退休时结算的极稀缺资源。传家宝与开局天赋的唯一来源 | 遗物、传承点 |
-| **纯度** | Purity | 矿石/材料的品质属性。三格锻造中总纯度决定产出等级档位 | 品质、等级 |
-| **手札** | Codex | 玩家撰写的、可交易的游戏内攻略道具。内容可能是错的 | 攻略、笔记、书 |
-| **接单板** | Job Board | 服务型职业的供需匹配界面 | 任务板、悬赏 |
-| **公积金** | Common Fund | 交易税与部分门票收入的去向，用于全服活动奖池（发放非通胀资源） | 税收、基金 |
-
-## 流程与协作
-
-| 术语 | 英文 | 定义 |
+| Term | Means | Do not write |
 |---|---|---|
-| **RELAY** | — | 本项目的多 Agent 协作框架。R 留痕 / E 信封 / L 车道 / A 断言 / Y 让位 |
-| **任务信封** | Task Envelope | 八段结构的任务卡。缺一段接单者有权拒绝 |
-| **车道** | Lane | 一个 Bot 的 git worktree 目录 + 它被允许修改的路径集合 |
-| **闸门** | Gate | G1–G9 + H1–H2。任一不过则产物不得进入下一阶段 |
-| **证据包** | Evidence Pack | `evidence/T-XXX/`，含验收命令原文与真实执行输出 |
-| **红队抽检** | Red Team | 闸门官每日在干净环境重跑 20% 已完成任务的验收命令 |
-| **信任账本** | Trust Ledger | 记录谎报/越界/超时的账本。累计触发闸门收紧 |
-| **安灯绳** | Andon | 任何 Bot 都可以拉的全线停工机制。拉错不罚，不拉才罚 |
-| **三振出局** | Three Strikes | 同一问题失败 3 次必须停手写阻塞报告，严禁第 4 次 |
-| **心跳** | Heartbeat | 每 2 小时更新的状态文件 `board/heartbeat/<代号>.md` |
-| **停摆巡检** | Stall Detector | 总督每 3 小时检查心跳与任务停滞 |
-| **规格漂移** | Drift | 代码与规格、或两份文档之间的不一致 |
-| **放行条件** | Exit Criteria | 里程碑的验收清单。不满足就不进下一个里程碑 |
-| **垂直切片** | Vertical Slice | 薄而完整的一条链路，优先于厚而残缺的一堆系统 |
+| **Club** | The player's home and their account. Holds active characters and retired mentors | guild, clan |
+| **Active** | The character currently able to fight. One per account | hero, main, PC |
+| **Mentor** | A retired character. Can pass on craft, teach, and vouch | master, coach, NPC |
+| **Delve** | The main combat and reward location. Three to five floors | dungeon, instance, raid |
+| **Camp** | The rest point between delve floors | checkpoint, bonfire |
+
+## Character values
+
+| Term | Means | Do not write |
+|---|---|---|
+| **Craft** | The ability axis that **only ever rises**. Sets ceilings: judgement window width, damage coefficients, forging quality spread | proficiency, skill level, XP |
+| **Stamina** | The attribute group that **only ever falls** over a career. Three sub-values | health, HP, endurance |
+| ├ **Might** | Stamina sub-value. Spent by heavy attacks | strength, attack power |
+| ├ **Agility** | Stamina sub-value. Spent by rolling | speed, dexterity |
+| └ **Endurance** | Stamina sub-value. Spent absorbing hits; a successful parry restores it | defence, toughness |
+| **Rapport** | A pairwise asset between two characters. Sets duet tier. Decays after seven days apart | affinity, friendship |
+| **Chi** | The resource for signature moves. Earned **only** by parry, break, or duet — never by ordinary attacks | rage, energy, mana |
+| **Poise** | An enemy's break meter. Filling it opens a three-second stagger that can be executed | balance, stance meter |
+
+## Core mechanics
+
+| Term | Means | Do not write |
+|---|---|---|
+| **Stance** | The defensive posture entered by holding the stance key. Prerequisite for a parry | block, guard |
+| **Parry** | Releasing stance at the right moment. On success: enemy staggered, Endurance restored, Chi gained | deflect, counter, riposte |
+| **Duet** | A two-character move triggered by timing and relative position. Tiers one to three | combo, link attack |
+| **Old Wound** | An injury a character carries, inborn or earned. Flares under stated conditions and imposes a temporary limit. Managed, never healed | debuff, status effect |
+| **Memory** | A signature move unlocked by triggering a recollection in a specific situation. **Not learned — remembered** | skill, talent, ability |
+| **Lineage** | A mentor passing craft, memories, and hard-won knowledge of old wounds to a new character | inheritance, legacy (that word is taken) |
+| **Retire** | The rite where a character whose Stamina fell below threshold becomes a mentor. **Not death** | death, deletion |
+| **Juice Six** | Screen shake, hitstop, particles, sound, damage numbers, hit flash | game feel, effects |
+
+## Economy
+
+| Term | Means | Do not write |
+|---|---|---|
+| **Vigor** | Per-**account** action resource. Regenerates 120 daily, caps at 360. Not tradable, not purchasable. **The time anchor** | stamina (that word is taken), energy |
+| **Delve Permit** | Required to enter a paying delve. Bought with Silver at an algorithmic price. **The main sink** | ticket, key |
+| **Silver** | The main currency. Freely tradable | gold, coins |
+| **Renown** | An **account-bound, untradable** currency. Unlocks advanced recipes and club upgrades. The core anti-farming measure | honour, points |
+| **Legacy** | The very scarce resource settled when a character retires. The only source of heirlooms and starting talents | relics, prestige |
+| **Purity** | The quality attribute of ore and materials. Total purity across three forge slots sets the output tier | quality, rarity |
+| **Codex** | A player-written, tradable in-game guide item. Its contents may be wrong | guide, notes |
+| **Job Board** | The supply-and-demand interface for service professions | quest board, bounties |
+| **Common Fund** | Where trade tax and part of permit revenue go. Funds server-wide event pools, paying out non-inflationary rewards | treasury, tax |
 
 ---
 
-## 禁用词
+## Banned words
 
-以下词汇在本项目文档中**禁止使用**，因为它们含义模糊、会导致理解分歧：
+Not banned in conversation — banned in documents, because each one hides the thing the
+reader needs.
 
-| 禁用 | 改用 |
+| Instead of | Write |
 |---|---|
-| 优化 | 具体说：提升什么指标，从多少到多少 |
-| 完善 | 具体说：补上哪一条 DoD |
-| 增强手感 | 具体说：改哪个帧数据 |
-| 大概 / 应该 / 差不多 | 给数字，或说"我不确定，需要 @XX 确认" |
-| 简单地 / 只需要 | 删掉这两个词再说一遍 |
-| 传奇 / 史诗 / 命运 | 叙事三禁之"不用大词"。老兵不这么说话 |
+| optimise | which metric, from what to what |
+| improve, polish | which item on the definition of done |
+| better feel | which frame number changes |
+| roughly, about, should be | the number, or "I am not sure, @X needs to confirm" |
+| simply, just | delete both words and say it again |
+| legendary, epic, destiny | the narrative rule against big words. Veterans do not talk like that |
+
+The last row is a tone rule, not a process rule, and it is the one most often broken. This
+game is about people whose best years are behind them. They do not describe themselves in
+the vocabulary of a trailer.
