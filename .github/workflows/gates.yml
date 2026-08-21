@@ -1,164 +1,170 @@
 name: gates
 
-# 这个 workflow 就是宪法的执行机构。
-# 分支保护里要求的必过检查名叫 "gates"，即本文件的 summary job。
-#
-# 设计原则：与代码无关的闸门（G3/G4/G5）必须在 M0 第一天就能跑，
-# 因为它们要保护的正是"还没有代码"的这个阶段。与代码有关的闸门
-# 随 M1 逐步接上，接上之前保持显式 skip，不许静默跳过。
-
 on:
   pull_request:
     branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pull-requests: read
-
-concurrency:
-  group: gates-${{ github.head_ref }}
-  cancel-in-progress: true
+    # Labels are half of every exception, so applying one has to re-run the gates.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  push:
+    branches: [main]
 
 jobs:
-  # ── G3 信封 + G4 小步 + G5 车道 ──────────────────────────────
-  # 不依赖任何项目代码，M0 第一天即生效
-  discipline:
-    name: 纪律闸门 (G3/G4/G5)
+  # G1. First, because every other gate runs code from the mirror. If the mirror is
+  # not what it claims to be, no later verdict means anything.
+  mirror:
+    name: mirror
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: G1 framework mirror
+        run: node tools/studio-sync.mjs --remote
+
+  lane:
+    name: lane
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: 提取 Bot 代号
-        id: bot
-        run: |
-          BRANCH="${{ github.head_ref }}"
-          CODE=$(echo "$BRANCH" | sed -n 's|^lane/\([A-Z][0-9]\)/.*|\1|p')
-          if [ -z "$CODE" ]; then
-            echo "::error::分支名 '$BRANCH' 不符合 lane/<CODE>/T-XXX"
-            exit 1
-          fi
-          echo "code=$CODE" >> "$GITHUB_OUTPUT"
-
-      # 闸门本身也需要被测试。一条从未被触发过的规则，
-      # 你无法确定它到底在不在工作。
-      - name: 车道闸门自测
-        run: node tools/gates/lane-check.test.mjs
-
-      - name: G5 · 车道
-        run: node tools/gates/lane-check.mjs "${{ steps.bot.outputs.code }}" origin/main
+      - name: G2 lane
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: node docs/_studio/tools/gates/lane-check.mjs "${{ github.head_ref }}" "origin/${{ github.base_ref }}"
 
-      - name: G3+G4 · 信封与证据
-        run: node tools/gates/envelope-check.mjs "${{ github.head_ref }}" origin/main
-
-  # ── G2 规格完整性 ─────────────────────────────────────────────
-  docs:
-    name: 文档闸门 (G2)
+  envelope:
+    name: envelope
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: G3 envelope and evidence
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: node docs/_studio/tools/gates/envelope-check.mjs "${{ github.head_ref }}" "origin/${{ github.base_ref }}"
 
-      - name: 宪法与愿景未被改动
-        run: |
-          # 宪法保留文件由 lane-check 拦截，这里做第二道，防止 lane-check 本身被改坏
-          if git diff --name-only origin/main...HEAD | grep -E '^docs/00-charter/(constitution|vision)\.md$'; then
-            echo "::error::宪法/愿景由人类保留。需要变更请提 ADR。"
-            exit 1
-          fi
-
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      # 死链、失效的 /sop-xxx 引用、禁用术语
-      - name: 文档自检
-        run: node tools/gates/selfcheck.mjs
+      - name: G4 gate engine tests
+        run: node docs/_studio/tools/gates/gates.test.mjs
 
-  # ── G6 机器验收 ───────────────────────────────────────────────
-  # M0 期间没有代码可测。这里刻意 skip 而不是假装通过——
-  # 静默跳过的检查比没有检查更危险，因为它会给人虚假的安全感。
+      - name: G4 ownership table
+        run: node tools/gates/ownership.test.mjs
+
+      - name: G4 selfcheck
+        run: node docs/_studio/tools/gates/selfcheck.mjs
+
+      - name: G4 gate list matches this workflow
+        run: node docs/_studio/tools/gates/spec-check.mjs
+
   build:
-    name: 机器验收 (G6)
+    name: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-      - name: 检测代码是否已存在
-        id: check
+      # Steps are skipped by a condition while the workspace does not exist yet,
+      # never by a command that cannot fail. A gate is either running or absent;
+      # "present but harmless" is the state that misleads everyone.
+      - name: Is there a workspace yet
+        id: ws
         run: |
-          if [ -f pnpm-workspace.yaml ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::尚无代码骨架（M0 进行中），G6 暂不适用。"
-          fi
+          if [ -f pnpm-workspace.yaml ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "ready=false" >> "$GITHUB_OUTPUT"; fi
 
       - uses: pnpm/action-setup@v4
-        if: steps.check.outputs.ready == 'true'
-        with: { version: 9 }
-
-      - uses: actions/setup-node@v4
-        if: steps.check.outputs.ready == 'true'
+        if: steps.ws.outputs.ready == 'true'
         with:
-          node-version: '22'
-          cache: pnpm
-
-      - if: steps.check.outputs.ready == 'true'
+          version: 9
+      - name: Install
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm install --frozen-lockfile
 
-      - name: 类型检查
-        if: steps.check.outputs.ready == 'true'
+      - name: G5 types
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm typecheck
-
-      - name: Lint
-        if: steps.check.outputs.ready == 'true'
+      - name: G5 lint
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm lint
-
-      - name: 单元测试
-        if: steps.check.outputs.ready == 'true'
+      - name: G5 tests
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm test
-
-      - name: 依赖方向 (architecture.md §2.1)
-        if: steps.check.outputs.ready == 'true'
+      - name: G5 dependency direction and simulation purity
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm gates:deps
-
-      - name: 确定性回放
-        if: steps.check.outputs.ready == 'true'
+      - name: G5 replay determinism
+        if: steps.ws.outputs.ready == 'true'
         run: pnpm test:replay
 
-      # ── G7 手感闸门，M1 起接入 ──
-      - name: 帧数据快照
-        if: steps.check.outputs.ready == 'true'
-        run: pnpm test:frames || echo "::notice::M1 起强制"
+  feel:
+    name: feel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-      - name: 触感六件套 lint
-        if: steps.check.outputs.ready == 'true'
-        run: pnpm juice-lint || echo "::notice::M1 起强制"
+      - name: Is there anything to measure yet
+        id: ws
+        run: |
+          if [ -f pnpm-workspace.yaml ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "ready=false" >> "$GITHUB_OUTPUT"; fi
+
+      - uses: pnpm/action-setup@v4
+        if: steps.ws.outputs.ready == 'true'
+        with:
+          version: 9
+      - name: Install
+        if: steps.ws.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      # Blocking. The previous version ended these commands with a shell fallback,
+      # so a latency regression could merge while the badge stayed green. A ten
+      # millisecond regression is invisible in review and obvious in play.
+      - name: G6 frame data
+        if: steps.ws.outputs.ready == 'true'
+        run: pnpm test:frames
+      - name: G6 input latency
+        if: steps.ws.outputs.ready == 'true'
+        run: pnpm test:latency
+      - name: G6 art lint
+        if: steps.ws.outputs.ready == 'true'
+        run: pnpm art-lint
 
   summary:
-    name: gates
+    name: summary
     runs-on: ubuntu-latest
-    needs: [discipline, docs, build]
+    needs: [mirror, lane, envelope, docs, build, feel]
     if: always()
     steps:
-      - name: 汇总
+      - name: Verdict
         run: |
-          echo "纪律: ${{ needs.discipline.result }}"
-          echo "文档: ${{ needs.docs.result }}"
-          echo "构建: ${{ needs.build.result }}"
-          if [ "${{ needs.discipline.result }}" != "success" ] \
-          || [ "${{ needs.docs.result }}" != "success" ] \
-          || [ "${{ needs.build.result }}" != "success" ]; then
-            echo "::error::闸门未全绿。不许合并，也不许用 admin 强行合并。"
-            exit 1
-          fi
+          echo "mirror=${{ needs.mirror.result }} lane=${{ needs.lane.result }} envelope=${{ needs.envelope.result }}"
+          echo "docs=${{ needs.docs.result }} build=${{ needs.build.result }} feel=${{ needs.feel.result }}"
+          for r in "${{ needs.mirror.result }}" "${{ needs.lane.result }}" "${{ needs.envelope.result }}" "${{ needs.docs.result }}" "${{ needs.build.result }}" "${{ needs.feel.result }}"; do
+            if [ "$r" != "success" ] && [ "$r" != "skipped" ]; then
+              echo "::error::Not every gate is green. Do not merge, and do not merge as an administrator either."
+              exit 1
+            fi
+          done
+          echo "All gates green."

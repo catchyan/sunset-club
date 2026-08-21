@@ -24,11 +24,13 @@ coverage/
 playwright-report/
 test-results/
 
-# 证据包保留文本与截图，但不收录大体积录屏
+# Evidence packs keep their text and screenshots. Screen recordings are the one thing large
+# enough to make cloning the repository slow, and re-running the command beats replaying one.
 evidence/**/*.mp4
 evidence/**/*.mov
 evidence/**/*.webm
 
-# 生成资产的中间产物
+# Intermediates from asset generation. The inputs and the generator are committed; these are
+# reproducible from them.
 tools/asset-gen/.cache/
 assets/**/*.blend1

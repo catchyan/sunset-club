@@ -1,0 +1,19 @@
+# Normalise everything to LF in the repository, so gate output, evidence packs and diffs
+# read the same whoever produced them.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
+*.gltf binary
+*.glb binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.blend binary
+
+# Last, because the last matching pattern wins. The mirror is verified byte for byte against
+# the upstream tag, so any end-of-line translation changes the hashes and G1 accuses whoever
+# happens to be looking. Putting this line above the `*` rule above silently disables it —
+# `git check-attr text docs/_studio/<anything>` must print "unset".
+docs/_studio/** -text
