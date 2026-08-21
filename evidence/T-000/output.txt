@@ -1,0 +1,33 @@
+$ node tools/studio-sync.mjs
+mirror gate · v2.0.1 · 52 file(s) · local only
+OK: the mirror matches the pinned version.
+
+$ node docs/_studio/tools/gates/gates.test.mjs
+glob matching
+specificity
+task token
+branch parsing
+section extraction
+table parsing
+
+OK: gate engine behaves as specified.
+
+$ node tools/gates/ownership.test.mjs
+reserved paths
+task-scoped paths
+specificity
+discipline paths
+coverage
+single writer
+
+OK: the ownership table says what it should.
+
+$ node docs/_studio/tools/gates/selfcheck.mjs
+selfcheck: 33 markdown file(s)
+OK: no problems.
+
+$ node docs/_studio/tools/gates/spec-check.mjs
+spec gate · project repo · 9 documented gate(s) · 7 CI job(s)
+OK: the gate list matches the workflow.
+
+EXIT_CODE=0
