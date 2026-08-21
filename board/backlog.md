@@ -2,8 +2,16 @@
 
 The queue. Owned by P0. Ordered — the top item is the next one taken.
 
-Where each task stands is derived (`node tools/board/status.mjs`); what each task is lives in
-its card. This file answers only "what next, and in which order".
+Every dispatched task has a row here, in the order the work was taken. The topmost unfinished
+row is what to pick up next.
+
+Where each task stands is derived (`node tools/board/status.mjs`); what each task *is* lives in
+its card. Neither is repeated here. A row is a pointer, not a status — write a status in this
+table and within a week it will disagree with the tool that computes one.
+
+Rows are not deleted when a task finishes. `status.mjs` reports a card with no row as an
+anomaly, and it is right to: a card nobody scheduled is either work that was never agreed or a
+row somebody tidied away.
 
 The envelope gate rejects any pull request whose task is not listed here. A card with no
 backlog entry means somebody chose their own work, which is how a milestone quietly becomes
@@ -13,16 +21,14 @@ a different milestone.
 
 | # | Task | Title | Owner | Milestone |
 |---|---|---|---|---|
-| 1 | T-002 | Everything the first agent will read, made true | A1 | M0 |
-| 2 | T-003 | The workspace, and the eight steps it switches on | A1 | M0 |
-| 3 | T-004 | Watch every gate fail once | Q1 | M0 |
+| 1 | T-000 | Split the studio out, mount the framework, rewrite in English | A1 | M0 |
+| 2 | T-001 | Upgrade the framework mirror to v3.0.2 | A1 | M0 |
+| 3 | T-002 | Everything the first agent will read, made true | A1 | M0 |
+| 4 | T-003 | The workspace, and the eight steps it switches on | A1 | M0 |
+| 5 | T-004 | Watch every gate fail once | Q1 | M0 |
 
-A task leaves this table when it merges. Its card stays, and where it stands is derived; a
-finished row here would be a second answer to a question `status.mjs` already answers, and the
-two would disagree within a week.
-
-T-003 is second rather than first because T-002 is what makes the instructions T-003 follows
-correct. T-004 can run alongside either.
+T-003 comes after T-002 because T-002 is what makes the instructions T-003 follows correct.
+T-004 can run alongside either.
 
 ---
 
