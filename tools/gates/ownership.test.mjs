@@ -35,7 +35,11 @@ console.log('task-scoped paths');
 // The literal-token version of these two rows matched nothing, so every evidence
 // pack the team would ever produce was rejected. It failed on the first task.
 check('evidence resolves for the branch task', owner('evidence/T-042/output.txt', 'T-042'), 'TASK-AUTHOR');
-check('evidence for another task does not', owner('evidence/T-999/output.txt', 'T-042'), '(none)');
+// Another task's evidence is the gatekeeper's, not this author's and not nobody's.
+// "Nobody" was the earlier answer, and it meant an uncovered path: the lane gate rejects
+// those, so the pack could never be deleted or corrected by anyone at all, including
+// during a cleanup.
+check('evidence for another task is not the author to write', owner('evidence/T-999/output.txt', 'T-042'), 'Q1');
 check('a blocker report resolves', owner('board/blockers/T-042.md', 'T-042'), 'TASK-AUTHOR');
 
 console.log('specificity');
