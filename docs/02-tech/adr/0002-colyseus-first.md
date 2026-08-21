@@ -1,89 +1,89 @@
-# ADR-0002 · M3 联机先上 Colyseus，UDP 方案留到 M4 按实测决定
+# ADR-0002 · Colyseus first for M3 multiplayer; the UDP option waits for M4 and real measurements
 
-- 状态：**ACCEPTED**
-- 日期：2026-08-20
-- 提出人：A1 总架构师
-- 决定人：人类总制作人
-- 取代：—
+- Status: **ACCEPTED**
+- Date: 2026-08-20
+- Proposed by: A1 Architect
+- Decided by: the human executive producer
+- Supersedes: —
 
 ---
 
-## 1. 背景
+## 1. Context
 
-M3 要做 4 人联机。本作是快节奏 ARPG，手感规格要求"输入 → 画面首帧 ≤2 帧"，且有招架（6 帧窗口）这类对延迟极敏感的机制。
+M3 delivers four-player multiplayer. This is a fast ARPG: the feel spec requires "input → first visible frame ≤2 frames", and mechanics such as Parry (a 6-frame window) are extremely sensitive to latency.
 
-浏览器端能选的传输只有两类：WebSocket（TCP，可靠有序）与 WebRTC DataChannel（可配 UDP 语义）。
+In the browser there are only two transports to choose between: WebSocket (TCP, reliable and ordered) and WebRTC DataChannel (which can be configured for UDP semantics).
 
-## 2. 备选方案
+## 2. Alternatives
 
-### 方案 A：Colyseus（WebSocket / TCP）
-- ✅ 房间、匹配、状态同步、schema 序列化开箱即用
-- ✅ MIT 协议，可自托管，运维简单（一个 Node 进程）
-- ✅ 调试容易：消息可读，Chrome DevTools 直接看
-- ✅ 无 NAT 穿透问题，无 TURN 服务器成本
-- ❌ TCP 队头阻塞：丢包时后续包全部等待，表现为"卡一下然后瞬移"
+### Option A: Colyseus (WebSocket / TCP)
+- ✅ Rooms, matchmaking, state sync and schema serialisation out of the box
+- ✅ MIT licensed, self-hostable, simple to operate (one Node process)
+- ✅ Easy to debug: messages are readable straight from Chrome DevTools
+- ✅ No NAT traversal problems and no TURN server costs
+- ❌ TCP head-of-line blocking: on packet loss every following packet waits, which shows up as a stutter followed by a teleport
 
-### 方案 B：geckos.io（WebRTC / UDP）
-- ✅ 无队头阻塞，丢包只丢那一帧
-- ❌ 需要 STUN/TURN，部分企业网络仍会失败
-- ❌ 调试困难，Agent 排查网络问题的能力本就有限
-- ❌ 房间/匹配要自己写
-- ❌ 运维复杂度显著上升
+### Option B: geckos.io (WebRTC / UDP)
+- ✅ No head-of-line blocking; a lost packet costs only that one frame
+- ❌ Needs STUN/TURN, and some corporate networks will still fail
+- ❌ Hard to debug, and an agent's ability to diagnose network problems is limited to begin with
+- ❌ Rooms and matchmaking have to be written ourselves
+- ❌ Operational complexity rises substantially
 
-### 方案 C：一开始就做传输层抽象，两个都实现
-- ✅ 最灵活
-- ❌ **在还不知道需要同步什么的时候做抽象，抽象一定是错的**
-- ❌ 两套实现 = 两倍 bug 面，且弱 Agent 一定会让两条路径的行为产生分歧
+### Option C: Abstract the transport layer from the start and implement both
+- ✅ The most flexible
+- ❌ **An abstraction built before we know what needs synchronising is certain to be the wrong abstraction**
+- ❌ Two implementations = twice the bug surface, and weak agents will certainly let the two paths' behaviour diverge
 
-## 3. 决定
+## 3. Decision
 
-**M3 采用方案 A（Colyseus）。** 同时：
+**M3 adopts option A (Colyseus).** In addition:
 
-1. `packages/server` 与 `packages/client` 之间的传输调用**收敛到单一模块**（`transport.ts`），但**不提前抽象成接口**——只是保证将来要换的时候，改动集中在一处。
-2. M3 的放行条件中**必须包含网络测试台的实测数据**：在 80ms / 150ms RTT + 2% 丢包 的注入条件下，招架成功率与本地对比的下降幅度。
-3. M4 开始时，A1 依据这份实测数据决定是否提 ADR 切换到方案 B。
+1. The transport calls between `packages/server` and `packages/client` are **funnelled through a single module** (`transport.ts`), but **not abstracted into an interface ahead of time** — the point is only to guarantee that when we do swap it, the change is confined to one place.
+2. The M3 release conditions **must include measurements from the network test rig**: with 80ms / 150ms RTT + 2% packet loss injected, how far parry success rate drops relative to local play.
+3. At the start of M4, A1 uses those measurements to decide whether to raise an ADR switching to option B.
 
-## 4. 理由
+## 4. Reasoning
 
-核心判断：**现在没有足够信息做这个决定。**
+The core judgement: **there is not enough information to make this decision now.**
 
-"TCP 不适合动作游戏"是一句正确但粗糙的话。它的实际影响取决于：每 tick 要同步多少字节、快照频率、插值缓冲多长、玩家实际网络质量。这些数字 M3 之前一个都不知道。
+"TCP is not suitable for action games" is true and too coarse to act on. Its actual impact depends on how many bytes have to be synchronised per tick, the snapshot rate, how long the interpolation buffer is, and what the players' real network quality looks like. Before M3 we know none of those numbers.
 
-在无知的情况下，选**可调试性最好、运维最简单**的那个，并且**把决策点推迟到有数据的时候**。这比现在拍脑袋选 UDP 然后在调试地狱里挣扎要好。
+While ignorant, pick the option that is **easiest to debug and simplest to operate**, and **defer the decision until there is data**. That beats guessing at UDP now and then fighting through debugging hell.
 
-方案 C 被否，是因为宪法第十八条（删除的权力）的反面：**过早的抽象是负债。** 传输层抽象要抽象什么？在不知道消息形态之前，抽出来的接口大概率要推倒重来，而那时已经有两套实现依赖它了。
+Option C was rejected because **premature abstraction is debt.** What would a transport abstraction abstract? Before we know the shape of the messages, the interface we extract will most likely have to be torn down, and by then two implementations will depend on it.
 
-## 5. 后果
+## 5. Consequences
 
-**接受的代价：**
-- 如果实测证明 TCP 不行，M4 要花时间迁移（预估 1–2 周等效工作量）
-- 迁移期间网络相关任务要暂停
+**Costs accepted:**
+- If measurement proves TCP does not work, M4 spends time migrating (an estimated 1–2 weeks of equivalent effort)
+- Network-related tasks pause during the migration
 
-**获得的能力：**
-- M3 能更快出可玩的联机版本，更早暴露"4 人一起玩到底好不好玩"这个更重要的问题
-- 网络问题好排查，Bot 不会卡在 WebRTC 连接协商上
+**Capabilities gained:**
+- M3 reaches a playable multiplayer build sooner, which exposes the more important question — is four people playing together actually fun — earlier
+- Network problems are easy to diagnose, so bots do not get stuck on WebRTC connection negotiation
 
-**必须做的准备：**
-- M3 必须建**网络测试台**（延迟/丢包注入），这是 M3 放行条件之一，不可省
-- `transport.ts` 保持单点，禁止在业务代码里直接调 Colyseus API（CI 检查）
+**Preparation that is not optional:**
+- M3 must build the **network test rig** (latency/packet-loss injection). This is one of the M3 release conditions and cannot be dropped
+- `transport.ts` stays the single point of contact; calling the Colyseus API directly from game code is forbidden (CI-checked)
 
-## 6. ★ 回滚条件（可测量）
+## 6. ★ Rollback conditions (measurable)
 
-M3 收敛评审时，若出现以下**任一**情况，A1 必须提 ADR-00XX 切换传输方案：
+At the M3 convergence review, if **any** of the following holds, A1 must raise ADR-00XX to switch transports:
 
-| # | 条件 | 测量方式 |
+| # | Condition | How it is measured |
 |---|---|---|
-| 1 | 150ms RTT + 2% 丢包下，招架成功率相比本地下降 > 25% | 网络测试台自动化脚本，200 次尝试 |
-| 2 | 同条件下，远端角色位置的视觉突跳（单帧位移 > 0.8 单位）频率 > 每分钟 3 次 | 遥测埋点 |
-| 3 | 单房间上行带宽 > 40 kbps 或下行 > 120 kbps | 测试台统计 |
-| 4 | 4 人满怪场景下，服务端单房间 CPU > 8% of 1 core | 压测 |
+| 1 | At 150ms RTT + 2% packet loss, parry success rate drops > 25% relative to local play | Automated script on the network test rig, 200 attempts |
+| 2 | Under the same conditions, visible position jumps on remote characters (single-frame displacement > 0.8 units) occur more than 3 times per minute | Telemetry instrumentation |
+| 3 | Per-room upstream bandwidth > 40 kbps or downstream > 120 kbps | Test rig statistics |
+| 4 | With 4 players in a full enemy scene, server CPU per room > 8% of 1 core | Load test |
 
-**同时约定**：即使全部达标，M4 仍要复查一次；即使全部不达标，也**先完成 M3 的其余放行条件**再迁移——不许在里程碑中途换传输层。
+**Also agreed**: even if every condition passes, M4 reviews this once more; and even if every condition fails, **the remaining M3 release conditions are completed first** before migrating — the transport layer is never swapped mid-milestone.
 
 ---
 
-## 7. 相关
+## 7. Related
 
 - `docs/02-tech/architecture.md §1 §4`
-- `docs/04-plan/roadmap.md` M3 放行条件
-- 未来契约：`contracts/net-protocol.md`（M3 起草）
+- `docs/04-plan/roadmap.md` M3 release conditions
+- Future contract: `contracts/net-protocol.md` (drafted in M3)

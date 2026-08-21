@@ -1,44 +1,44 @@
-# 架构决策记录索引（ADR Index）
+# Architecture Decision Record Index
 
-> Owner: A1 总架构师 · 格式见 `/sop-adr`
-> ADR 是**不可变**的。决定错了不改旧的，写新的取代它。这样"我们当时为什么这么想"才留得下来。
+> Owner: A1 Architect · Format: see `/sop-adr`
+> ADRs are **immutable**. When a decision turns out to be wrong you do not edit the old one; you write a new one that supersedes it. That is the only way "what we were thinking at the time" survives.
 
-## 什么时候必须写 ADR
+## When an ADR is mandatory
 
-- 修改任何 `FROZEN` 契约
-- 增删主要技术依赖
-- 改变性能预算、网络模型、渲染管线
-- 两个 Bot 对同一问题有分歧且各有道理
-- 任何"以后可能会后悔"的决定
+- Changing any `FROZEN` contract
+- Adding or removing a major technical dependency
+- Changing a performance budget, the network model, or the render pipeline
+- Two bots disagreeing on the same question with a sound case on each side
+- Any decision we might regret later
 
-## 什么时候不用写
+## When it is not needed
 
-- 实现细节（函数怎么拆、变量怎么命名）
-- 数值调整（那是内容数据，走 PR 即可）
-- 修 bug
+- Implementation detail (how to split a function, what to name a variable)
+- Value tuning (that is content data; a PR is enough)
+- Bug fixes
 
-> 判据：**别人一年后看到这段代码会不会问"为什么不用更明显的做法"？** 会 → 写 ADR。
+> The test: **will somebody a year from now look at this code and ask "why not the obvious approach?"** If yes → write an ADR.
 
 ---
 
-## 索引
+## Index
 
-| # | 标题 | 状态 | 日期 | 取代 | 决定人 |
+| # | Title | Status | Date | Supersedes | Decided by |
 |---|---|---|---|---|---|
-| [0001](0001-threejs-over-engine.md) | 用 Three.js 自研而非成品引擎 | ACCEPTED | 2026-08-20 | — | 人类总制作人 |
-| [0002](0002-colyseus-first.md) | M3 联机先上 Colyseus，UDP 留到 M4 按实测决定 | ACCEPTED | 2026-08-20 | — | 人类总制作人 |
+| [0001](0001-threejs-over-engine.md) | Build on Three.js instead of an off-the-shelf engine | ACCEPTED | 2026-08-20 | — | the human executive producer |
+| [0002](0002-colyseus-first.md) | Colyseus first for M3 multiplayer; UDP left to M4, decided on measurements | ACCEPTED | 2026-08-20 | — | the human executive producer |
 
-**状态**：`PROPOSED` → `ACCEPTED` / `REJECTED` → `SUPERSEDED by ADR-XXXX`
+**Statuses**: `PROPOSED` → `ACCEPTED` / `REJECTED` → `SUPERSEDED by ADR-XXXX`
 
 ---
 
-## 回滚条件的复查
+## Reviewing the rollback conditions
 
-每个 ADR 都有"回滚条件"一节，且必须**可测量**。A1 在每次里程碑收敛时逐条复查：
+Every ADR has a "rollback condition" section, and it must be **measurable**. A1 goes through them one by one whenever a milestone converges:
 
-| ADR | 回滚条件 | 上次复查 | 结论 |
+| ADR | Rollback condition | Last reviewed | Conclusion |
 |---|---|---|---|
-| 0001 | 见文件 §6 | — | 待 M1 |
-| 0002 | 见文件 §6 | — | 待 M3 |
+| 0001 | See §6 of the file | — | pending M1 |
+| 0002 | See §6 of the file | — | pending M3 |
 
-> 没有回滚条件的 ADR 不是决策，是信仰。
+> An ADR with no rollback condition is not a decision. It is a belief.

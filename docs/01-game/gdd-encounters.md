@@ -1,30 +1,31 @@
-# 遭遇战设计（Encounters）
+# Encounters
 
-> 状态：**STUB** · 所有者：D1 设计总监 · 起草时点：**M1 后期**
-> 本文件目前是占位。它存在的意义是：所有权表里有它，所以它必须有一个文件，
-> 否则 `ownership.md` 就是在给一个不存在的东西分配主人——那正是规格漂移的起点。
+> Status: **STUB** · Owner: D1 Design Director · Drafting starts: **late M1**
+> This file is a placeholder for now. The reason it exists at all: the ownership table lists
+> it, so a file has to exist, otherwise `ownership.md` is assigning an owner to something that
+> does not exist — and that is exactly where spec drift starts.
 
 ---
 
-## 起草前置条件
+## Preconditions for drafting
 
-- [ ] `feel-spec.md` 的陆老三帧数据已实现并通过手感审计
-- [ ] 至少 3 种杂兵原型可玩
-- [ ] `contracts/content-schema.md` 已 FROZEN（敌人数据 schema 定下来）
+- [ ] Lu Laosan's frame data in `feel-spec.md` is implemented and has passed the feel audit
+- [ ] At least 3 trash-enemy archetypes are playable
+- [ ] `contracts/content-schema.md` is FROZEN (the enemy data schema is settled)
 
-## 本文件将要回答的问题
+## Questions this file will answer
 
-1. **攻击令牌机制**：同屏最多 2 个敌人可同时进入攻击判定帧。令牌怎么分配、怎么回收、玩家能不能感知到？
-   > 这是《光明之魂》系围殴不至于变成乱打的关键，也是本作 4 人同屏时不翻车的前提。
-2. **敌人族谱**：每一族的行为模式、可读性语言（什么颜色的预警代表什么）、克制关系。
-3. **房间模板库**：程序化生成地下城时，房间不是随机拼的，是从"有设计意图的模板"里抽。每个模板要回答"这一间想让玩家做什么"。
-4. **节奏曲线**：一层 8–12 间房，紧张与喘息如何交替。
-5. **精英与首领**：出现频率、预警设计、失败惩罚。
-6. **4 人 vs 1 人的缩放**：不是简单乘血量。要回答"人多了之后，难度从哪里来"。
+1. **The attack-token mechanism**: at most 2 enemies on screen may be in active attack frames at once. How are tokens handed out, how are they returned, and can the player perceive it?
+   > This is what keeps a gang-up in the Shining Soul line from collapsing into noise, and it is the precondition for 4 players on one screen holding together.
+2. **Enemy families**: each family's behaviour pattern, its readability language (which warning colour means what), and what counters what.
+3. **The room-template library**: when a Delve is generated procedurally, rooms are not stitched at random. They are drawn from templates that carry design intent. Every template has to answer "what does this room want the player to do".
+4. **The pacing curve**: 8–12 rooms per floor. How tension and breathing room alternate.
+5. **Elites and bosses**: how often they appear, how they are telegraphed, what failure costs.
+6. **Scaling from 4 players to 1**: not health multiplied. It has to answer "once there are more players, where does the difficulty come from".
 
-## 硬约束（已由上位文档确定，起草时不许推翻）
+## Hard constraints (already settled by governing documents; not to be overturned while drafting)
 
-- 敌人预警帧 ≥10，重击 ≥18（`feel-spec.md §5`）
-- 不可招架的攻击必须红色预警
-- 敌人不得从屏幕外发起近战攻击
-- 同屏攻击令牌上限 2
+- Enemy telegraph ≥10 frames, heavy attacks ≥18 (`feel-spec.md §5`)
+- An attack that cannot be parried must have a red telegraph
+- Enemies may not open a melee attack from off screen
+- At most 2 attack tokens on screen

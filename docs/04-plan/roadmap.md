@@ -1,233 +1,285 @@
-# 项目计划与里程碑
+# Roadmap
 
-> 状态：ACTIVE v1.0 · 所有者：总督(P0) · 里程碑定义变更需人类批准
-> 原则：**垂直切片优先**（宪法第十七条）。不设死线，设**放行条件**。
+> Owner: P0. Changing a milestone's scope or release conditions needs the human's approval.
 
----
+Milestones are vertical slices, and none of them has a date. Each has a **scope** and a set
+of **release conditions**. If the conditions are not met the next milestone does not start,
+however long that takes.
 
-## 0. 计划哲学
+Three reasons there are no dates. One human reviews for thirty minutes a day, so a date only
+buys rushed work. Agent throughput is not predictable, so estimates are fiction. And the
+brief was explicit: quality and taste, not speed.
 
-这个项目**不按时间排期，按闸门排期**。原因：
-
-1. 人类只有一个，且每天只投入 30 分钟审核。用时间排期会逼出赶工和降标。
-2. Agent 的产能不可预测，估时毫无意义。
-3. 用户明确说了：不要求快，只要质量与品味。
-
-所以每个里程碑只有两样东西：**范围**和**放行条件**。放行条件不满足，就不进下一个里程碑，无论花了多久。
-
-**唯一的时间约束**是节奏（每日心跳、每周 sprint），保证项目不停摆。
+The only clock is the one in `docs/_studio/docs/01-framework/cadence.md`, and it exists to
+catch a stall, not to set a pace.
 
 ---
 
-## 1. 里程碑总览
+## At a glance
 
-| # | 代号 | 核心问题 | 放行的一句话判据 | 新增 Bot |
+| # | Name | The question it answers | The one-line release test | Roles added |
 |---|---|---|---|---|
-| **M0** | 地基 Foundation | 这套流程本身能跑吗？ | 一个 Hello-Triangle PR 全自动走完 G1–G9，人类零介入 | P0 A1 Q1 S1 O1 |
-| **M1** | 手感 The Feel | 打起来爽吗？ | 人类拿手柄砍 10 分钟不想放下 | D1 E1 E2 |
-| **M2** | 画风 The Look | 看着对吗？ | 一张静态截图能让陌生人问"这什么游戏" | V1 U1 |
-| **M3** | 同行 The Party | 四个人打起来还爽吗？ | 4 人在 100ms 模拟延迟下打完一层，无橡皮筋 | E3 |
-| **M4** | 老去 The Aging | 长循环成立吗？ | 一个角色从入役到退休传承，跑通且有情绪 | C1 N1 |
-| **M5** | 市集 The Market | 经济活了吗？ | 模拟器 365 天全绿 + 20 人实测一周物价不崩 | T1 |
-| **M6** | 长昏 The Long Dusk | 能卖吗？ | Steam 页面上线，EA 版本可购买可运行 | — |
+| **M0** | Foundation | Can this process run at all? | A deliberately boring pull request goes from dispatch to merge through every gate with no human touching it | P0 A1 Q1 S1 O1 |
+| **M1** | The Feel | Is fighting good? | The human plays for ten minutes and does not want to stop | D1 E1 E2 |
+| **M2** | The Look | Does it look and sound like something? | One screenshot makes a stranger ask what game it is | V1 U1 |
+| **M3** | The Party | Is it still good with four? | Four players clear a floor under injected latency with no rubber-banding | E3 |
+| **M4** | The Aging | Does the long arc hold? | One character goes from first delve to retirement to lineage, and the retirement lands | C1 N1 |
+| **M5** | The Market | Is the economy alive? | A simulated year stays inside its bands, and twenty real players for a week do too | — |
+| **M6** | The Long Dusk | Can we sell it? | The Steam page is live and the Early Access build installs, runs, and can be bought | — |
+
+Headcount per milestone is in `docs/03-process/staffing.md`. Scope is cut before headcount is
+raised.
 
 ---
 
-## M0 · 地基（Foundation）
+## M0 · Foundation
 
-> **这个里程碑不产出任何游戏内容。它产出的是"生产游戏的能力"。**
-> 用户的核心要求是"哪怕 agent 智商不高也能可行、可递归优化、可审核"——M0 就是在建这个东西。跳过 M0 直接做游戏，后面必然崩。
+> M0 produces no game. It produces the ability to produce a game.
+>
+> The requirement it exists to satisfy: the work has to be feasible, recursively improvable,
+> and auditable **even when the agents are not clever**. That property is built here or not
+> at all — a team that skips it does not discover the cost until the thing it is building is
+> too large to inspect.
 
-### 范围
-1. GitHub 私有仓库 + 分支保护 + CODEOWNERS
-2. monorepo 骨架（pnpm workspaces + TS strict + Vite + Vitest）
-3. **九道闸门的 CI 实现**（G4–G7 的自动化部分）
-4. `tools/gates/`：车道检查、diff 大小检查、task-id 检查、依赖方向检查
-5. `tools/lanes/`：worktree 车道的创建/回收脚本
-6. `board/` 全套模板 + 看板 SOP
-7. 5 个 M0 Bot 上线，profile 与 skill 配置完成
-8. Routines 配置：心跳、停摆巡检、日报、红队抽检
-9. staging 自动部署（Cloudflare Pages / GitHub Pages）
+### Scope
 
-### 放行条件（全部必须满足）
-- [ ] **主验收**：总督派发一个刻意平凡的任务（"在 client 里渲染一个旋转的三角形并加一个单测"），从派单到合入主干**全程无人类介入**，且完整走过 G1–G9，`evidence/` 完备。
-- [ ] **负向验收 1**：故意提交一个越界修改的 PR（改别人车道的文件）→ CI 必须拒绝。
-- [ ] **负向验收 2**：故意提交一个谎报证据的任务（evidence 里的输出是编造的）→ 红队抽检必须抓到并记入信任账本。
-- [ ] **负向验收 3**：故意让一个 Bot 停止响应 6 小时 → 停摆检测必须标红并出现在日报里。
-- [ ] **负向验收 4**：故意制造两份矛盾的文档 → S1 的漂移检测必须在 24 小时内报出。
-- [ ] 连续 3 天，`board/daily-brief.md` 在 21:00 自动生成，人类读完不超过 5 分钟。
-- [ ] `tools/bootstrap/setup.sh` 在一台空白 Linux 上一条命令重建环境成功。
+1. The repository, branch protection, and the framework mirror pinned and verified.
+2. The pnpm workspace: TypeScript strict, Vite, Vitest, and the empty packages that
+   `docs/02-tech/dependency-graph.md` names.
+3. G1 to G6 running in CI as jobs, matching the table in
+   `docs/_studio/docs/03-gates/gates.md` clause for clause.
+4. `tools/gates/` complete: the ownership assertions, the dependency-direction check.
+5. `tools/lanes/`: create a worktree lane, and reclaim an abandoned one.
+6. The five M0 roles online, each configured from its role card plus
+   `docs/03-process/staffing.md`, with the six SOPs installed.
+7. The routines in `docs/_studio/docs/04-grokbot/routines.md` scheduled and firing.
+8. A staging deployment that updates on merge.
 
-> **四条负向验收是 M0 的灵魂。** 只验证"顺利时能跑"毫无意义——这个框架存在的全部理由就是"出问题时能被发现"。
+### Release conditions
 
----
+- [ ] **The boring task.** P0 dispatches something with no interest in it whatsoever — render
+      a spinning triangle, add a unit test — and it reaches `main` **without a human
+      intervening at any point**, with a complete evidence pack.
+- [ ] **All eight negative tests** from `docs/_studio/docs/04-grokbot/setup.md` step 9 have
+      been run and produced the expected red. Each is recorded with its output.
+- [ ] Three consecutive nights where the generated board plus P0's note takes the human under
+      five minutes to read, and carries at most three decisions.
+- [ ] One command rebuilds the whole environment on a blank Linux machine.
 
-## M1 · 手感（The Feel）
-
-> **本项目的生死线。** 手感不过，后面全部无意义，宁可停在这里改半年。
-
-### 范围
-- 一个角色（陆老三），一套完整动作集（轻攻击 3 段、重攻击、蓄力、翻滚、架势与招架）
-- 三种敌人（一个近战杂兵、一个远程杂兵、一个带预警重击的精英）
-- 一个房间（灰盒即可，M1 不做美术）
-- 完整的触感六件套
-- `feel-spec.md` 的帧数据全部实现并被自动化断言
-- `packages/sim` 的 ECS 骨架、确定性、回放测试
-- 手柄 + 键鼠双输入
-- 破防条与处决
-
-### 放行条件
-- [ ] `feel-spec.md` §7 的四条自动化测试全绿（帧数据快照 / 输入延迟 ≤2 帧 / 触感 lint / 性能基准）
-- [ ] 回放测试：2000 tick 世界哈希一致
-- [ ] **人类品味评审 ≥ 4.0/5.0**（rubric 见 `gates.md#H2`），其中"打击感"与"操作响应"两项**不得低于 4**
-- [ ] **十分钟测试**：人类连续玩 10 分钟，中途不看时间。D1 在旁记录每一次"感觉不对"的瞬间并全部处理或明确接受
-- [ ] 三种敌人的预警帧全部符合可读性铁律（`feel-spec.md` §5）
-- [ ] D1 提交至少 3 份 `board/fun-audit/` 报告
-
-### 明确不做
-网络、美术、经济、剧情、多角色、掉落、UI 美化。**任何"顺便做一下"的提议一律拒绝。**
+> **The negative tests are the point of M0.** Proving the pipeline works when nothing goes
+> wrong proves nothing: the entire reason this framework exists is to catch the case where
+> something does. A gate nobody has watched fail is a gate nobody knows works, and the first
+> time it stays green during a real failure is the worst possible time to find out.
 
 ---
 
-## M2 · 画风（The Look）
+## M1 · The Feel
 
-### 范围
-- 3D 像素渲染管线定稿（`architecture.md` §5 的四个 Pass）
-- 相机像素吸附、抖动、调色板量化
-- `assets/palettes/sunset-40.png` 定稿
-- **`tools/art-lint` 完成**（这是 M2 最重要的交付物，不是好看的图）
-- `tools/asset-gen` 管线：程序化 + AI 生成 + 自动合规检查
-- 第一批合规资产：陆老三 + 3 个敌人 + 一个房间的完整美术替换
-- 音频第一批：战斗音效三层结构，命中音 3 变体
-- 动态光照的抖动/闪烁问题解决
+> The line the project lives or dies on. If the feel is not there, nothing after it matters
+> and we would rather spend six months here.
 
-### 放行条件
-- [ ] art-lint 覆盖 art-bible 中所有可机检条款，且现有资产 100% 通过
-- [ ] 一张 1920×1080 截图，**人类品味评审"视觉辨识度"≥4**
-- [ ] **陌生人测试**：把截图发给 3 个不了解项目的人，至少 2 人主动问"这是什么游戏"或给出正面评价
-- [ ] 相机移动时无像素抖动（录屏逐帧检查）
-- [ ] 性能预算未超标
-- [ ] AI 生成资产的一次通过率 ≥50%（低于此说明管线约束不够强，需要改 asset-gen 而不是靠人挑）
+### Scope
 
----
+- One character, Lu Laosan, with the complete move set: three-hit light, heavy, charge, roll,
+  Stance, Parry.
+- Three enemies: a melee grunt, a ranged grunt, and an elite with a telegraphed heavy.
+- One room. Grey boxes; M1 has no art.
+- The Juice Six in full.
+- Every frame value in `docs/01-game/feel-spec.md` implemented and asserted by a test.
+- The `packages/sim` ECS, determinism, and the replay test.
+- Controller and keyboard/mouse, both.
+- Poise and executions.
 
-## M3 · 同行（The Party）
+### Release conditions
 
-### 范围
-- Colyseus 权威服务器，`packages/sim` 双端共用
-- 客户端预测 + 服务端和解 + 快照插值
-- 4 人房间、匹配、断线重连
-- 合击系统（至少 2 个合击）与默契度
-- 钟不二（队长）实装（因为义肢卡住是强制协作点，必须在 M3 验证）
-- 指令轮盘（co-op 沟通）
-- 个人独立掉落
-- 网络测试台（可注入延迟、抖动、丢包）
-- PostgreSQL 持久化骨架 + 审计表
+- [ ] The four automated tests in `feel-spec.md` are green: frame-data snapshot, input
+      latency within two frames, juice lint, performance benchmark.
+- [ ] Replay: the world hash after 2000 ticks matches across runs and across machines.
+- [ ] **Taste review at or above 4.0 of 5**, with impact and input response each at or above
+      4. Rubric in `docs/_studio/docs/03-gates/gates.md`, section H2.
+- [ ] **The ten-minute test.** The human plays ten consecutive minutes without checking the
+      clock. D1 watches, writes down every moment that felt wrong in `board/playtests/`, and
+      each one is either fixed or accepted in writing. Accepted in writing counts; forgotten
+      does not.
+- [ ] All three enemies' telegraph frames satisfy the readability rule in `feel-spec.md`.
+- [ ] At least three playtest notes in `board/playtests/`.
 
-### 放行条件
-- [ ] 在网络测试台注入 **100ms RTT + 30ms 抖动 + 2% 丢包**的条件下，4 人打完一层：
-  - [ ] 无可见橡皮筋（回滚位移 >0.5 单位的次数 <3 次/分钟）
-  - [ ] 命中判定一致性 ≥99%（客户端预测命中而服务端判定未命中的比例 <1%）
-- [ ] 断线 30 秒内重连可恢复战斗
-- [ ] 服务端单房间 CPU ≤8% of 1 core
-- [ ] **合击的情绪验收**：录 4 人一局的完整视频，至少出现 3 次合击，人类观看后确认"看得出发生了什么且觉得帅"
-- [ ] 反作弊边界验证：手工构造伪造伤害的客户端消息 → 服务端拒绝并记日志
-- [ ] 人类品味评审 ≥4.0，"配合感"项不低于 4
+### Explicitly not doing
+
+Networking, art, economy, story, more characters, loot, UI polish. Every "while we're in
+here" proposal is refused, including the good ones — especially the good ones, which are the
+only ones anyone argues for.
 
 ---
 
-## M4 · 老去（The Aging）
+## M2 · The Look
 
-### 范围
-- 体魄三轴的长期衰退
-- 旧伤系统（触发、加重、养伤、旧伤专属绝技）
-- 绝技记忆（触发条件、回忆过场、至少 12 个）
-- 退休仪式与遗产结算
-- 传承系统（技艺、绝技、旧伤经验的传递）
-- 导师系统（俱乐部里的导师、导师对话）
-- 精力系统与银币基础经济
-- 苏九娘、老聂实装（四人齐了）
-- N1 的世界观与文本第一批
+### Scope
 
-### 放行条件
-- [ ] **完整生命周期测试**：一个角色从创建到退休到传承给新角色，全程可跑通，无卡死、无数据丢失
-- [ ] 用加速时间（1 游戏日 = 1 分钟）跑 100 个模拟生命周期，无异常状态
-- [ ] 绝技记忆的触发条件全部可被玩家发现（D1 逐条检查："如果我什么都不知道，我有可能发现它吗？"）
-- [ ] **情绪验收**：人类完整体验一次退休仪式，评价"有感觉"。这一条无法量化，由人类一票决定
-- [ ] 调性检查：N1 逐条核对愿景的"三种滑坡"，S1 复核
-- [ ] 体魄衰退速度经过至少 2 轮调整（`gdd-core.md` Q4）
+- The pixel render pipeline finished: the passes named in `docs/02-tech/architecture.md`.
+- Camera pixel snapping, dithering, palette quantisation.
+- `assets/palettes/sunset-40.png` final.
+- **`tools/art-lint` complete.** This, not any individual picture, is what M2 delivers.
+- `tools/asset-gen`: procedural plus generated, with compliance checked before an asset is
+  ever looked at.
+- The first compliant batch: Lu Laosan, three enemies, one room.
+- The first audio batch: three-layer combat sound, three variants per impact.
+- Pixel jitter under a moving camera solved.
 
----
+### Release conditions
 
-## M5 · 市集（The Market）
-
-### 范围
-- 三货币完整（银币/声望/遗产）
-- 门票算法调控器
-- 拍卖行、摆摊、接单板
-- 服务型职业：导师授课、匠人代工、鉴定师
-- 三格锻造 + 炉温小游戏
-- 行情板与个人账本
-- **`packages/econ-sim` 经济模拟器 + 模拟闸门**
-- 交易累进税与公积金
-- T1 的埋点体系
-
-### 放行条件
-- [ ] `gdd-economy.md` §9.2 的 **8 项稳定性判据全部在带内**（10,000 玩家 × 365 天模拟）
-- [ ] 参数敏感性测试：α、P_base、M_target 各 ±30% 扰动，系统仍收敛
-- [ ] **压力测试**：模拟一个"工作室集群"（500 账号最大化产出）注入，系统在 60 天内自我恢复
-- [ ] **真人测试**：≥20 人玩满一周，物价未崩，且至少有 1 人自发在群里做行情分析
-- [ ] 所有货币变更 100% 有审计记录；随机抽 100 笔可完整追溯
-- [ ] 拍卖行在 1000 挂单下响应 <200ms
+- [ ] art-lint covers every machine-checkable clause of `docs/01-game/art-bible.md`, and every
+      existing asset passes.
+- [ ] One 1920×1080 screenshot, with visual distinctiveness at or above 4 in the taste review.
+- [ ] **The stranger test.** Show the screenshot to three people who know nothing about the
+      project. At least two ask what it is or say something unprompted and positive, and their
+      exact words are written down. Paraphrase is not evidence.
+- [ ] No pixel jitter while the camera moves, checked frame by frame from a recording.
+- [ ] No performance budget in `art-bible.md` exceeded.
+- [ ] Generated assets pass on the first attempt at least half the time. Below that the
+      constraints in asset-gen are too loose, and the fix is the generator, not a person
+      sorting through its output.
 
 ---
 
-## M6 · 长昏（The Long Dusk）
+## M3 · The Party
 
-### 范围
-- 内容扩充：≥5 个地下城主题、≥40 种敌人、≥3 个首领、词缀轮换池
-- 手札系统、公积金活动、声誉体系
-- Electron 封装 + steamworks.js（成就、云存档、好友邀请、overlay）
-- Steam 商店页、宣传素材、预告片
-- 新手引导与可访问性（键位重映射、色盲模式、字号）
-- 本地化（中/英）
-- 服务器运维、监控、备份、封禁工具
+### Scope
 
-### 放行条件
-- [ ] Steam 构建在干净的 Windows 机器上安装即可运行；overlay 正常
-- [ ] 完整通关一次（新角色 → 通关最终首领）无阻断性 bug
-- [ ] ≥50 人封测一周，崩溃率 <0.5%/小时
-- [ ] 人类品味评审所有 8 项 ≥4.0，**总均分 ≥4.3**
-- [ ] Steam 页面素材经人类批准
-- [ ] 事故响应预案演练一次（模拟经济漏洞 → 定位 → 回滚 → 公告）
+- The authoritative server, with `packages/sim` running identically on both ends.
+- Client prediction, server reconciliation, snapshot interpolation.
+- Four-player rooms, matchmaking, reconnection.
+- At least two Duets, and Rapport.
+- Zhong Bu'er implemented. His prosthetic seizing is a forced cooperation point, so it has to
+  be proven with four real players rather than reasoned about.
+- The command wheel.
+- Per-player loot.
+- The network rig: injectable latency, jitter, packet loss.
+- The persistence skeleton and the audit table.
 
----
+### Release conditions
 
-## 2. 里程碑内部的 Sprint 结构
-
-每个里程碑切成若干周 sprint：
-
-```
-周一 09:00  Sprint 规划（常委会）
-            └─ 从里程碑 backlog 里挑本周任务
-            └─ A1 先出契约，再拆任务信封
-            └─ P0 检查每张卡有验收命令
-周二–周四   执行（心跳 / 巡检 / 红队 / 日报 每日运转）
-周五 16:00  Demo（可玩构建 + 录屏）
-周五 17:00  回顾 → 必须产出 ≥1 条 SOP 变更 PR
-```
-
-**Sprint 的完成度不是 KPI。** KPI 只有一个：**放行条件的完成项数**。做了十件事但没推进任何放行条件 = 这周白干，写进回顾。
+- [ ] At **100 ms round trip, 30 ms jitter, 2% loss**, four players clear a floor with:
+  - [ ] fewer than three visible rollback displacements over 0.5 units per minute;
+  - [ ] hit adjudication agreeing at or above 99% — the client predicts a hit and the server
+        disagrees in under 1% of swings.
+- [ ] A disconnected player is back in the fight within 30 seconds.
+- [ ] Server CPU at or below 8% of one core per room.
+- [ ] **Duets read.** Record a full four-player run containing at least three Duets. For each
+      one the human writes down whether it was legible — could you tell what happened? — and
+      whether it looked good.
+- [ ] Hand-craft a client message claiming damage it did not earn. The server rejects it and
+      writes an audit row.
+- [ ] Taste review at or above 4.0, with the sense of coordination at or above 4.
 
 ---
 
-## 3. 全局风险登记册
+## M4 · The Aging
 
-| 风险 | 影响 | 早期信号 | 应对 |
+### Scope
+
+- Long-term decline on all three Stamina axes.
+- Old Wounds: flare-ups, worsening, convalescence, wound-specific Memories.
+- Memories: trigger conditions, recollection scenes, at least twelve.
+- The retirement rite and Legacy settlement.
+- Lineage: Craft, Memories, and hard-won knowledge of a wound passing to the next character.
+- Mentors in the Club, and mentor dialogue.
+- Vigor, and Silver at its simplest.
+- Su Jiuniang and Lao Nie implemented, so all four exist.
+- N1's first pass of world facts and text.
+
+### Release conditions
+
+- [ ] **The full lifecycle runs.** One character from creation through retirement into a
+      successor, end to end, no hangs and nothing lost.
+- [ ] 100 lifecycles at accelerated time, one game day per minute, with no invalid state
+      reported.
+- [ ] Every Memory's trigger is discoverable. D1 goes through them one at a time and writes
+      down the in-game signal that could lead a player there. "Knowing nothing, could I have
+      found this?" A Memory with no answer is cut or given a signal.
+- [ ] **The retirement lands.** The human goes through one rite in full and records a verdict.
+      One vote, not a score. This one is not quantifiable and pretending otherwise would only
+      launder the judgement.
+- [ ] N1 checks the tone against the vision's three slopes clause by clause; S1 re-checks.
+- [ ] The Stamina decline rate has been through at least two rounds of tuning.
+
+---
+
+## M5 · The Market
+
+### Scope
+
+- Silver, Renown, and Legacy complete.
+- The Delve Permit pricing regulator.
+- Auction house, player stalls, the Job Board.
+- Services between players: tuition, commissioned crafting, appraisal.
+- Three-slot forging and the furnace-temperature minigame.
+- The market board and the personal ledger.
+- **`packages/econ-sim`, and the simulation gate that runs it.**
+- Progressive trade tax and the Common Fund.
+- The instrumentation in `docs/01-game/telemetry-spec.md`, wired and reporting.
+
+### Release conditions
+
+- [ ] Every stability criterion in `docs/01-game/gdd-economy.md` inside its band, over 10,000
+      players and 365 simulated days.
+- [ ] Sensitivity: perturb each of α, P_base and M_target by ±30% and the system still
+      converges.
+- [ ] **Stress.** Inject 500 accounts playing purely to maximise output. The economy recovers
+      on its own within 60 simulated days, with no intervention.
+- [ ] **Live.** At least twenty people play a full week. The same criteria, computed on real
+      data, stay inside their bands, and at least one person posts market analysis nobody
+      asked them for. That last one is the real test: a market people theorise about is alive,
+      and one they ignore is a number going up.
+- [ ] Every currency movement has an audit row, and a random hundred can be traced end to end.
+- [ ] The auction house answers in under 200 ms with a thousand listings.
+
+---
+
+## M6 · The Long Dusk
+
+### Scope
+
+- Content: at least five delve themes, forty enemy types, three bosses, a rotating affix pool.
+- The Codex, Common Fund events, reputation.
+- The Electron wrapper and Steam integration: achievements, cloud saves, invites, overlay.
+- The store page, art, a trailer.
+- Onboarding and accessibility: remapping, colour-blind modes, text size.
+- Localisation, Chinese and English.
+- Operations: monitoring, backups, the tooling to act on an exploit.
+
+### Release conditions
+
+- [ ] The build installs and runs on a clean Windows machine, and the overlay opens over it.
+- [ ] One full playthrough, new character to final boss, with no blocking bug.
+- [ ] At least fifty people in a closed beta for a week, crashing under 0.5% per hour.
+- [ ] Every item in the taste review at or above 4.0, averaging at or above 4.3.
+- [ ] The human approves the store page.
+- [ ] The incident drill has been run once: simulate an economy exploit, find it, roll it
+      back, publish the notice. Rehearsed before it is needed, because the first time is
+      always at the worst moment.
+
+---
+
+## Inside a milestone
+
+Weekly, per `docs/_studio/docs/01-framework/cadence.md`: planning Monday, demo Friday,
+retrospective straight after. Planning answers one question — what is the smallest thing that
+would be playable by Friday.
+
+**Sprint completion is not a measure of anything.** The only one is how many release
+conditions closed. A week with ten tasks finished and no condition closed was a wasted week,
+and it goes in the retrospective as one.
+
+---
+
+## Risks
+
+| Risk | Cost | The signal that it is happening | What we do |
 |---|---|---|---|
-| **M1 手感做不出来** | 项目终止级 | 试玩 3 轮后品味评审仍 <3.5 | 停下来，人类与 D1 重做设计；必要时找真人游戏设计顾问 |
-| Agent 群体产能不足以支撑范围 | 高 | 连续 3 周放行条件零推进 | 砍范围（先砍 M6 内容量，再砍 M5 深度），不砍质量 |
-| 共享云电脑成为瓶颈 | 中 | 锁等待频繁出现在心跳里 | CI 重活移到 GitHub Actions；考虑给部分 Bot 用本地执行 |
-| 经济模拟结果与真实玩家行为差距过大 | 中 | M5 真人测试与模拟偏离 >50% | 用真人数据回标模拟器；模拟器本身是可迭代产物 |
-| 人类精力耗尽 | **高** | 日报连续 3 天未读 | 这是最大的隐性风险。P0 有义务在日报里主动降低人类负担，减少决策数量 |
-| 3D 像素在实战中不好看 | 中 | M2 陌生人测试不通过 | 允许回退到"高分辨率像素"（768×432）或改为手绘贴图低模 |
+| **The feel never comes together in M1** | Ends the project | Three rounds of playtesting and the taste review is still under 3.5 | Stop. The human and D1 redesign, with an outside consultant if it comes to that. Do not proceed to M2 on the theory that art will fix it |
+| Throughput cannot cover the scope | High | Three consecutive weeks with no release condition closed | Cut scope — M6 content volume first, then M5 depth. Never quality, and never the gates |
+| The shared machine is the bottleneck | Medium | Lock waits show up in the stall check | Move heavy work to CI runners; run some agents locally |
+| The economy simulation does not resemble real players | Medium | The M5 live test diverges from the simulation by more than half | Recalibrate against real data. The simulator is a thing we iterate on, not an oracle |
+| **The human runs out of energy** | High | The nightly report goes unread three days running | The largest hidden risk in the whole plan. Everything here funnels through one person's attention. P0 is obliged to cut the number of decisions before adding any |
+| 3D pixel art does not survive contact with reality | Medium | The M2 stranger test fails | Fall back to higher-resolution pixel art at 768×432, or hand-painted textures on low-poly geometry. Both are acceptable; shipping something that looks muddy is not |

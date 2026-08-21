@@ -1,179 +1,179 @@
-# 手感规格 · 帧数据契约
+# Feel Spec · Frame-Data Contract
 
-> 状态：DRAFT v0.1 · 所有者：设计总监(D1) · **本文件的表格是契约，被 CI 自动断言**
-> 基准帧率：**60 FPS**。1 帧 = 16.67ms。逻辑 tick = 30Hz（1 tick = 2 帧）。
-> 所有帧数在 `packages/content/combat/frames/*.json` 中有对应数据，本文档与数据文件由 CI 校验一致性。
-
----
-
-## 0. 为什么手感要写成表格
-
-宪法第十五条：手感是硬指标。"打击感要强"不是规格，是废话。规格长这样：
-
-> 轻攻击第一段：前摇 5 帧，判定第 6–8 帧，后摇 9 帧，第 12 帧起可取消进第二段。
-
-只有写成这样，E1 才能实现、CI 才能断言、Q1 才能验收、任何人改坏了才能被发现。
+> Status: DRAFT v0.1 · Owner: Design Director (D1) · **The tables in this file are a contract, asserted automatically by CI**
+> Baseline frame rate: **60 FPS**. 1 frame = 16.67ms. Logic tick = 30Hz (1 tick = 2 frames).
+> Every frame count here has matching data in `packages/content/combat/frames/*.json`; CI checks this document and the data files against each other.
 
 ---
 
-## 1. 不可谈判的全局指标
+## 0. Why feel is written as tables
 
-| 指标 | 目标 | 上限 | 测量方法 |
+Feel is a measurement, not an opinion. "The hits should land hard" is not a specification, it is noise — and the documents gate rejects it as unmeasurable wording. A specification looks like this:
+
+> Light attack, first hit: 5 frames of startup, active frames 6–8, 9 frames of recovery, cancellable into the second hit from frame 12.
+
+Only in that form can E1 implement it, CI assert it, Q1 accept it, and anyone who breaks it be caught.
+
+---
+
+## 1. Non-negotiable global metrics
+
+| Metric | Target | Ceiling | How it is measured |
 |---|---|---|---|
-| **输入 → 画面首帧响应** | ≤ 1 帧 | **≤ 2 帧** | headless 注入输入，逐帧截图比对首个像素变化 |
-| 输入缓冲窗口 | 8 帧 | — | 提前 8 帧内的按键会被记录并在可执行时立即执行 |
-| 输入到服务端确认（本地 100ms RTT） | — | ≤ 8 帧（含预测，玩家不可感知） | 网络测试台 |
-| 帧率（1080p，4 人满屏怪） | 60 | 不低于 55 的 99th percentile | 性能基准测试 |
-| 加载：主菜单 → 可操作 | ≤ 3 秒 | ≤ 5 秒 | 自动化计时 |
-| 场景切换（层间） | ≤ 1.5 秒 | ≤ 2.5 秒 | 自动化计时 |
+| **Input → first frame on screen** | ≤ 1 frame | **≤ 2 frames** | inject input headless, compare screenshots frame by frame for the first changed pixel |
+| Input buffer window | 8 frames | — | a press up to 8 frames early is recorded and executed the instant it becomes legal |
+| Input to server acknowledgement (local, 100ms RTT) | — | ≤ 8 frames (prediction included; not perceptible to the player) | network test rig |
+| Frame rate (1080p, 4 players, screen full of enemies) | 60 | 99th percentile not below 55 | performance benchmark |
+| Load: main menu → able to act | ≤ 3 seconds | ≤ 5 seconds | automated timing |
+| Scene transition (between floors) | ≤ 1.5 seconds | ≤ 2.5 seconds | automated timing |
 
-**超出上限 = CI 红 = 不许合并。** 没有例外，没有"暂时先这样"。
+**Over the ceiling = CI red = no merge.** No exceptions, and no "leave it like this for now".
 
 ---
 
-## 2. 触感六件套（Juice Six）
+## 2. Juice Six
 
-**每一个会命中的动作，必须挂齐以下六项。缺任何一项，内容数据 schema 校验失败。**
+**Every action that can connect must carry all six of the following. Miss one and the content data fails schema validation.**
 
-| # | 项目 | 字段 | 默认值 | 说明 |
+| # | Item | Field | Default | Notes |
 |---|---|---|---|---|
-| 1 | **命中停顿** Hitstop | `hitstop_frames` | 见 §3 | 命中瞬间双方（或全局）暂停的帧数 |
-| 2 | **屏幕震动** Screenshake | `shake_amp_px`, `shake_frames` | 2px / 4 帧 | 振幅按像素（低分辨率画面下 1px 很明显） |
-| 3 | **粒子** VFX | `vfx_id` | 必填 | 命中特效，必须与武器材质匹配 |
-| 4 | **音效** SFX | `sfx_id` | 必填 | ≥3 个变体轮播 |
-| 5 | **伤害跳字** Damage Number | `dmg_popup_style` | 必填 | 暴击/破防/普通三种样式 |
-| 6 | **受击闪白** Hit Flash | `flash_frames`, `flash_color` | 3 帧 / 调色板白 | 受击方材质瞬间置换 |
+| 1 | **Hitstop** | `hitstop_frames` | see §3 | frames for which the two parties (or everything) freeze at the moment of contact |
+| 2 | **Screenshake** | `shake_amp_px`, `shake_frames` | 2px / 4 frames | amplitude in pixels (at this render resolution 1px reads clearly) |
+| 3 | **VFX** particles | `vfx_id` | required | the hit effect; must match the weapon material |
+| 4 | **SFX** | `sfx_id` | required | ≥3 variants in rotation |
+| 5 | **Damage number** | `dmg_popup_style` | required | three styles: critical, Poise break, ordinary |
+| 6 | **Hit flash** | `flash_frames`, `flash_color` | 3 frames / palette white | the struck party's material is swapped for an instant |
 
-**lint 工具**：`tools/art-lint/juice-lint.ts`，作为 G7 闸门的一部分。
+**Lint tool**: `tools/art-lint/juice-lint.ts`, part of gate G7.
 
 ---
 
-## 3. 命中停顿表（Hitstop）
+## 3. Hitstop table
 
-命中停顿是打击感的第一功臣。分档：
+Hitstop does more for impact than anything else on the list. By tier:
 
-| 命中类型 | 停顿帧数 | 停顿对象 |
+| Hit type | Freeze frames | Who freezes |
 |---|---|---|
-| 轻攻击命中 | 2 | 仅双方 |
-| 重攻击命中 | 4 | 仅双方 |
-| 蓄力满命中 | 6 | 双方 + 轻微全局慢放（0.8×，4 帧） |
-| 招架成功 | **8** | 全局（这是本作的高光时刻之一） |
-| 破防瞬间 | 6 | 全局 |
-| 处决命中 | 12 | 全局 + 镜头微推 |
-| 合击触发 | 10（触发帧）+ 每段 2 | 全局 |
-| 玩家受击 | 5 | 全局 |
+| Light attack connects | 2 | the two parties only |
+| Heavy attack connects | 4 | the two parties only |
+| Full charge connects | 6 | both parties + slight global slow motion (0.8×, 4 frames) |
+| Parry succeeds | **8** | global (one of this game's high points) |
+| Poise break | 6 | global |
+| Execution connects | 12 | global + small camera push |
+| Duet triggers | 10 (on the trigger frame) + 2 per hit | global |
+| Player is hit | 5 | global |
 
-**实现约束（重要）**：命中停顿是**渲染层概念**，不进 `packages/sim`。sim 发出 `hit_confirmed` 事件，客户端根据事件类型查表决定停顿。服务端不停顿（保持 tick 恒定）。
+**Implementation constraint (important)**: hitstop is a **render-layer concept** and does not enter `packages/sim`. sim emits a `hit_confirmed` event; the client reads the event type, looks up the table, and decides the freeze. The server never freezes, so the tick stays constant.
 
 ---
 
-## 4. 角色动作帧数据
+## 4. Character action frame data
 
-### 4.1 通用动作
+### 4.1 Common actions
 
-| 动作 | 前摇 | 判定 | 后摇 | 可取消起始帧 | 体魄消耗 |
+| Action | Startup | Active | Recovery | Cancellable from | Stamina cost |
 |---|---|---|---|---|---|
-| 翻滚 | 3 | **无敌 4–16 帧** | 8 | 20 | 捷 12 |
-| 架势（进入） | 4 | — | — | — | 持续 韧 2/秒 |
-| 招架窗口 | — | 松开后 **6 帧**内敌方攻击判定生效则成功 | 失败则 14 帧破绽 | — | 成功回复 韧 15 |
-| 拾取 | 6 | — | 4 | 8 | 0 |
-| 喝药 | 12 | 生效于第 12 帧 | 10 | 不可取消 | 0 |
+| Roll | 3 | **invincible 4–16** | 8 | 20 | Agility 12 |
+| Stance (entry) | 4 | — | — | — | Endurance 2/second while held |
+| Parry window | — | success if an enemy attack becomes active within **6 frames** of release | 14 frames of opening on failure | — | Endurance 15 restored on success |
+| Pick up | 6 | — | 4 | 8 | 0 |
+| Drink a potion | 12 | takes effect on frame 12 | 10 | not cancellable | 0 |
 
-### 4.2 陆老三（刀剑教头）
+### 4.2 Lu Laosan (Blade Instructor)
 
-| 动作 | 前摇 | 判定 | 后摇 | 取消窗口 | 伤害系数 | 破防值 |
+| Action | Startup | Active | Recovery | Cancel window | Damage coefficient | Poise damage |
 |---|---|---|---|---|---|---|
-| 轻攻击 1 段 | 5 | 6–8 | 9 | 12–20 | 1.00 | 8 |
-| 轻攻击 2 段 | 4 | 5–7 | 10 | 12–20 | 1.15 | 10 |
-| 轻攻击 3 段 | 6 | 8–12 | 16 | 20–26 | 1.60 | 22 |
-| 重攻击 | 11 | 12–16 | 20 | 26–32 | 2.20 | 35 |
-| 蓄力重攻击（满） | 40（含蓄力） | 41–47 | 24 | 不可取消 | 4.00 | 70 |
-| 反击斩（招架成功后） | 2 | 3–7 | 12 | 14–20 | 2.80 | 50 |
+| Light attack, hit 1 | 5 | 6–8 | 9 | 12–20 | 1.00 | 8 |
+| Light attack, hit 2 | 4 | 5–7 | 10 | 12–20 | 1.15 | 10 |
+| Light attack, hit 3 | 6 | 8–12 | 16 | 20–26 | 1.60 | 22 |
+| Heavy attack | 11 | 12–16 | 20 | 26–32 | 2.20 | 35 |
+| Charged heavy (full) | 40 (charge included) | 41–47 | 24 | not cancellable | 4.00 | 70 |
+| Counter-cut (after a successful Parry) | 2 | 3–7 | 12 | 14–20 | 2.80 | 50 |
 
-### 4.3 苏九娘（舞娘）
-> 特征：所有动作比教头快 2–4 帧，伤害系数低 20–30%，但背击加成 ×1.8
+### 4.3 Su Jiuniang (Lead Dancer)
+> Trait: every action is 2–4 frames faster than the Instructor's, damage coefficients are 20–30% lower, and back attacks are multiplied by 1.8
 
-| 动作 | 前摇 | 判定 | 后摇 | 取消窗口 | 伤害系数 | 破防值 |
+| Action | Startup | Active | Recovery | Cancel window | Damage coefficient | Poise damage |
 |---|---|---|---|---|---|---|
-| 轻攻击 1 段 | 3 | 4–5 | 6 | 8–14 | 0.75 | 5 |
-| 轻攻击 2 段 | 3 | 4–5 | 6 | 8–14 | 0.80 | 5 |
-| 轻攻击 3 段 | 3 | 4–6 | 8 | 10–16 | 0.95 | 8 |
-| 轻攻击 4 段 | 4 | 5–8 | 12 | 14–20 | 1.30 | 14 |
-| 错步（架势） | 2 | 位移 3–8 帧 | 5 | 7 | — | — |
-| 背击（错步后 30 帧内） | 4 | 5–8 | 10 | 12–18 | 2.40 | 20 |
+| Light attack, hit 1 | 3 | 4–5 | 6 | 8–14 | 0.75 | 5 |
+| Light attack, hit 2 | 3 | 4–5 | 6 | 8–14 | 0.80 | 5 |
+| Light attack, hit 3 | 3 | 4–6 | 8 | 10–16 | 0.95 | 8 |
+| Light attack, hit 4 | 4 | 5–8 | 12 | 14–20 | 1.30 | 14 |
+| Sidestep (Stance) | 2 | displacement 3–8 | 5 | 7 | — | — |
+| Back attack (within 30 frames of a sidestep) | 4 | 5–8 | 10 | 12–18 | 2.40 | 20 |
 
-### 4.4 老聂（符匠）与 4.5 钟不二（队长）
-> 状态：待 M1 之后补齐。M1 只实现陆老三。
+### 4.4 Lao Nie (Talisman-Maker) and 4.5 Zhong Bu'er (Guard Captain)
+> Status: to be filled in after M1. M1 implements Lu Laosan only.
 
 ---
 
-## 5. 敌人帧数据规范
+## 5. Rules for enemy frame data
 
-每个敌人动作必须提供：
-- **预警帧**（Telegraph）：攻击前有明确视觉提示的帧数。**最低 10 帧**，精英/首领的重击最低 18 帧。
-- **判定帧**、**恢复帧**
-- **可招架标记**：`parryable: true/false`。不可招架的攻击必须有**红色**预警特效（视觉语言统一）。
+Every enemy action must supply:
+- **Telegraph**: the number of frames of unambiguous visual warning before the attack. **Minimum 10 frames**; minimum 18 for an elite or boss heavy attack.
+- **Active frames** and **recovery frames**
+- **Parryable flag**: `parryable: true/false`. An attack that cannot be parried must carry a **red** warning effect, so the visual language stays uniform.
 
-**可读性铁律**：
-1. 任何会造成 >30% 血量伤害的攻击，预警必须 ≥18 帧，且有独立音效。
-2. 同屏最多 2 个敌人可以同时处于攻击判定帧（由 AI 的"攻击令牌"机制保证）。这是《光明之魂》《暗黑》系围殴不至于变成乱打的关键。
-3. 敌人不得从屏幕外发起近战攻击。
+**Readability, iron rules**:
+1. Any attack that deals more than 30% of a health bar must have a telegraph of ≥18 frames and a sound of its own.
+2. At most 2 enemies on screen may be in active attack frames at the same time, guaranteed by the AI's attack-token mechanism. This is what keeps a gang-up in the Shining Soul and Diablo lines from turning into noise.
+3. Enemies may not open a melee attack from off screen.
 
 ---
 
-## 6. 相机
+## 6. Camera
 
-| 参数 | 值 |
+| Parameter | Value |
 |---|---|
-| 类型 | 透视，FOV 27 |
-| 倾角 | 30°（可在设置里 ±5°） |
-| 跟随阻尼 | 位置 lerp 0.12/帧，含 0.5 单位死区 |
-| 战斗拉近 | 进入战斗 0.4 秒内拉近 8%，脱战 1.2 秒还原 |
-| 处决 / 合击 | 推进 15%，持续动作时长 + 0.3 秒 |
-| **像素稳定** | 相机位置必须**吸附到渲染分辨率的像素网格**，否则低分辨率下会抖动。这是 3D 像素风最常见的翻车点 |
+| Type | perspective, FOV 27 |
+| Tilt | 30° (adjustable ±5° in settings) |
+| Follow damping | position lerp 0.12/frame, with a 0.5-unit dead zone |
+| Combat pull-in | 8% closer within 0.4 seconds of entering combat, restored 1.2 seconds after leaving it |
+| Execution / Duet | push in 15%, held for the action's duration + 0.3 seconds |
+| **Pixel stability** | the camera position must **snap to the pixel grid of the render resolution**, or the image shakes at low resolution. This is the most common way 3D pixel art fails |
 
 ---
 
-## 7. 自动化断言
+## 7. Automated assertions
 
-### 7.1 帧数据快照测试
+### 7.1 Frame-data snapshot test
 ```
 pnpm -C packages/sim test -- frames.snapshot.spec.ts
 ```
-- 对每个动作，用固定输入序列驱动 sim，记录每 tick 的状态机阶段
-- 与 `packages/content/combat/frames/*.json` 逐帧比对
-- **不一致即失败**。要改帧数据，必须同时改 JSON 和本文档，并在 PR 描述里说明为什么
+- For each action, drive sim with a fixed input sequence and record the state-machine phase on every tick
+- Compare frame by frame against `packages/content/combat/frames/*.json`
+- **A mismatch is a failure.** Changing frame data means changing the JSON and this document together, and stating why in the PR description
 
-### 7.2 输入延迟测试
+### 7.2 Input latency test
 ```
 pnpm -C packages/client test:latency
 ```
-- headless 渲染，注入输入事件，逐帧抓取渲染目标
-- 断言首个像素变化发生在 ≤2 帧内
+- Headless render, inject input events, capture the render target frame by frame
+- Assert that the first changed pixel occurs within ≤2 frames
 
-### 7.3 触感 lint
+### 7.3 Juice lint
 ```
 pnpm juice-lint
 ```
-- 扫描所有战斗动作数据，检查六件套字段齐全且引用的资源存在
+- Scan every combat action's data; check that the six fields are all present and that the assets they reference exist
 
-### 7.4 性能基准
+### 7.4 Performance benchmark
 ```
 pnpm bench:combat
 ```
-- 固定场景（4 玩家 + 24 敌人 + 满屏特效），跑 600 帧
-- 断言 p99 帧时间 ≤ 18.2ms
+- Fixed scene (4 players + 24 enemies + a screen full of effects), run 600 frames
+- Assert p99 frame time ≤ 18.2ms
 
-**以上四条全部是 G7 闸门的组成部分，任一失败则 PR 不可合并。**
+**All four of the above are part of gate G7. If any one fails, the PR cannot merge.**
 
 ---
 
-## 8. 手感调优的工作流
+## 8. The feel-tuning workflow
 
-1. D1 在本文档改数字，并同步改 `packages/content/combat/frames/*.json`
-2. E1/E2 实现，跑 §7 的四条测试
-3. E2 出可玩构建，D1 **亲自玩** 并录屏
-4. D1 在 `board/fun-audit/<date>.md` 写主观评价
-5. 如果主观评价与数字矛盾 → 说明规格本身错了 → 改规格，回到第 1 步
+1. D1 changes the numbers in this document and changes `packages/content/combat/frames/*.json` to match
+2. E1/E2 implement, and run the four tests in §7
+3. E2 produces a playable build; D1 **plays it in person** and records the screen
+4. D1 writes the subjective verdict in `board/fun-audit/<date>.md`
+5. If the subjective verdict contradicts the numbers → the spec itself is wrong → change the spec and return to step 1
 
-**第 3 步不可省略。** 数字全绿但玩起来难受，是完全可能的。数字保证下限，试玩发现上限。
+**Step 3 cannot be skipped.** Every number green while the game is unpleasant to play is entirely possible. The numbers guarantee the floor; playing it finds the ceiling.

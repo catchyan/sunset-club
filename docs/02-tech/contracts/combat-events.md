@@ -1,59 +1,59 @@
-# 契约 · 战斗事件（Combat Events）
+# Contract · Combat Events
 
-> Status: **DRAFT v0** · Owner: A1 总架构师
-> 需要它的里程碑：M1 · 依赖方：E1-sim / E2-client / V1-视效 / U1-声音
-> **这份契约冻结之前，任何人不许开始写战斗表现层代码。**
-> 单一定义源：`packages/protocol/src/combat-events.ts`（Zod）。本文档与该文件由 CI 逐字段比对。
-
----
-
-## 1. 这份契约要解决的问题
-
-架构原则 3.3：**sim 不知道"特效"存在。** sim 只负责判定，客户端负责好看。
-
-如果没有这份契约，一定会发生下面这件事：E1 在 sim 里写了 `playHitEffect('slash_big')`，V1 后来把特效改名，游戏静默失效，没有任何测试能发现。半个月后 D1 试玩时说"打击感怎么没了"，然后花两天定位。
-
-有了这份契约：sim 发 `hit_confirmed{kind:'heavy'}`，客户端查表播特效。**特效随便改，逻辑一行不动；逻辑的测试不需要渲染器。**
+> Status: **DRAFT v0** · Owner: A1 Architect
+> Milestone that needs it: M1 · Depended on by: E1-sim / E2-client / V1-visuals / U1-sound
+> **Until this contract is frozen, nobody may start writing combat presentation code.**
+> Single source of definition: `packages/protocol/src/combat-events.ts` (Zod). This document and that file are compared field by field by CI.
 
 ---
 
-## 2. 基础类型
+## 1. The problem this contract solves
 
-| 类型 | 定义 | 说明 |
+Architectural principle 3.3: **the sim does not know that "effects" exist.** The sim adjudicates; the client makes it look good.
+
+Without this contract, the following will certainly happen. E1 writes `playHitEffect('slash_big')` in the sim, V1 later renames the effect, the game silently stops playing it, and no test can detect it. Two weeks later D1 playtests and says "the impact is gone somehow", and then spends two days tracking it down.
+
+With this contract: the sim emits `hit_confirmed{kind:'heavy'}` and the client looks up which effect to play. **Effects can be changed freely without touching a line of logic, and testing the logic needs no renderer.**
+
+---
+
+## 2. Base types
+
+| Type | Definition | Notes |
 |---|---|---|
-| `EntityId` | `number`（uint32） | 实体 ID。0 保留为"无" |
-| `Tick` | `number`（uint32） | 逻辑帧号，30Hz |
-| `Vec3` | `{x:number, y:number, z:number}` | 定点数，单位 1/1024。用于特效定位 |
-| `HitKind` | 见 §3 | 决定命中停顿档位 |
-| `DamageType` | `'slash' \| 'pierce' \| 'blunt' \| 'inner'` | 决定音效材质与特效族 |
-| `WoundId` / `MemoryId` / `DuetId` | `string`（内容数据主键） | 必须存在于 `packages/content/` |
+| `EntityId` | `number` (uint32) | Entity ID. 0 is reserved for "none" |
+| `Tick` | `number` (uint32) | Logic frame number, 30Hz |
+| `Vec3` | `{x:number, y:number, z:number}` | Fixed point, units of 1/1024. Used for positioning effects |
+| `HitKind` | See §3 | Determines the hitstop tier |
+| `DamageType` | `'slash' \| 'pierce' \| 'blunt' \| 'inner'` | Determines the sound material and the effect family |
+| `WoundId` / `MemoryId` / `DuetId` | `string` (content data primary key) | Must exist in `packages/content/` |
 
-**为什么 `Vec3` 用定点数**：架构原则 3.2，浮点进入 sim 会破坏确定性。事件里的坐标虽然只给表现层用，但事件本身要参与回放哈希，必须确定。
+**Why `Vec3` is fixed point**: architectural principle 3.2 — floating point entering the sim breaks determinism. The coordinates in an event are only consumed by the presentation layer, but the events themselves feed the replay hash, so they must be deterministic.
 
 ---
 
-## 3. HitKind 枚举（与手感规格 §3 一一对应）
+## 3. The HitKind enum (one-to-one with feel spec §3)
 
-| 值 | 触发条件 | 对应命中停顿 |
+| Value | Trigger | Corresponding hitstop |
 |---|---|---|
-| `light` | 轻攻击命中 | 2 帧，仅双方 |
-| `heavy` | 重攻击命中 | 4 帧，仅双方 |
-| `charged` | 蓄力满命中 | 6 帧 + 全局 0.8× 慢放 4 帧 |
-| `counter` | 招架后反击命中 | 8 帧，全局 |
-| `poise_break` | 该次命中打破了破防条 | 6 帧，全局 |
-| `execute` | 处决命中 | 12 帧，全局 + 镜头微推 |
-| `duet` | 合击段命中 | 每段 2 帧 |
-| `chip` | 招架/格挡后的削减伤害 | 1 帧，仅受击方 |
+| `light` | A light attack connects | 2 frames, attacker and target only |
+| `heavy` | A heavy attack connects | 4 frames, attacker and target only |
+| `charged` | A fully charged attack connects | 6 frames + a global 0.8× slowdown for 4 frames |
+| `counter` | A post-parry counter connects | 8 frames, global |
+| `poise_break` | This hit broke the Poise meter | 6 frames, global |
+| `execute` | An execution connects | 12 frames, global + a slight camera push-in |
+| `duet` | A Duet segment connects | 2 frames per segment |
+| `chip` | Chip damage after a parry or block | 1 frame, target only |
 
-**CI 断言**：本表的枚举值集合，必须与 `docs/01-game/feel-spec.md §3` 的行、以及 `packages/content/combat/hitstop.json` 的键，三者完全一致。任一处新增而未同步 → 红。
+**CI assertion**: the set of enum values in this table must be identical across three places — this table, the rows in `docs/01-game/feel-spec.md §3`, and the keys of `packages/content/combat/hitstop.json`. Anything added to one without the others → red.
 
 ---
 
-## 4. 事件定义
+## 4. Event definitions
 
-所有事件共有字段：`t`（判别标签）、`tick`（发生的逻辑帧）。
+Fields common to every event: `t` (the discriminant tag) and `tick` (the logic frame it happened on).
 
-### 4.1 命中类
+### 4.1 Hits
 
 ```ts
 { t: 'hit_confirmed',
@@ -62,31 +62,31 @@
   target: EntityId,
   kind: HitKind,
   dmgType: DamageType,
-  dmg: number,            // 最终伤害，已结算所有减免
+  dmg: number,            // final damage, all reductions already applied
   crit: boolean,
-  poiseDmg: number,       // 本次造成的破防值
-  pos: Vec3,              // 命中点，特效生成位置
-  dir: Vec3,              // 命中法线，决定溅射方向与击退朝向
-  fromBehind: boolean }   // 背击，苏九娘的核心机制，客户端需要不同特效
+  poiseDmg: number,       // poise damage dealt by this hit
+  pos: Vec3,              // point of impact, where the effect spawns
+  dir: Vec3,              // impact normal, sets the spray direction and knockback facing
+  fromBehind: boolean }   // backstab, Su Jiuniang's core mechanic; the client needs a different effect
 ```
 
 ```ts
 { t: 'hit_blocked', tick, attacker, target, chipDmg: number, pos: Vec3 }
-{ t: 'attack_whiffed', tick, attacker, actionId: string }  // 空挥，用于"重量感"音效
+{ t: 'attack_whiffed', tick, attacker, actionId: string }  // a whiff, used for the "weight" sound
 ```
 
-### 4.2 攻防状态类
+### 4.2 Offence and defence state
 
 ```ts
 { t: 'parry_success', tick, who: EntityId, against: EntityId }
-{ t: 'parry_failed',  tick, who: EntityId }                  // 招架窗口错过，14 帧破绽
-{ t: 'poise_broken',  tick, target: EntityId, by: EntityId } // 进入可处决状态
+{ t: 'parry_failed',  tick, who: EntityId }                  // parry window missed, 14 frames of exposure
+{ t: 'poise_broken',  tick, target: EntityId, by: EntityId } // enters the executable state
 { t: 'poise_recovered', tick, who: EntityId }
 { t: 'stance_entered', tick, who: EntityId, stanceId: string }
 { t: 'stance_exited',  tick, who: EntityId, stanceId: string, reason: 'input'|'stamina'|'stagger' }
 ```
 
-### 4.3 本作特有机制类
+### 4.3 Mechanics specific to this game
 
 ```ts
 { t: 'duet_triggered', tick, duetId: DuetId, members: EntityId[], level: 1|2|3 }
@@ -96,10 +96,10 @@
 { t: 'vigor_spent',    tick, who: EntityId, amount: number, reason: string }
 ```
 
-> 旧伤（`wound_flared`）与肌肉记忆（`memory_recalled`）是本作"英雄迟暮"主题的机制载体。
-> 它们**必须**有独立的视听表现——这不是可选的润色，是主题能否被玩家感知到的关键。见 `docs/01-game/gdd-core.md §5`。
+> Old Wounds (`wound_flared`) and muscle memory (`memory_recalled`) are the mechanical carriers of this game's "heroes in twilight" theme.
+> They **must** have their own distinct sight and sound. This is not optional decoration; it decides whether the player perceives the theme at all. See `docs/01-game/gdd-core.md §5`.
 
-### 4.4 生命周期类
+### 4.4 Lifecycle
 
 ```ts
 { t: 'entity_spawned', tick, id: EntityId, archetype: string, pos: Vec3 }
@@ -109,36 +109,36 @@
 
 ---
 
-## 5. 硬约束（违反即 CI 红）
+## 5. Hard constraints (violation = CI red)
 
-1. **事件是只读的、不可变的。** 客户端不得修改事件对象后传递。
-2. **sim 不得引用任何 `vfx_id` / `sfx_id` / 动画名。** CI 静态检查 `packages/sim/` 中不出现这些字段名。
-3. **事件不得携带表现参数。** 没有 `shakeAmount`、没有 `hitstopFrames`。这些由客户端查 `packages/content/combat/hitstop.json` 得到。
-   - 理由：同一个 `heavy` 命中，D1 想把停顿从 4 帧调成 5 帧时，应该只改一个 JSON，而不是改 sim 代码并重跑回放测试。
-4. **事件顺序即 tick 顺序**，同一 tick 内按发出顺序稳定排列。回放哈希包含事件序列。
-5. **客户端对未知事件类型必须静默忽略**，不得崩溃。（版本不匹配时的降级行为）
-6. **服务端权威**：M3 起，客户端预测产生的事件标记 `predicted: true`，被服务端事件覆盖时不重复播放特效。
-
----
-
-## 6. 冻结前必须回答的问题
-
-> A1 起草后，以下每个问题必须由对应 Bot 在常委会明确回答"能/不能"，才可提交人类冻结。
-
-| # | 问题 | 回答方 | 状态 |
-|---|---|---|---|
-| 1 | 用这些事件，能不能实现手感规格 §2 触感六件套的全部六项？ | V1 + U1 | ⬜ 未回答 |
-| 2 | 事件里的信息够不够做命中停顿分档？ | E2 | ⬜ 未回答 |
-| 3 | 事件序列进回放哈希，会不会因为事件顺序不稳定导致回放测试随机失败？ | E1 | ⬜ 未回答 |
-| 4 | M3 加网络后，这些事件哪些需要下发、哪些客户端本地推导即可？ | E3 | ⬜ 未回答 |
-| 5 | 有没有哪个字段是"我猜将来会用到"加上去的？有就删掉。 | A1 | ⬜ 未回答 |
-
-> 第 5 个问题来自宪法第十八条（删除的权力）。**契约里每多一个字段，就多一处未来的不一致。**
+1. **Events are read-only and immutable.** The client must not modify an event object and pass it on.
+2. **The sim must not reference any `vfx_id` / `sfx_id` / animation name.** CI statically checks that these field names do not appear in `packages/sim/`.
+3. **Events must not carry presentation parameters.** No `shakeAmount`, no `hitstopFrames`. The client obtains those by looking up `packages/content/combat/hitstop.json`.
+   - Reasoning: for the same `heavy` hit, when D1 wants the hitstop moved from 4 frames to 5, that should be one JSON edit — not a change to sim code plus a rerun of the replay tests.
+4. **Event order is tick order**, and within one tick events are stably ordered by emission order. The replay hash includes the event sequence.
+5. **The client must silently ignore unknown event types** and must not crash. (This is the degradation behaviour on a version mismatch.)
+6. **The server is authoritative**: from M3, events produced by client prediction are marked `predicted: true`, and when a server event supersedes one the effect is not played twice.
 
 ---
 
-## 7. 变更历史
+## 6. Questions that must be answered before freezing
 
-| 版本 | 日期 | 变更 | ADR |
+> Once A1 has drafted this, each question below must get an explicit "yes" or "no" from the corresponding bot in the standing committee before it can go to the human to be frozen.
+
+| # | Question | Answered by | State |
 |---|---|---|---|
-| v0 | 2026-08-20 | 初稿 | — |
+| 1 | With these events, can all six items of the Juice Six in feel spec §2 be implemented? | V1 + U1 | ⬜ unanswered |
+| 2 | Is there enough information in the events to tier the hitstop? | E2 | ⬜ unanswered |
+| 3 | With the event sequence feeding the replay hash, could unstable event ordering make the replay test fail at random? | E1 | ⬜ unanswered |
+| 4 | Once networking arrives in M3, which of these events need to be sent down and which can the client derive locally? | E3 | ⬜ unanswered |
+| 5 | Is any field here present because "I guess we will need it later"? If so, delete it. | A1 | ⬜ unanswered |
+
+> Question 5 is the one that gets skipped. **Every extra field in a contract is one more place for a future inconsistency**, and a field added speculatively is defended forever by the argument that removing it might break something.
+
+---
+
+## 7. Change history
+
+| Version | Date | Change | ADR |
+|---|---|---|---|
+| v0 | 2026-08-20 | First draft | — |

@@ -1,47 +1,47 @@
-# 基础设施（Infrastructure）
+# Infrastructure
 
-> 状态：**STUB** · 所有者：O1 运维官 · 起草时点：**M3 前**
-> 占位文件。M0–M2 不需要服务器，见下。
+> Status: **STUB** · Owner: O1 Operator · To be drafted: **before M3**
+> A placeholder. M0–M2 need no server; see below.
 
 ---
 
-## M0–M2：不需要服务器
+## M0–M2: no server needed
 
-`architecture.md §8` 已定：staging 用 Cloudflare Pages / GitHub Pages 托管纯客户端构建。零运维、零成本、一个 URL 就能试玩。
+`architecture.md §8` already settled it: staging hosts the client-only build on Cloudflare Pages / GitHub Pages. Zero operations, zero cost, and one URL is enough to play it.
 
-**不要提前搭服务器。** 一台没人用的服务器，两个月后一定是一台没人记得怎么配的服务器。
+**Do not stand up a server early.** A server nobody uses is, two months later, guaranteed to be a server nobody remembers how to configure.
 
-## M3 起需要什么
+## What is needed from M3
 
-| 组件 | 用途 | 规格下限 |
+| Component | Purpose | Minimum spec |
 |---|---|---|
-| Colyseus | 权威服务器 | 见 `architecture.md §6`：单房间 ≤8% of 1 core |
-| PostgreSQL | 账号、角色、物品实例、货币审计表 | 需要事务与 append-only 审计 |
-| Redis | 会话、房间、排行榜 | |
-| 反向代理 | TLS、WebSocket 升级 | Caddy 优先（自动证书） |
+| Colyseus | Authoritative server | See `architecture.md §6`: ≤8% of 1 core per room |
+| PostgreSQL | Accounts, characters, item instances, currency audit table | Needs transactions and an append-only audit table |
+| Redis | Sessions, rooms, leaderboards | |
+| Reverse proxy | TLS, WebSocket upgrade | Caddy preferred (automatic certificates) |
 
-按 300–1000 CCU 的目标（`architecture.md §6`），起步 4C8G 足够，需要可垂直扩容。
+Against the 300–1000 CCU target (`architecture.md §6`), 4C8G is enough to start with, and it has to be vertically scalable.
 
-## ⚠️ 当前已知问题
+## ⚠️ Currently known problem
 
-人类提供的那台服务器（地址不写进公开仓库，见本节末）**从开发环境不可达**：
+The server the human provided (the address is not written into a public repository — see the end of this section) is **unreachable from the development environment**:
 
-- TCP 三次握手在 22 / 2222 / 22022 / 80 / 443 / 8080 **全部报告成功**
-- 但 SSH banner 交换超时（`ssh -vv` 卡在 `Connection timed out during banner exchange`）
-- ICMP 不通
+- The TCP three-way handshake **reports success on all of** 22 / 2222 / 22022 / 80 / 443 / 8080
+- But the SSH banner exchange times out (`ssh -vv` hangs at `Connection timed out during banner exchange`)
+- ICMP does not get through
 
-全端口都 ACK 但没有服务响应，这是运营商侧应答式过滤或 CGNAT 的典型特征——外部看到的是网关在替这个地址回应，而不是主机本身。
+Every port ACKs and no service responds: that is the signature of carrier-side responsive filtering or CGNAT — what the outside world sees is a gateway answering on behalf of that address, not the host itself.
 
-**结论**：这台机器不能用作 M3 的部署目标，除非人类确认一个真实可达的地址或换一台 VPS。
-**影响**：M0–M2 无影响。M3 开始前必须解决。人类已确认：**M3 前再处理**。
+**Conclusion**: this machine cannot be the deployment target for M3 unless the human confirms a genuinely reachable address or supplies a different VPS.
+**Impact**: none on M0–M2. It must be resolved before M3 begins. The human has confirmed: **deal with it before M3**.
 
-> 🔒 **本仓库是公开的。主机地址、端口、凭据一律不写进来。**
-> 部署目标通过环境变量或 GitHub Secrets 注入，本地放 `.env`（已在 `.gitignore` 中）。
-> 这条不只是针对服务器——它适用于任何凭据。Bot 在写文档时很容易顺手把连接串贴进去。
+> 🔒 **This repository is public. Host addresses, ports and credentials are never written into it.**
+> The deployment target is injected through environment variables or GitHub Secrets; locally it lives in `.env` (already in `.gitignore`).
+> This is not only about the server — it applies to any credential. A bot writing documentation will paste a connection string in without thinking about it.
 
-## 分支保护（已解决）
+## Branch protection (resolved)
 
-**当前状态：已生效并实测通过。**
+**Current state: in force and verified by test.**
 
 ```
 Repository:            catchyan/sunset-club  (public)
@@ -51,56 +51,54 @@ enforce_admins:        true
 Force push / delete:   blocked
 ```
 
-实测：`git push origin main` 返回 `GH006: Protected branch update failed`。
+Verified: `git push origin main` returns `GH006: Protected branch update failed`.
 
-### 走到这里的过程（留给后来者）
+### How we got here (for whoever comes next)
 
-仓库最初建为私有，但**免费账户无法在私有仓库上启用分支保护或 ruleset**——
-分支保护 API 与 rulesets API 均返回 403 "Upgrade to GitHub Pro or make this repository public"。
+The repository was first created private, but **a free account cannot enable branch protection or rulesets on a private repository** — both the branch protection API and the rulesets API return 403 "Upgrade to GitHub Pro or make this repository public".
 
-这不是小麻烦。RELAY 的执行链是：
+This is not a minor annoyance. RELAY's enforcement chain is:
 
 ```
-车道所有权表 → CI 闸门 → 分支保护拒绝未过闸的合并 → 越界物理上进不了 main
+lane ownership table → CI gates → branch protection refuses merges that did not pass → out-of-lane changes physically cannot reach main
 ```
 
-**去掉最后一环，前面三环全部退化为建议。** 而弱 Agent 遇到阻碍时的典型行为，恰恰就是找一条绕过去的路——
-`git push origin main` 成功一次，它就学会了这条路。
+**Remove the last link and the first three degrade into advice.** And the characteristic behaviour of a weak agent that hits an obstacle is precisely to look for a way around it — one successful `git push origin main` and it has learned that route.
 
-人类总制作人选择了**改为公开仓库**。附带好处：公开仓库的 Actions 分钟数不限，对一个每 PR 都跑 CI 的项目是实打实的收益。
+The human executive producer chose to **make the repository public**. Side benefit: public repositories have unlimited Actions minutes, which is a real gain for a project that runs CI on every PR.
 
-### ⚠️ `enforce_admins` 必须为 true
+### ⚠️ `enforce_admins` must be true
 
-初次配置时 `enforce_admins` 设为了 false（想给人类留一条紧急通道），**这是个洞**：
+On the first configuration `enforce_admins` was set to false, to leave the human an emergency channel. **That was a hole**:
 
-**Bot 是用人类的 GitHub 账号推送的。** 人类账号是 admin。admin 豁免 = Bot 豁免。
-整套保护对它本该防的对象完全无效。
+**Bots push using the human's GitHub account.** The human's account is an admin. Admin exempt = bot exempt.
+The entire protection scheme was completely ineffective against exactly what it was meant to stop.
 
-已改为 `true`。代价是人类自己也推不了 main——这是对的，见下面的正确做法。
+It is now `true`. The cost is that the human cannot push to main either — which is correct; see the right way to do it below.
 
-### 人类需要直接落盘时的正确做法
+### The right way when the human needs to land something directly
 
-**不要**长期关掉 `enforce_admins`。要用显式、留痕、时间窗最小的临时开关：
+**Do not** leave `enforce_admins` off for any length of time. Use an explicit, traceable switch with the smallest possible time window:
 
 ```bash
-# 1. 关闭（这一步会在仓库的 audit log 里留痕）
+# 1. Turn it off (this step leaves a record in the repository audit log)
 gh api -X DELETE repos/catchyan/sunset-club/branches/main/protection/enforce_admins
-# 2. 推送
+# 2. Push
 git push origin main
-# 3. 立刻恢复。不要拖到"待会儿"
+# 3. Restore it immediately. Not "in a bit"
 gh api -X POST   repos/catchyan/sunset-club/branches/main/protection/enforce_admins
-# 4. 确认
+# 4. Confirm
 gh api repos/catchyan/sunset-club/branches/main/protection/enforce_admins
 ```
 
-**任何 Bot 执行上述第 1 步 = 立即拉安灯 + 记信任账本。** 这条通道只属于人类。
-建议在 Grok Bot 的 Auto-review 里把 `enforce_admins` 加入 Require Approval 名单。
+**Any bot executing step 1 above = pull the andon cord immediately + an entry in the trust ledger.** This channel belongs to the human alone.
+Recommendation: add `enforce_admins` to the Require Approval list in Grok Bot's Auto-review.
 
-## 起草时必须写清楚的
+## What the draft must state clearly
 
-1. **一条命令重建**：`tools/bootstrap/` 要做到在一台空白 Linux 上一条命令重建整个环境。这是宪法"可复现"要求在基础设施上的体现。
-2. **不许有雪花服务器**：任何手动改动当天写回 bootstrap 脚本（见 `board/infra-health.md`）。
-3. 备份与恢复演练（见 `backup.md`）
-4. 监控与告警
-5. 部署流程与回滚
-6. 密钥管理：**任何凭据不许进 git**
+1. **Rebuild in one command**: `tools/bootstrap/` must be able to rebuild the whole environment on a blank Linux box with a single command. This is what the constitution's reproducibility requirement looks like at the infrastructure layer.
+2. **No snowflake servers**: any manual change is written back into the bootstrap script the same day, and recorded in `board/ops/` until it is.
+3. Backup and restore drills (see `backup.md`)
+4. Monitoring and alerting
+5. Deployment process and rollback
+6. Secret management: **no credential ever enters git**

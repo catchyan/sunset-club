@@ -1,31 +1,31 @@
-# 声音圣经（Audio Bible）
+# Audio Bible
 
-> 状态：**STUB** · 所有者：U1 声音官 · 起草时点：**M2**
-> 占位文件。理由见 `gdd-encounters.md` 开头。
+> Status: **STUB** · Owner: U1 Audio Lead · Drafting starts: **M2**
+> Placeholder file. Rationale at the top of `gdd-encounters.md`.
 
 ---
 
-## 起草前置条件
+## Preconditions for drafting
 
-- [ ] `art-bible.md` 定稿（声音要和画面同一个年代感）
-- [ ] `feel-spec.md` 的触感六件套已实现，知道音效要挂在哪些事件上
+- [ ] `art-bible.md` finalised (the audio has to sit in the same era as the image)
+- [ ] the Juice Six in `feel-spec.md` implemented, so we know which events the sounds hang off
 
-## 本文件将要回答的问题
+## Questions this file will answer
 
-1. **命中音效的分层规范**：每一次命中至少两层（材质层 + 力度层）。变体数量下限（≥3，见 `contracts/content-schema.md §4`）。
-2. **音效与 `combat-events.md` 的映射表**：哪个事件触发哪个音效族。
-3. **动态混音**：命中停顿期间音频怎么处理？（关键：停顿时如果音频也停，会显得很廉价）
-4. **音乐**：分层音乐系统，战斗强度驱动。俱乐部据点用什么调式？
-5. **年代感**：本作画面是 PSX 时代 3D + 现代像素皮肤。声音应该对应什么？
-6. **可访问性**：所有关键的听觉信息（可招架预警、背后攻击）必须有视觉冗余。
+1. **Layering rules for hit sounds**: every hit uses at least two layers (material layer + force layer). Minimum variant count (≥3, see `contracts/content-schema.md §4`).
+2. **Mapping between sound and `combat-events.md`**: which event fires which sound family.
+3. **Dynamic mixing**: what happens to the audio during hitstop? (The point: if the audio stops when the frame stops, the hit reads as cheap.)
+4. **Music**: a layered music system driven by combat intensity. Which mode does the Club hub use?
+5. **Era**: the image is PSX-era 3D under a modern pixel skin. What is the audio equivalent?
+6. **Accessibility**: every critical piece of audio information (parryable telegraph, attack from behind) must have a visual equivalent.
 
-## 已确定的硬约束
+## Hard constraints already fixed
 
-- 招架成功是本作的高光时刻（8 帧全局停顿）。它的音效是整个项目里最重要的一个音效，值得单独花时间。
-- 每个音效 ≥3 个变体轮播。单一音效重复播放会让战斗迅速廉价化。
-- 音效资源 id 必须在 `packages/content/` 中被引用，孤儿资源会被 lint 报出。
+- A successful parry is this game's high point (an 8-frame global freeze). Its sound is the single most important sound in the project and is worth its own block of time.
+- Every sound effect needs ≥3 variants in rotation. One sample played repeatedly makes combat cheap fast.
+- Sound asset ids must be referenced from `packages/content/`; orphaned assets are reported by lint.
 
-## 主题相关的一条
+## One item tied to the theme
 
-**呼吸声。** 这些角色老了。连续动作后的喘息、久战后节奏变化的呼吸，是"英雄迟暮"最廉价也最有效的听觉表达。
-它属于叙事，不属于装饰——起草时按主题机制对待，不要放在"环境音"一节里。
+**Breathing.** These characters are old. Panting after a run of actions, and breathing whose rhythm shifts after a long fight, is the cheapest and most effective way to voice heroes in twilight.
+It belongs to the narrative, not to decoration — treat it as a theme mechanic when drafting, rather than filing it under "ambience".

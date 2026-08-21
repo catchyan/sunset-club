@@ -1,26 +1,26 @@
-# 备份与恢复（Backup & Recovery）
+# Backup & Recovery
 
-> 状态：**STUB** · 所有者：O1 运维官 · 起草时点：**M3 前**（有真实玩家数据之前必须完成）
+> Status: **STUB** · Owner: O1 Operator · To be drafted: **before M3** (it must be finished before there is real player data)
 
 ---
 
-## 唯一重要的一条
+## The only line that matters
 
-**没有演练过恢复的备份，等于没有备份。**
+**A backup whose restore has never been rehearsed is not a backup.**
 
-这份文档的核心不是"我们每天备份"，而是"我们上一次成功从备份恢复是什么时候"。
+The point of this document is not "we back up daily" — it is "the last time we successfully restored from a backup was *this* date".
 
-## 必须回答的问题
+## Questions it must answer
 
-1. 备份什么、多久一次、保留多久
-2. **恢复演练的频率与记录**（每月一次，结果写进 `board/infra-health.md`）
-3. RPO（能接受丢多少数据）与 RTO（能接受停多久）
-4. 备份存在哪里——**不能和生产在同一台机器、同一个账号下**
-5. 经济数据的特殊处理：货币审计表是 append-only，恢复时如何保证不重放、不丢单
+1. What is backed up, how often, and retained for how long
+2. **How often restore drills happen, and where they are recorded** (monthly, with the result written into `board/ops/`). A backup nobody has restored is a belief, not a backup
+3. RPO (how much data we can accept losing) and RTO (how long we can accept being down)
+4. Where backups live — **not on the same machine and not under the same account as production**
+5. Special handling for economy data: the currency audit table is append-only, so a restore must guarantee no replayed and no dropped entries
 
-## M0–M2 阶段的备份
+## Backups during M0–M2
 
-现在唯一值得备份的东西是**这个 git 仓库**，而它已经在 GitHub 上了。
+The only thing currently worth backing up is **this git repository**, and it is already on GitHub.
 
-但要注意一件事：**云电脑上未提交的改动不是持久化状态。** Grok Bot 的云电脑可能被 reset。
-这就是宪法要求小步提交的原因之一——不是为了好看的 git 历史，是因为没提交的东西随时会消失。
+One thing to watch, though: **uncommitted changes on the cloud machine are not persistent state.** A Grok Bot cloud machine can be reset.
+That is one of the reasons the constitution demands small commits — not for a tidy git history, but because anything uncommitted can disappear at any moment.
